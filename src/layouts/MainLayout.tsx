@@ -29,7 +29,8 @@ const MainLayout = () => {
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
                         <div className="logo-icon-sm">
-                            <ShieldCheck size={20} color="white" />
+                            {/* <ShieldCheck size={20} color="white" /> */}
+                            <img src="/logo.png" alt="logo" width="40" />
                         </div>
                         <div className="logo-text-block">
                             <span className="brand-name">SmashClub</span>
