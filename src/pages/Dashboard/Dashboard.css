@@ -1,0 +1,253 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--color-text-mutex);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-sublabel {
+    font-size: 0.9rem;
+    color: #cad1d9;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}
+
+.stat-trend {
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.stat-trend.neutral {
+    color: var(--color-primary);
+}
+
+.stat-trend.positive {
+    color: #10b981;
+    /* Green */
+}
+
+/* Lower Section Grid */
+.dashboard-lower-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-lower-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Chart Card */
+.chart-card {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: white;
+}
+
+.section-subtitle {
+    font-size: 0.85rem;
+    color: var(--color-text-mutex);
+}
+
+.chart-stat-right {
+    text-align: right;
+}
+
+.chart-total {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.chart-trend {
+    font-size: 0.75rem;
+    color: #10b981;
+    font-weight: 500;
+}
+
+.chart-container {
+    flex: 1;
+    width: 100%;
+    min-height: 250px;
+}
+
+/* Recent Orders Card */
+.recent-orders-card {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.orders-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.order-details {
+    flex: 1;
+}
+
+.order-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.order-meta {
+    font-size: 0.75rem;
+    color: var(--color-text-mutex);
+}
+
+.order-status {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.status-paid {
+    background-color: #0d3838;
+    color: var(--color-primary);
+}
+
+.status-pending {
+    background-color: #3f2c06;
+    color: #fca5a5;
+    /* Actually using reddish/orange per user image preference or standard pending color? Image uses yellowish/brown bg with yellow text */
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #ca8a04;
+}
+
+.status-finished {
+    background-color: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+}
+
+.card-footer-link {
+    margin-top: auto;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.card-footer-link a {
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+}

@@ -1,0 +1,338 @@
+.trainers-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Header */
+.trainers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.header-title-block h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    width: 180px;
+    /* Force line break if needed or spacing */
+    line-height: 1.2;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-bar-trainers {
+    position: relative;
+    width: 350px;
+}
+
+.search-bar-trainers .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+}
+
+.search-bar-trainers input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    /* Dark input bg */
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 0.9rem;
+}
+
+.btn-add-trainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-primary);
+    color: #000;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-add-trainer:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-icon-header {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    color: var(--color-text-mutex);
+}
+
+/* Filters & Toolbar */
+.filters-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-chip {
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.filter-chip:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.filter-chip.active {
+    background-color: var(--color-primary);
+    color: #000;
+    font-weight: 600;
+}
+
+.view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+}
+
+.toggle-group {
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.25rem;
+}
+
+.toggle-btn {
+    padding: 0.4rem;
+    border-radius: 6px;
+    color: var(--color-text-mutex);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background-color: rgba(0, 210, 190, 0.2);
+    color: var(--color-primary);
+}
+
+/* Grid Layout */
+.trainers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.trainer-card {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.trainer-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.card-image-container {
+    height: 220px;
+    width: 100%;
+    position: relative;
+    /* Image styling handled by inline styles or backgrounds in real app */
+}
+
+.rating-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.card-content {
+    padding: 1.25rem;
+    background-color: rgba(13, 37, 40, 0.3);
+}
+
+.trainer-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.trainer-specialist {
+    font-size: 0.85rem;
+    color: var(--color-text-mutex);
+    margin-bottom: 1.25rem;
+    opacity: 0.8;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-schedule {
+    flex: 1;
+    background-color: var(--color-primary);
+    color: #000;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.6rem;
+    border-radius: var(--radius-md);
+    transition: opacity 0.2s;
+}
+
+.btn-schedule:hover {
+    opacity: 0.9;
+}
+
+.btn-edit-trainer {
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: white;
+    transition: all 0.2s;
+}
+
+.btn-edit-trainer:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* Add Trainer Card */
+.add-trainer-card {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    /* Match approx height of other cards */
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-trainer-card:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(0, 210, 190, 0.05);
+}
+
+.add-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-text-mutex);
+}
+
+.add-icon-circle {
+    width: 64px;
+    height: 64px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.add-trainer-card:hover .add-icon-circle {
+    background-color: var(--color-primary);
+    color: #000;
+}
+
+.add-content span {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* Pagination Footer */
+.pagination-footer {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pagination-text {
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.page-btn {
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-mutex);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.page-btn.active-page {
+    background-color: var(--color-primary);
+    color: #000;
+}
