@@ -7,9 +7,9 @@ import {
 } from 'recharts';
 import {
     Lightbulb,
-    CalendarDays,
+    // CalendarDays,
     TrendingUp,
-    User,
+    // User,
     Zap,
     CalendarCheck
 } from 'lucide-react';

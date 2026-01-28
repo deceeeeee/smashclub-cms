@@ -13,7 +13,7 @@ import {
     Settings,
     Plus,
     Search,
-    ShieldCheck,
+    // ShieldCheck,
     LayoutDashboard
 } from 'lucide-react';
 import './MainLayout.css';
