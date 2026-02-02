@@ -1,0 +1,245 @@
+.equipment-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 900px;
+}
+
+/* Header */
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: var(--color-text-mutex);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Form Card */
+.form-card {
+    background-color: rgba(13, 37, 40, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Inputs */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Select Wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+    padding-right: 2.5rem;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+    pointer-events: none;
+}
+
+/* Input with prefix/suffix */
+.input-with-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 1rem;
+    color: var(--color-text-mutex);
+    font-weight: 500;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 1rem;
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+}
+
+.input-with-label input {
+    width: 100%;
+}
+
+.form-group:has(.input-prefix) input {
+    padding-left: 2.5rem;
+}
+
+.form-group:has(.input-suffix) input {
+    padding-right: 3.5rem;
+    text-align: left;
+}
+
+/* Radio Group */
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    height: 100%;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.radio-label input {
+    display: none;
+}
+
+.radio-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-border);
+    border-radius: 50%;
+    position: relative;
+}
+
+.radio-label input:checked+.radio-custom {
+    border-color: var(--color-primary);
+}
+
+.radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.radio-label input:checked+.radio-custom::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Divider */
+.form-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.05);
+    margin-top: 1rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-batal {
+    padding: 0.6rem 1.5rem;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-simpan {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 2rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    border: none;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 210, 190, 0.3);
+}
+
+.btn-simpan:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Tips Card */
+.tips-card {
+    background-color: rgba(0, 210, 190, 0.05);
+    border: 1px solid rgba(0, 210, 190, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.tips-icon {
+    color: var(--color-primary);
+}
+
+.tips-content p {
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.tips-content strong {
+    color: var(--color-primary);
+}

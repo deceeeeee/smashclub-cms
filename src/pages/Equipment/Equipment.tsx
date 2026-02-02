@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
     Search,
@@ -8,6 +10,7 @@ import {
     Package
 } from 'lucide-react';
 import './Equipment.css';
+
 // Mock Data
 const equipmentData = [
     {
@@ -38,16 +41,39 @@ const equipmentData = [
         imageColor: '#65a30d'
     },
 ];
+
 const Equipment = () => {
+    const navigate = useNavigate();
+    const [equipment, setEquipment] = useState(equipmentData);
+
+    const handleEdit = (id: number) => {
+        navigate(`/equipment/edit/${id}`);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('Apakah Anda yakin ingin menghapus peralatan ini?')) {
+            setEquipment(equipment.filter(e => e.id !== id));
+        }
+    };
+
     return (
         <div className="equipment-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Master Data</span>
+                <span className="separator">›</span>
+                <span className="current">Peralatan</span>
+            </nav>
+
             {/* Header Section */}
             <div className="page-header">
                 <div className="header-text">
                     <h1>Manajemen Peralatan</h1>
                     <p>Kelola dan pantau inventaris peralatan olahraga Anda.</p>
                 </div>
-                <button className="btn-primary">
+                <button className="btn-primary" onClick={() => navigate('/equipment/add')}>
                     <Plus size={18} />
                     <span>Tambah Peralatan</span>
                 </button>
@@ -56,7 +82,7 @@ const Equipment = () => {
             <div className="content-card">
                 {/* Search Bar only - per image design */}
                 <div className="toolbar-simple">
-                    <div className="search-bar-equipment">
+                    <div className="search-bar">
                         <Search size={18} className="search-icon" />
                         <input type="text" placeholder="Cari nama alat, kategori, atau status..." />
                     </div>
@@ -76,7 +102,7 @@ const Equipment = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {equipmentData.map((item) => (
+                            {equipment.map((item) => (
                                 <tr key={item.id}>
                                     <td>
                                         <div className="img-cell">
@@ -106,8 +132,8 @@ const Equipment = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon-action"><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete"><Trash2 size={16} /></button>
+                                            <button className="btn-icon-action" onClick={() => handleEdit(item.id)}><Edit2 size={16} /></button>
+                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>

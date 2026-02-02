@@ -1,0 +1,186 @@
+/* Page Content */
+.page-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Page header description override if needed */
+.header-text p {
+    max-width: 600px;
+}
+
+/* Custom Table for Roles */
+.roles-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.roles-table th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-mutex);
+    background: rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.roles-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.role-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.role-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.role-name {
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+}
+
+.user-count-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.role-desc {
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 400px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    color: var(--color-text-mutex);
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Footer & Pagination */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+}
+
+.count-info {
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.p-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-mutex);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.p-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.p-btn.active {
+    background: #10b981;
+    color: #05181a;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.stats-card {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.stats-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-icon.green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.stats-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-mutex);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+}
+
+.stats-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+}
+
+.copyright-footer {
+    text-align: center;
+    color: var(--color-text-mutex);
+    font-size: 0.8rem;
+    margin-top: 2rem;
+    opacity: 0.5;
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Download,
     ChevronDown,
@@ -38,6 +39,15 @@ const SalesReport = () => {
     const [year] = useState('2023');
     return (
         <div className="sales-report-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Laporan</span>
+                <span className="separator">›</span>
+                <span className="current">Penjualan</span>
+            </nav>
+
             {/* Header */}
             <div className="report-header">
                 <div className="header-text">

@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
     Search,
-    ChevronDown,
     Edit2,
     Trash2,
     ChevronLeft,
@@ -10,6 +10,7 @@ import {
     Package
 } from 'lucide-react';
 import './Products.css';
+
 // Mock Data
 const productsData = [
     {
@@ -53,17 +54,44 @@ const productsData = [
         imageColor: '#fed7aa'
     }
 ];
+
 const Products = () => {
+    const navigate = useNavigate();
+    const [products, setProducts] = useState(productsData);
     const [activeFilter, setActiveFilter] = useState('Semua');
+
+    const handleEdit = (id: number) => {
+        navigate(`/products/edit/${id}`);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+            setProducts(products.filter(p => p.id !== id));
+        }
+    };
+
+    const filteredProducts = activeFilter === 'Semua'
+        ? products
+        : products.filter(p => p.category === activeFilter);
+
     return (
         <div className="products-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Master Data</span>
+                <span className="separator">›</span>
+                <span className="current">Produk</span>
+            </nav>
+
             {/* Header Section */}
             <div className="page-header">
                 <div className="header-text">
                     <h1>Manajemen Produk</h1>
                     <p>Kelola inventaris pro-shop dan kantin fasilitas olahraga Anda</p>
                 </div>
-                <button className="btn-primary">
+                <button className="btn-primary" onClick={() => navigate('/products/add')}>
                     <Plus size={18} />
                     <span>Tambah Produk Baru</span>
                 </button>
@@ -72,7 +100,7 @@ const Products = () => {
             <div className="content-card">
                 {/* Toolbar: Search & Filter */}
                 <div className="toolbar">
-                    <div className="search-bar-product">
+                    <div className="search-bar">
                         <Search size={18} className="search-icon" />
                         <input type="text" placeholder="Cari nama produk atau kode..." />
                     </div>
@@ -83,14 +111,17 @@ const Products = () => {
                         >
                             Semua
                         </button>
-                        <button className="filter-btn dropdown">
-                            Minuman <ChevronDown size={14} />
+                        <button
+                            className={`filter-btn ${activeFilter === 'Minuman' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('Minuman')}
+                        >
+                            Minuman
                         </button>
-                        <button className="filter-btn dropdown">
-                            Alat Olahraga <ChevronDown size={14} />
-                        </button>
-                        <button className="filter-btn dropdown">
-                            Snack <ChevronDown size={14} />
+                        <button
+                            className={`filter-btn ${activeFilter === 'Alat Olahraga' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('Alat Olahraga')}
+                        >
+                            Alat Olahraga
                         </button>
                     </div>
                 </div>
@@ -107,7 +138,7 @@ const Products = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {productsData.map((product) => (
+                            {filteredProducts.map((product) => (
                                 <tr key={product.id}>
                                     <td>
                                         <div className="product-cell">
@@ -141,8 +172,8 @@ const Products = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon-action"><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete"><Trash2 size={16} /></button>
+                                            <button className="btn-icon-action" onClick={() => handleEdit(product.id)}><Edit2 size={16} /></button>
+                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(product.id)}><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>

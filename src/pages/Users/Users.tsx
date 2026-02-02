@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
     Search,
@@ -12,6 +13,7 @@ import {
     Mail
 } from 'lucide-react';
 import './Users.css';
+
 // Mock Data
 const usersData = [
     {
@@ -47,17 +49,40 @@ const usersData = [
         avatarColor: '#fed7aa' // Light Orange
     },
 ];
+
 const Users = () => {
+    const navigate = useNavigate();
+    const [users, setUsers] = useState(usersData);
     const [activeTab, _] = useState('Semua Peran');
+
+    const handleEdit = (id: number) => {
+        navigate(`/users/edit/${id}`);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
+            setUsers(users.filter(u => u.id !== id));
+        }
+    };
+
     return (
         <div className="users-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Manajemen Pengguna</span>
+                <span className="separator">›</span>
+                <span className="current">Pengguna</span>
+            </nav>
+
             {/* Header Section */}
             <div className="page-header">
                 <div className="header-text">
                     <h1>Manajemen Pengguna Dashboard</h1>
                     <p>Kelola akses dan peran admin untuk sistem SmashClub</p>
                 </div>
-                <button className="btn-primary">
+                <button className="btn-primary" onClick={() => navigate('/users/add')}>
                     <Plus size={18} />
                     <span>Tambah Pengguna</span>
                 </button>
@@ -96,7 +121,7 @@ const Users = () => {
             <div className="content-card">
                 {/* Toolbar */}
                 <div className="toolbar">
-                    <div className="search-bar-user">
+                    <div className="search-bar">
                         <Search size={18} className="search-icon" />
                         <input type="text" placeholder="Cari nama atau email pengguna..." />
                     </div>
@@ -127,7 +152,7 @@ const Users = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {usersData.map((user) => (
+                            {users.map((user) => (
                                 <tr key={user.id}>
                                     <td>
                                         <div className="user-cell">
@@ -160,8 +185,8 @@ const Users = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon-action"><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete"><Trash2 size={16} /></button>
+                                            <button className="btn-icon-action" onClick={() => handleEdit(user.id)}><Edit2 size={16} /></button>
+                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(user.id)}><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>

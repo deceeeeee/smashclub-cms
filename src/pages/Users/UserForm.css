@@ -1,0 +1,199 @@
+.user-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1000px;
+}
+
+/* Header */
+.page-header h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: var(--color-text-mutex);
+    font-size: 1rem;
+}
+
+/* Form Card */
+.form-card {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group label {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Inputs */
+.form-group input,
+.form-group select {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Select wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+    padding-right: 3rem;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+    pointer-events: none;
+}
+
+/* Password input */
+.password-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-group input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--color-text-mutex);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle:hover {
+    color: white;
+}
+
+.input-hint {
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
+    margin-top: -0.25rem;
+}
+
+.form-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.05);
+    margin: 0.5rem 0;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-batal {
+    padding: 0.85rem 2.5rem;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-batal:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-submit {
+    padding: 0.85rem 2.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    border: none;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Summary Grid */
+.summary-grid-users {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.summary-card-dark {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-mutex);
+    letter-spacing: 0.05em;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}

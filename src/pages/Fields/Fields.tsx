@@ -1,38 +1,69 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
-    Filter,
-    ChevronDown,
     Edit2,
     Trash2,
     CheckCircle2,
     AlertCircle,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Search,
+    Filter,
+    ChevronDown
 } from 'lucide-react';
 import './Fields.css';
+
 // Mock Data
 const fieldsData = [
     { id: 1, name: 'Lapangan Futsal A', type: 'Futsal', price: 150000, status: 'Tersedia', icon: '⚽' },
     { id: 2, name: 'Lapangan Futsal B', type: 'Futsal', price: 150000, status: 'Maintenance', icon: '⚽' },
     { id: 3, name: 'Court Badminton 1', type: 'Badminton', price: 50000, status: 'Tersedia', icon: '🏸' },
 ];
+
 const Fields = () => {
+    const navigate = useNavigate();
+    const [fields, setFields] = useState(fieldsData);
     const [activeFilter, setActiveFilter] = useState('Semua');
+
+    const handleEdit = (id: number) => {
+        navigate(`/fields/edit/${id}`);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('Apakah Anda yakin ingin menghapus lapangan ini?')) {
+            setFields(fields.filter(f => f.id !== id));
+        }
+    };
+
+    const filteredFields = activeFilter === 'Semua'
+        ? fields
+        : fields.filter(f => f.type === activeFilter);
+
     return (
         <div className="fields-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Master Data</span>
+                <span className="separator">›</span>
+                <span className="current">Lapangan</span>
+            </nav>
+
             {/* Header Section */}
             <div className="page-header">
                 <div className="header-text">
                     <h1>Manajemen Lapangan</h1>
                     <p>Kelola detail, harga, dan ketersediaan lapangan SmashClub secara real-time.</p>
                 </div>
-                <button className="btn-primary">
+                <button className="btn-primary" onClick={() => navigate('/fields/add')}>
                     <Plus size={18} />
                     <span>Tambah Lapangan Baru</span>
                 </button>
             </div>
-            {/* Filter and Content Card */}
+
+            {/* Content Card with Filters and Table */}
             <div className="content-card">
                 {/* Filter Bar */}
                 <div className="filter-bar">
@@ -41,7 +72,7 @@ const Fields = () => {
                             className={`filter-tab ${activeFilter === 'Semua' ? 'active' : ''}`}
                             onClick={() => setActiveFilter('Semua')}
                         >
-                            SEMUA LAPANGAN <ChevronDown size={14} style={{ marginLeft: 4 }} />
+                            SEMUA <ChevronDown size={14} style={{ marginLeft: 4 }} />
                         </button>
                         <button
                             className={`filter-tab ${activeFilter === 'Futsal' ? 'active' : ''}`}
@@ -63,12 +94,18 @@ const Fields = () => {
                         </button>
                     </div>
 
+                    <div className="search-bar">
+                        <Search size={18} className="search-icon" />
+                        <input type="text" placeholder="Cari nama lapangan..." />
+                    </div>
+
                     <div className="sort-control">
                         <span>Urutkan: Terbaru</span>
-                        <Filter size={14} className="ml-2" />
+                        <Filter size={14} style={{ marginLeft: 8 }} />
                     </div>
                 </div>
-                {/* Table */}
+
+                {/* Table Container */}
                 <div className="table-container">
                     <table className="custom-table">
                         <thead>
@@ -81,14 +118,12 @@ const Fields = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {fieldsData.map((field) => (
+                            {filteredFields.map((field) => (
                                 <tr key={field.id}>
                                     <td>
                                         <div className="field-name-cell">
                                             <div className="field-icon-wrapper">
-                                                {field.icon === '⚽' && <span className="field-emoji-icon">⚽</span>}
-                                                {field.icon === '🏸' && <span className="field-emoji-icon">🏸</span>}
-                                                {/* Fallback icon if needed */}
+                                                <span className="field-emoji-icon">{field.icon}</span>
                                             </div>
                                             <span className="field-name">{field.name}</span>
                                         </div>
@@ -107,8 +142,12 @@ const Fields = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon-action"><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete"><Trash2 size={16} /></button>
+                                            <button className="btn-icon-action" onClick={() => handleEdit(field.id)}>
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(field.id)}>
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -116,21 +155,22 @@ const Fields = () => {
                         </tbody>
                     </table>
                 </div>
+
                 {/* Pagination */}
                 <div className="pagination-bar">
                     <div className="pagination-info">
-                        Menampilkan <strong>1</strong> sampai <strong>3</strong> dari <strong>12</strong> data
+                        Menampilkan <strong>1</strong> - <strong>{filteredFields.length}</strong> dari <strong>{fields.length}</strong> lapangan
                     </div>
                     <div className="pagination-controls">
                         <button className="pagination-btn"><ChevronLeft size={16} /></button>
                         <button className="pagination-btn active">1</button>
                         <button className="pagination-btn">2</button>
-                        <button className="pagination-btn">3</button>
                         <button className="pagination-btn"><ChevronRight size={16} /></button>
                     </div>
                 </div>
             </div>
-            {/* Bottom Summary Cards */}
+
+            {/* Summary Grid at Bottom */}
             <div className="summary-grid">
                 <div className="summary-card">
                     <div className="summary-icon icon-blue">
@@ -138,29 +178,30 @@ const Fields = () => {
                     </div>
                     <div className="summary-text">
                         <span className="summary-label">TOTAL LAPANGAN</span>
-                        <span className="summary-value">12</span>
+                        <span className="summary-value">{fields.length}</span>
                     </div>
                 </div>
                 <div className="summary-card">
                     <div className="summary-icon icon-green">
-                        <CheckCircle2 size={24} color="#10b981" />
+                        <CheckCircle2 size={24} />
                     </div>
                     <div className="summary-text">
                         <span className="summary-label">TERSEDIA</span>
-                        <span className="summary-value">10</span>
+                        <span className="summary-value">{fields.filter(f => f.status === 'Tersedia').length}</span>
                     </div>
                 </div>
                 <div className="summary-card">
                     <div className="summary-icon icon-orange">
-                        <AlertCircle size={24} color="#f59e0b" />
+                        <AlertCircle size={24} />
                     </div>
                     <div className="summary-text">
                         <span className="summary-label">MAINTENANCE</span>
-                        <span className="summary-value">2</span>
+                        <span className="summary-value">{fields.filter(f => f.status === 'Maintenance').length}</span>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
 export default Fields;

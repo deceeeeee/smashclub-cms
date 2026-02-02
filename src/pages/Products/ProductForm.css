@@ -1,0 +1,288 @@
+.product-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1000px;
+}
+
+/* Header */
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: var(--color-text-mutex);
+    font-size: 0.95rem;
+}
+
+/* Form Card */
+.form-card {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+/* Inputs */
+.form-group input,
+.form-group select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Select wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+    pointer-events: none;
+}
+
+/* Input with prefix/suffix */
+.input-with-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 1rem;
+    color: var(--color-text-mutex);
+    font-weight: 500;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 1rem;
+    color: var(--color-text-mutex);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.form-group:has(.input-prefix) input {
+    padding-left: 3rem;
+}
+
+.form-group:has(.input-suffix) input {
+    padding-right: 4rem;
+}
+
+/* Photo Upload Grid */
+.photo-upload-grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.upload-box-main {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.upload-box-main:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(0, 210, 190, 0.05);
+}
+
+.upload-icon-form {
+    color: var(--color-text-mutex);
+    margin-bottom: 0.5rem;
+}
+
+.upload-title {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.upload-label {
+    color: var(--color-text-mutex);
+    font-size: 0.8rem;
+}
+
+.upload-hint {
+    color: var(--color-text-mutex);
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.image-preview-box {
+    position: relative;
+    aspect-ratio: 1/1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.image-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-primary);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px 0;
+}
+
+.delete-photo-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.delete-photo-btn:hover {
+    transform: scale(1.1);
+}
+
+.image-placeholder-box {
+    aspect-ratio: 1/1;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    color: rgba(255, 255, 255, 0.1);
+}
+
+.photo-note {
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
+    font-style: italic;
+    margin-top: 0.75rem;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-batal {
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-simpan {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    border: none;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 210, 190, 0.3);
+}
+
+.btn-simpan:hover {
+    background-color: var(--color-primary-hover);
+}

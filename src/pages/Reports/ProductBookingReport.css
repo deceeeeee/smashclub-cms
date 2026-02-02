@@ -1,0 +1,218 @@
+.product-booking-report {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-text h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+.header-text p {
+    font-size: 0.9rem;
+    color: var(--color-text-mutex);
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-export:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.report-controls {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.control-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.control-dropdown:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* KPI Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.kpi-card {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.kpi-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    opacity: 0.8;
+    margin-bottom: 0.75rem;
+}
+
+.kpi-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-icon {
+    color: var(--color-primary);
+    opacity: 0.6;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+}
+
+.kpi-trend {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+}
+
+.kpi-trend.positive {
+    color: #10b981;
+}
+
+.badge-teal {
+    background-color: rgba(0, 210, 190, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+/* Chart Section */
+.chart-section {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.chart-header h3 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.chart-subtitle {
+    color: #0d9488;
+    font-size: 0.85rem;
+}
+
+.chart-wrapper {
+    margin-left: -20px;
+}
+
+/* Detail Section */
+.detail-section {
+    background-color: rgba(13, 37, 40, 0.4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.detail-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-header h3 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.report-table th {
+    text-align: left;
+    color: #0d9488;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+}
+
+.report-table td {
+    padding: 1.25rem 0;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.report-table tr:last-child td {
+    border-bottom: none;
+}
+
+.text-teal {
+    color: #2dd4bf;
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: 700;
+}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
     LayoutGrid,
@@ -13,84 +14,104 @@ import {
     Settings,
     Plus,
     Search,
-    // ShieldCheck,
-    LayoutDashboard
+    ShieldCheck,
+    LayoutDashboard,
+    Menu
 } from 'lucide-react';
 import './MainLayout.css';
+
+const navigation = [
+    {
+        items: [
+            { name: 'Dashboard', to: '/dashboard', icon: LayoutGrid }
+        ]
+    },
+    {
+        section: 'Master Data',
+        items: [
+            { name: 'Lapangan', to: '/fields', icon: MapPin },
+            { name: 'Pelatih', to: '/trainers', icon: Megaphone },
+            { name: 'Peralatan', to: '/equipment', icon: Package },
+            { name: 'Produk', to: '/products', icon: ShoppingBag },
+        ]
+    },
+    {
+        section: 'Laporan',
+        items: [
+            { name: 'Data Pemain', to: '/players', icon: LayoutDashboard },
+            { name: 'Penjualan', to: '/reports/sales', icon: Banknote },
+            { name: 'Pemesanan Lapangan', to: '/reports/bookings', icon: LayoutGrid },
+            { name: 'Pemesanan Produk', to: '/reports/products', icon: ShoppingBag },
+        ]
+    },
+    {
+        section: 'Manajemen Pengguna',
+        items: [
+            { name: 'Peran', to: '/roles', icon: ShieldCheck },
+            { name: 'Pengguna', to: '/users', icon: Users },
+        ]
+    }
+];
+
 const MainLayout = () => {
     const navigate = useNavigate();
+    const [isMinimized, setIsMinimized] = useState(false);
+
     const handleLogout = () => {
         navigate('/login');
     };
+
+    const toggleSidebar = () => {
+        setIsMinimized(!isMinimized);
+    };
+
     return (
-        <div className="main-layout">
+        <div className={`main-layout ${isMinimized ? 'sidebar-minimized' : ''}`}>
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
                         <div className="logo-icon-sm">
-                            {/* <ShieldCheck size={20} color="white" /> */}
                             <img src="/logo.png" alt="logo" width="40" />
                         </div>
-                        <div className="logo-text-block">
-                            <span className="brand-name">SmashClub</span>
-                            <span className="brand-subtitle">MANAGEMENT SYSTEM</span>
-                        </div>
+                        {!isMinimized && (
+                            <div className="logo-text-block">
+                                <span className="brand-name">SmashClub</span>
+                                <span className="brand-subtitle">MANAGEMENT SYSTEM</span>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <nav className="sidebar-nav">
-                    <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <LayoutGrid size={20} />
-                        <span>Dashboard</span>
-                    </NavLink>
-                    <div className="nav-section-label">Master Data</div>
-
-                    <NavLink to="/users" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Users size={20} />
-                        <span>Pengguna</span>
-                    </NavLink>
-                    <NavLink to="/fields" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <MapPin size={20} />
-                        <span>Lapangan</span>
-                    </NavLink>
-                    <NavLink to="/trainers" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Megaphone size={20} />
-                        <span>Pelatih</span>
-                    </NavLink>
-                    <NavLink to="/equipment" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Package size={20} />
-                        <span>Peralatan</span>
-                    </NavLink>
-                    <NavLink to="/products" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <ShoppingBag size={20} />
-                        <span>Produk</span>
-                    </NavLink>
-                    <div className="nav-section-label">Laporan</div>
-                    <NavLink to="/players" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <LayoutDashboard size={20} />
-                        <span>Data Pemain</span>
-                    </NavLink>
-                    <NavLink to="/reports/sales" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <Banknote size={20} />
-                        <span>Penjualan</span>
-                    </NavLink>
-                    <NavLink to="/reports/bookings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <LayoutGrid size={20} />
-                        <span>Pemesanan Lapangan</span>
-                    </NavLink>
-                    <NavLink to="/reports/products" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                        <ShoppingBag size={20} />
-                        <span>Pemesanan Produk</span>
-                    </NavLink>
+                    {navigation.map((group, groupIdx) => (
+                        <div key={groupIdx} className="nav-group">
+                            {group.section && (
+                                <div className="nav-section-label">
+                                    {isMinimized ? '•••' : group.section}
+                                </div>
+                            )}
+                            {group.items.map((item) => (
+                                <NavLink
+                                    key={item.to}
+                                    to={item.to}
+                                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                                    title={item.name}
+                                >
+                                    <item.icon size={20} />
+                                    {!isMinimized && <span>{item.name}</span>}
+                                </NavLink>
+                            ))}
+                        </div>
+                    ))}
                 </nav>
                 <div className="sidebar-footer">
-                    <button className="btn-sidebar-help">
+                    <button className="btn-sidebar-help" title="Bantuan">
                         <HelpCircle size={20} />
-                        Bantuan
+                        {!isMinimized && 'Bantuan'}
                     </button>
-                    <button className="btn-logout" onClick={handleLogout}>
+                    <button className="btn-logout" onClick={handleLogout} title="Keluar">
                         <LogOut size={20} />
-                        <span>Keluar</span>
+                        {!isMinimized && <span>Keluar</span>}
                     </button>
                 </div>
             </aside>
@@ -98,6 +119,9 @@ const MainLayout = () => {
             <div className="main-content-wrapper">
                 <header className="top-header">
                     <div className="header-left">
+                        <button className="icon-btn toggle-sidebar-btn" onClick={toggleSidebar}>
+                            <Menu size={24} />
+                        </button>
                         <h1>Beranda</h1>
                         <div className="search-bar">
                             <Search size={18} className="search-icon" />
@@ -132,4 +156,5 @@ const MainLayout = () => {
         </div>
     );
 };
+
 export default MainLayout;

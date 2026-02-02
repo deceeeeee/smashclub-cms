@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
     Search,
     Star,
     Edit2,
+    Trash2,
     LayoutGrid,
     List,
     UserPlus,
@@ -12,6 +14,7 @@ import {
     Bell
 } from 'lucide-react';
 import './Trainers.css';
+
 // Mock Data
 const trainersData = [
     { id: 1, name: 'Budi Santoso', role: 'Bulutangkis', rating: 4.8, imageColor: '#1e3a8a' },
@@ -21,33 +24,50 @@ const trainersData = [
     { id: 5, name: 'Rahmat Hidayat', role: 'Futsal', rating: 4.9, imageColor: '#0e7490' },
     { id: 6, name: 'Siska Putri', role: 'Bulutangkis', rating: 4.6, imageColor: '#be185d' },
 ];
+
 const Trainers = () => {
+    const navigate = useNavigate();
+    const [trainers, setTrainers] = useState(trainersData);
     const [activeFilter, setActiveFilter] = useState('Semua');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+    const handleEdit = (id: number) => {
+        navigate(`/trainers/edit/${id}`);
+    };
+
+    const handleDelete = (id: number) => {
+        if (window.confirm('Apakah Anda yakin ingin menghapus pelatih ini?')) {
+            setTrainers(trainers.filter(t => t.id !== id));
+        }
+    };
+
+    const filteredTrainers = activeFilter === 'Semua'
+        ? trainers
+        : trainers.filter(t => t.role === activeFilter);
+
     return (
         <div className="trainers-page">
+            {/* Breadcrumbs */}
+            <nav className="breadcrumbs">
+                <Link to="/dashboard">Beranda</Link>
+                <span className="separator">›</span>
+                <span>Master Data</span>
+                <span className="separator">›</span>
+                <span className="current">Pelatih</span>
+            </nav>
+
             {/* Page Header */}
-            <div className="trainers-header">
-                <div className="header-title-block">
+            <div className="page-header">
+                <div className="header-text">
                     <h1>Manajemen Pelatih</h1>
+                    <p>Kelola data pelatih, spesialisasi, dan jadwal ketersediaan mereka.</p>
                 </div>
-
-                <div className="header-actions">
-                    <div className="search-bar-trainers">
-                        <Search size={18} className="search-icon" />
-                        <input type="text" placeholder="Cari pelatih berdasarkan nama..." />
-                    </div>
-
-                    <button className="btn-add-trainer">
-                        <Plus size={18} />
-                        <span>Tambah Pelatih Baru</span>
-                    </button>
-
-                    <button className="btn-icon-header">
-                        <Bell size={20} />
-                    </button>
-                </div>
+                <button className="btn-primary" onClick={() => navigate('/trainers/add')}>
+                    <Plus size={18} />
+                    <span>Tambah Pelatih Baru</span>
+                </button>
             </div>
+
             {/* Filter & View Toggle */}
             <div className="filters-toolbar">
                 <div className="category-filters">
@@ -60,6 +80,10 @@ const Trainers = () => {
                             {filter}
                         </button>
                     ))}
+                </div>
+                <div className="search-bar">
+                    <Search size={18} className="search-icon" />
+                    <input type="text" placeholder="Cari pelatih berdasarkan nama..." />
                 </div>
                 <div className="view-toggle">
                     <span className="view-label">Tampilan:</span>
@@ -81,7 +105,7 @@ const Trainers = () => {
             </div>
             {/* Grid Content */}
             <div className="trainers-grid">
-                {trainersData.map((trainer) => (
+                {filteredTrainers.map((trainer) => (
                     <div key={trainer.id} className="trainer-card">
                         <div className="card-image-container" style={{ backgroundColor: trainer.imageColor }}>
                             <div className="rating-badge">
@@ -100,16 +124,21 @@ const Trainers = () => {
 
                             <div className="card-actions">
                                 <button className="btn-schedule">Lihat Jadwal</button>
-                                <button className="btn-edit-trainer">
-                                    <Edit2 size={16} />
-                                </button>
+                                <div className="card-action-btns">
+                                    <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 ))}
 
                 {/* Add New Trainer Card (Dashed) */}
-                <div className="add-trainer-card">
+                <div className="add-trainer-card" onClick={() => navigate('/trainers/add')}>
                     <div className="add-content">
                         <div className="add-icon-circle">
                             <UserPlus size={32} />
@@ -132,4 +161,5 @@ const Trainers = () => {
         </div>
     );
 };
+
 export default Trainers;
