@@ -10,8 +10,7 @@ import {
     List,
     UserPlus,
     ChevronLeft,
-    ChevronRight,
-    Bell
+    ChevronRight
 } from 'lucide-react';
 import './Trainers.css';
 
