@@ -18,7 +18,7 @@ import {
     ResponsiveContainer,
     Cell
 } from 'recharts';
-import './ProductBookingReport.css';
+import './ProductSalesReport.css';
 
 // Mock Data for Chart
 const productSalesData = [
@@ -37,24 +37,24 @@ const detailData = [
     { category: 'Snack/Makanan', sold: 610, revenue: 9150000, trend: '+8%' },
 ];
 
-const ProductBookingReport = () => {
+const ProductSalesReport = () => {
     const [year] = useState('2023');
 
     return (
-        <div className="report-page product-booking-report">
+        <div className="report-page product-sales-report">
             {/* Breadcrumbs */}
             <nav className="breadcrumbs">
                 <Link to="/dashboard">Beranda</Link>
                 <span className="separator">›</span>
                 <span>Laporan</span>
                 <span className="separator">›</span>
-                <span className="current">Pemesanan Produk</span>
+                <span className="current">Penjualan Produk</span>
             </nav>
 
             {/* Header */}
             <div className="report-header">
                 <div className="header-text">
-                    <h1>Laporan Pemesanan Produk</h1>
+                    <h1>Laporan Penjualan Produk</h1>
                     <p>Ringkasan penjualan produk, penyewaan alat, dan inventaris toko.</p>
                 </div>
                 <button className="btn-export">
@@ -181,4 +181,4 @@ const ProductBookingReport = () => {
     );
 };
 
-export default ProductBookingReport;
+export default ProductSalesReport;

@@ -14,6 +14,7 @@ import {
     CalendarCheck
 } from 'lucide-react';
 import './Dashboard.css';
+import { Link } from 'react-router-dom';
 // Mock Data for Chart
 const data = [
     { name: 'Sen', value: 40 },
@@ -148,7 +149,7 @@ const Dashboard = () => {
                         ))}
                     </div>
                     <div className="card-footer-link">
-                        <a href="#">Lihat Semua Transaksi</a>
+                        <Link to="/reports/bookings">Lihat Semua Pemesanan</Link>
                     </div>
                 </div>
             </div>
