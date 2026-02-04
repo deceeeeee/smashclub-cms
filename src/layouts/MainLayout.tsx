@@ -34,7 +34,7 @@ const navigation = [
             { name: 'Data Pemain', to: '/players', menuCode: 'player' },
             { name: 'Penjualan', to: '/reports/sales', menuCode: 'sales' },
             { name: 'Pemesanan Lapangan', to: '/reports/bookings', menuCode: 'court-booking' },
-            { name: 'Pemesanan Produk', to: '/reports/products', menuCode: 'product-sales' },
+            { name: 'Penjualan Produk', to: '/reports/products', menuCode: 'product-sales' },
         ]
     },
     {
