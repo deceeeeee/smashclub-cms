@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
@@ -7,49 +7,54 @@ import {
     Users,
     Key,
     Clock,
-    Search
+    Search,
+    Loader2,
+    ChevronRight,
+    ChevronLeft
 } from 'lucide-react';
+import { useRolesStore } from '../../features/roles/roles.store';
+import { useConfirmStore } from '../../app/confirm.store';
+import { roleStyleMap } from '../../components/icons/RoleStyles';
 import './Roles.css';
-
-const rolesData = [
-    {
-        id: 1,
-        name: 'Super Admin',
-        userCount: 2,
-        description: 'Akses penuh ke seluruh fitur dan pengaturan sistem, termasuk laporan finansial.',
-        icon: '🛡️',
-        color: '#10b981'
-    },
-    {
-        id: 2,
-        name: 'Admin Lapangan',
-        userCount: 5,
-        description: 'Mengelola jadwal, booking, dan status operasional lapangan secara real-time.',
-        icon: '🏟️',
-        color: '#3b82f6'
-    },
-    {
-        id: 3,
-        name: 'Kasir',
-        userCount: 3,
-        description: 'Menangani transaksi pembayaran member, tamu, dan laporan harian POS.',
-        icon: '💰',
-        color: '#f59e0b'
-    }
-];
 
 const Roles = () => {
     const navigate = useNavigate();
-    const [roles, setRoles] = useState(rolesData);
+    const { roles, isLoading, error, getRoles, deleteRole, totalElements, totalPages } = useRolesStore();
+    const { showConfirm } = useConfirmStore();
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(25);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(0); // Reset to first page on new search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    useEffect(() => {
+        getRoles(debouncedSearch, page, size);
+    }, [getRoles, debouncedSearch, page, size]);
 
     const handleEdit = (id: number) => {
         navigate(`/roles/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus peran ini?')) {
-            setRoles(roles.filter(r => r.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: async () => {
+                const result = await deleteRole(id);
+                if (result.success) {
+                    getRoles(debouncedSearch, page, size);
+                }
+            }
+        });
     };
 
     return (
@@ -80,69 +85,134 @@ const Roles = () => {
                 <div className="filter-bar">
                     <div className="search-bar">
                         <Search size={18} className="search-icon" />
-                        <input type="text" placeholder="Cari fitur, peran, atau user..." />
+                        <input
+                            type="text"
+                            placeholder="Cari fitur, peran, atau user..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="size-selector">
+                        <span>Tampilkan:</span>
+                        <select
+                            value={size}
+                            onChange={(e) => {
+                                setSize(Number(e.target.value));
+                                setPage(0);
+                            }}
+                            className="page-size-select"
+                        >
+                            <option value={1}>1</option>
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                        <span>per halaman</span>
                     </div>
                 </div>
 
                 {/* Table Card */}
                 <div className="table-card">
+                    {error && (
+                        <div className="error-message" style={{ padding: '1rem', color: '#ef4444', textAlign: 'center' }}>
+                            {error}
+                        </div>
+                    )}
+
                     <table className="roles-table">
                         <thead>
                             <tr>
                                 <th>NAMA PERAN</th>
-                                <th>JUMLAH PENGGUNA</th>
-                                <th>DESKRIPSI SINGKAT</th>
                                 <th style={{ textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {roles.map((role) => (
-                                <tr key={role.id}>
-                                    <td>
-                                        <div className="role-name-cell">
-                                            <div className="role-icon-box" style={{ backgroundColor: `${role.color}20` }}>
-                                                <span style={{ fontSize: '1.2rem' }}>{role.icon}</span>
-                                            </div>
-                                            <span className="role-name">{role.name}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className="user-count-badge">{role.userCount} Pengguna</span>
-                                    </td>
-                                    <td>
-                                        <p className="role-desc">{role.description}</p>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button className="btn-icon" onClick={() => handleEdit(role.id)}>
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button className="btn-icon" onClick={() => handleDelete(role.id)}>
-                                                <Trash2 size={16} />
-                                            </button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={2} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                            <Loader2 className="animate-spin" size={32} />
+                                            <span>Memuat data...</span>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : roles.length === 0 ? (
+                                <tr>
+                                    <td colSpan={2} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        Belum ada data peran.
+                                    </td>
+                                </tr>
+                            ) : (
+                                roles.map((role) => {
+                                    const style = roleStyleMap[role.roleCode] || { icons: '👤', color: '#94a3b8' };
+                                    return (
+                                        <tr key={role.id}>
+                                            <td>
+                                                <div className="role-name-cell">
+                                                    <div className="role-icon-box" style={{ backgroundColor: `${style.color}20` }}>
+                                                        <span style={{ fontSize: '1.2rem' }}>{style.icons}</span>
+                                                    </div>
+                                                    <span className="role-name">{role.roleName}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="action-buttons">
+                                                    <button className="btn-icon" onClick={() => handleEdit(role.id)}>
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button className="btn-icon" onClick={() => handleDelete(role.id)}>
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
 
                     {/* Footer Info & Pagination */}
-                    <div className="table-footer">
-                        <div className="count-info">
-                            Menampilkan {roles.length} dari {roles.length} peran terdaftar
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan <strong>{roles.length > 0 ? page * size + 1 : 0}</strong> - <strong>{page * size + roles.length}</strong> dari <strong>{totalElements}</strong> peran
                         </div>
-                        <div className="pagination">
-                            <button className="p-btn">Sebelumnya</button>
-                            <button className="p-btn active">1</button>
-                            <button className="p-btn">Selanjutnya</button>
+                        <div className="pagination-controls">
+                            <button
+                                className="pagination-btn"
+                                disabled={page === 0 || isLoading}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`pagination-btn ${page === i ? 'active-page' : ''}`}
+                                    onClick={() => setPage(i)}
+                                    disabled={isLoading}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                className="pagination-btn"
+                                disabled={page >= totalPages - 1 || isLoading}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                <ChevronRight size={16} />
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Bottom Stats Grid */}
                 <div className="stats-grid">
-                    <div className="stats-card">
+                    {/* <div className="stats-card">
                         <div className="stats-icon green">
                             <Users size={24} />
                         </div>
@@ -159,8 +229,8 @@ const Roles = () => {
                             <span className="stats-label">IZIN TERKONFIGURASI</span>
                             <span className="stats-value">42</span>
                         </div>
-                    </div>
-                    <div className="stats-card">
+                    </div> */}
+                    {/* <div className="stats-card">
                         <div className="stats-icon green">
                             <Clock size={24} />
                         </div>
@@ -168,7 +238,7 @@ const Roles = () => {
                             <span className="stats-label">UPDATE TERAKHIR</span>
                             <span className="stats-value">2 Jam Lalu</span>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="copyright-footer">
@@ -180,3 +250,4 @@ const Roles = () => {
 };
 
 export default Roles;
+

@@ -6,7 +6,8 @@ import {
     Upload,
     X,
     Image as ImageIcon,
-    Save
+    Save,
+    ChevronLeft
 } from 'lucide-react';
 import './ProductForm.css';
 
@@ -34,8 +35,14 @@ const ProductForm = () => {
 
             {/* Header */}
             <div className="page-header">
-                <h1>{isEdit ? `Ubah Data Produk ${id}` : 'Tambah Produk Baru'}</h1>
-                <p>{isEdit ? 'Perbarui informasi detail produk dan inventaris toko Anda.' : 'Lengkapi informasi detail produk dan unggah foto produk di bawah ini.'}</p>
+                <div className="header-info">
+                    <h1>{isEdit ? `Ubah Data Produk ${id}` : 'Tambah Produk Baru'}</h1>
+                    <p>{isEdit ? 'Perbarui informasi detail produk dan inventaris toko Anda.' : 'Lengkapi informasi detail produk dan unggah foto produk di bawah ini.'}</p>
+                </div>
+                <button className="btn-secondary" onClick={() => navigate('/products')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Form Content */}
@@ -88,8 +95,8 @@ const ProductForm = () => {
                     {/* Foto Produk */}
                     <div className="form-group full-width">
                         <label>FOTO PRODUK (MAKS. 5 FOTO)</label>
-                        <div className="photo-upload-grid">
-                            {/* Upload Trigger */}
+                        <div className="photo-upload-container">
+                            {/* Dropbox (Upload Box) */}
                             <div className="upload-box-main">
                                 <Upload size={32} className="upload-icon-form" />
                                 <span className="upload-title">Unggah Foto Produk</span>
@@ -97,23 +104,25 @@ const ProductForm = () => {
                                 <span className="upload-hint">PNG, JPG, WEBP (MAX 5MB)</span>
                             </div>
 
-                            {/* Image Previews */}
-                            {images.map(img => (
-                                <div key={img.id} className="image-preview-box">
-                                    <img src={img.url} alt="Product" />
-                                    {img.isMain && <div className="main-indicator">UTAMA</div>}
-                                    <button className="delete-photo-btn">
-                                        <X size={14} />
-                                    </button>
-                                </div>
-                            ))}
+                            {/* Image Previews and Placeholders */}
+                            <div className="photo-previews-grid">
+                                {images.map(img => (
+                                    <div key={img.id} className="image-preview-box">
+                                        <img src={img.url} alt="Product" />
+                                        {img.isMain && <div className="main-indicator">UTAMA</div>}
+                                        <button className="delete-photo-btn">
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                ))}
 
-                            {/* Empty Placeholders */}
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className="image-placeholder-box">
-                                    <ImageIcon size={24} className="placeholder-icon" />
-                                </div>
-                            ))}
+                                {/* Empty Placeholders */}
+                                {[...Array(images.length >= 5 ? 0 : 5 - images.length)].map((_, i) => (
+                                    <div key={i} className="image-placeholder-box">
+                                        <ImageIcon size={24} className="placeholder-icon" />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                         <p className="photo-note">
                             *Gunakan foto dengan rasio 1:1 untuk hasil tampilan terbaik di aplikasi member.

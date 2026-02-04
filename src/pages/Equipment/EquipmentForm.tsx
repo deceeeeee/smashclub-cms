@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     ChevronDown,
     Info,
-    Save
+    Save,
+    ChevronLeft
 } from 'lucide-react';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import './EquipmentForm.css';
 
 const EquipmentForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = !!id;
+    const [status, setStatus] = useState(STATUS_FLAGS.ACTIVE);
 
     return (
         <div className="equipment-form-page">
@@ -26,10 +30,14 @@ const EquipmentForm = () => {
 
             {/* Header Section */}
             <div className="page-header">
-                <div className="header-text">
+                <div className="header-info">
                     <h1>{isEdit ? `Ubah Data Peralatan ${id}` : 'Tambah Peralatan'}</h1>
                     <p>{isEdit ? 'Perbarui informasi detail stok atau biaya sewa peralatan olahraga Anda.' : 'Lengkapi detail di bawah ini untuk memperbarui stok atau menambahkan alat olahraga baru ke dalam sistem.'}</p>
                 </div>
+                <button className="btn-secondary" onClick={() => navigate('/equipment')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Form Content */}
@@ -74,18 +82,19 @@ const EquipmentForm = () => {
 
                     {/* Status */}
                     <div className="form-group">
-                        <label>Status</label>
-                        <div className="radio-group">
-                            <label className="radio-label">
-                                <input type="radio" name="status" value="tersedia" defaultChecked />
-                                <span className="radio-custom"></span>
-                                Tersedia
+                        <label>Status Alat</label>
+                        <div className="toggle-container">
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    checked={status === STATUS_FLAGS.ACTIVE}
+                                    onChange={(e) => setStatus(e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE)}
+                                />
+                                <span className="slider"></span>
                             </label>
-                            <label className="radio-label">
-                                <input type="radio" name="status" value="maintenance" />
-                                <span className="radio-custom"></span>
-                                Maintenance
-                            </label>
+                            <span className={`status-text ${status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                {getStatusLabel(status)}
+                            </span>
                         </div>
                     </div>
                 </div>

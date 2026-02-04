@@ -87,6 +87,10 @@
     border-left: 3px solid transparent;
 }
 
+.nav-section-label {
+    padding-bottom: 0.75rem;
+}
+
 .sidebar-minimized .nav-item {
     justify-content: center;
     padding: 0.875rem 0;
@@ -273,7 +277,7 @@
 }
 
 .toggle-sidebar-btn {
-    width: 70px;
+    width: 50px;
 }
 
 .notification-dot {
@@ -363,6 +367,13 @@
     margin-bottom: 2rem;
 }
 
+.header-info,
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-info h1,
 .header-text h1 {
     font-size: 1.5rem;
     font-weight: 700;
@@ -370,6 +381,7 @@
     margin-bottom: 0.25rem;
 }
 
+.header-info p,
 .header-text p {
     font-size: 0.9rem;
     color: var(--color-text-mutex);
@@ -534,7 +546,209 @@
     border-color: var(--color-primary);
 }
 
+.pagination-btn.active-page {
+    background-color: var(--color-primary);
+    color: #000;
+    border: 1px solid var(--color-primary);
+}
+
 .pagination-ellipsis {
     color: var(--color-text-mutex);
     padding: 0 0.5rem;
+}
+
+
+/* Input*/
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Inputs */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primary);
+    background-color: rgba(0, 0, 0, 0.3);
+    outline: none;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+/* Input with prefix/suffix */
+.input-with-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-label input {
+    width: 100%;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 1rem;
+    color: var(--color-text-mutex);
+    font-weight: 500;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 1rem;
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+}
+
+.form-group:has(.input-prefix) input {
+    padding-left: 3rem;
+}
+
+.form-group:has(.input-suffix) input {
+    padding-right: 3rem;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (Media Queries)
+   ========================================================================== */
+
+/* Mobile & Tablet Utilities */
+.hide-mobile {
+    display: flex;
+}
+
+.hide-tablet {
+    display: flex;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .main-content-wrapper {
+        margin-left: 0 !important;
+    }
+
+    .mobile-menu-open .sidebar {
+        transform: translateX(0);
+        width: 280px;
+    }
+
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 45;
+    }
+
+    .mobile-menu-open .mobile-overlay {
+        display: block;
+    }
+
+    .top-header {
+        padding: 0 1rem;
+    }
+
+    .header-left {
+        gap: 1rem;
+    }
+
+    .desktop-search {
+        display: none !important;
+    }
+
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .header-title {
+        font-size: 1.1rem !important;
+    }
+
+    .content-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-bar,
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-bar {
+        max-width: none;
+    }
+
+    /* Table Responsiveness Hack */
+    .table-container,
+    .table-card {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 600px;
+        /* Force scroll on small screens */
+    }
+
+    .stats-grid,
+    .stats-row,
+    .summary-grid {
+        grid-template-columns: 1fr !important;
+    }
 }

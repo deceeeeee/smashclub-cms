@@ -12,6 +12,7 @@ import {
     Filter,
     ChevronDown
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Fields.css';
 
 // Mock Data
@@ -22,19 +23,26 @@ const fieldsData = [
 ];
 
 const Fields = () => {
+
     const navigate = useNavigate();
     const [fields, setFields] = useState(fieldsData);
     const [activeFilter, setActiveFilter] = useState('Semua');
+    const { showConfirm } = useConfirmStore();
 
     const handleEdit = (id: number) => {
         navigate(`/fields/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus lapangan ini?')) {
-            setFields(fields.filter(f => f.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setFields(fields.filter(f => f.id !== id));
+            }
+        });
     };
+
 
     const filteredFields = activeFilter === 'Semua'
         ? fields
@@ -154,20 +162,21 @@ const Fields = () => {
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan <strong>1</strong> - <strong>{filteredFields.length}</strong> dari <strong>{fields.length}</strong> lapangan
+                        </div>
+                        <div className="pagination-controls">
+                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
+                            <button className="pagination-btn active">1</button>
+                            <button className="pagination-btn">2</button>
+                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Pagination */}
-                <div className="pagination-bar">
-                    <div className="pagination-info">
-                        Menampilkan <strong>1</strong> - <strong>{filteredFields.length}</strong> dari <strong>{fields.length}</strong> lapangan
-                    </div>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active">1</button>
-                        <button className="pagination-btn">2</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
-                    </div>
-                </div>
             </div>
 
             {/* Summary Grid at Bottom */}

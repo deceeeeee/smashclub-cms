@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     Info,
@@ -6,10 +6,13 @@ import {
     ChevronLeft,
     Check,
     Save,
-    MapPin,
-    DollarSign,
-    Users
+    Loader2
 } from 'lucide-react';
+import { useRolesStore } from '../../features/roles/roles.store';
+import { usePermissionsStore } from '../../features/permissions/permissions.store';
+import { useAlertStore } from '../../app/alert.store';
+import { getMenuIcon } from '../../components/icons/MenuIcons';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import './RoleForm.css';
 
 const RoleForm = () => {
@@ -17,34 +20,113 @@ const RoleForm = () => {
     const { id } = useParams();
     const isEdit = !!id;
 
-    const [permissions, setPermissions] = useState({
-        fields: { view: true, add: false, edit: false, delete: false },
-        finance: { view: false, add: false, edit: false, delete: false },
-        users: { view: false, add: false, edit: false, delete: false },
-    });
+    const { getRole, submitRole, isLoading } = useRolesStore();
+    const { getPermissions, permissions: availablePermissions, isLoading: isLoadingPermissions } = usePermissionsStore();
+    const { showSuccess, showError } = useAlertStore();
 
-    const togglePermission = (module: string, action: string) => {
-        setPermissions(prev => ({
-            ...prev,
-            [module]: {
-                ...prev[module as keyof typeof prev],
-                [action]: !prev[module as keyof typeof prev][action as keyof (typeof prev)['fields']]
+    const [roleName, setRoleName] = useState('');
+    const [roleCode, setRoleCode] = useState('');
+    const [status, setStatus] = useState(1);
+
+    const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+    const [selectedMenuIds, setSelectedMenuIds] = useState<number[]>([]);
+
+    useEffect(() => {
+        getPermissions();
+        if (isEdit && id) {
+            getRole(id).then(data => {
+                if (data) {
+                    setRoleName(data.roleName);
+                    setRoleCode(data.roleCode);
+                    setStatus(data.status);
+                    // Map existing permissions and menus to state
+                    const existingPermIds = data.permissionSet?.map(p => p.id) || [];
+                    const existingMenuIds = data.menuSet?.map(m => m.id) || [];
+                    setSelectedPermissions(existingPermIds);
+                    setSelectedMenuIds(existingMenuIds);
+                }
+            });
+        }
+    }, [isEdit, id, getRole, getPermissions]);
+
+    // Group permissions by menuCode
+    const groupedPermissions = availablePermissions.reduce((acc, permission) => {
+        const menuCode = permission.menu.menuCode;
+        if (!acc[menuCode]) {
+            acc[menuCode] = {
+                menuName: permission.menu.menuName,
+                permissions: []
+            };
+        }
+        acc[menuCode].permissions.push(permission);
+        return acc;
+    }, {} as Record<string, { menuName: string; permissions: any[] }>);
+
+    const togglePermissionId = (id: number) => {
+        const permission = availablePermissions.find(p => p.id === id);
+        if (!permission) return;
+
+        const menuId = permission.menu.id;
+
+        setSelectedPermissions(prev => {
+            const isRemoving = prev.includes(id);
+            const next = isRemoving ? prev.filter(pId => pId !== id) : [...prev, id];
+
+            // Update menuIds
+            if (!isRemoving) {
+                setSelectedMenuIds(mPrev => mPrev.includes(menuId) ? mPrev : [...mPrev, menuId]);
+            } else {
+                const hasOtherPermInSameMenu = availablePermissions.some(p =>
+                    p.menu.id === menuId && next.includes(p.id)
+                );
+                if (!hasOtherPermInSameMenu) {
+                    setSelectedMenuIds(mPrev => mPrev.filter(mId => mId !== menuId));
+                }
             }
-        }));
+            return next;
+        });
     };
 
-    const toggleAll = (module: string) => {
-        const mod = permissions[module as keyof typeof permissions];
-        const allChecked = Object.values(mod).every(v => v);
-        setPermissions(prev => ({
-            ...prev,
-            [module]: {
-                view: !allChecked,
-                add: !allChecked,
-                edit: !allChecked,
-                delete: !allChecked
-            }
-        }));
+    const toggleMenuAll = (permissionIds: number[]) => {
+        if (permissionIds.length === 0) return;
+
+        const firstPermission = availablePermissions.find(p => p.id === permissionIds[0]);
+        if (!firstPermission) return;
+        const menuId = firstPermission.menu.id;
+
+        const allSelected = permissionIds.every(id => selectedPermissions.includes(id));
+        if (allSelected) {
+            setSelectedPermissions(prev => prev.filter(id => !permissionIds.includes(id)));
+            setSelectedMenuIds(mPrev => mPrev.filter(mId => mId !== menuId));
+        } else {
+            setSelectedPermissions(prev => [...new Set([...prev, ...permissionIds])]);
+            setSelectedMenuIds(mPrev => mPrev.includes(menuId) ? mPrev : [...mPrev, menuId]);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!roleName || !roleCode) {
+            showError('Validasi Gagal', 'Nama Peran dan Kode Peran harus diisi.');
+            return;
+        }
+
+        // Use explicitly managed selectedMenuIds
+
+        const payload = {
+            roleName,
+            roleCode,
+            status,
+            menuSet: selectedMenuIds.map(id => ({ id })),
+            permissionSet: selectedPermissions.map(id => ({ id }))
+        };
+
+        const result = await submitRole(payload, id);
+        if (result.success) {
+            showSuccess('Berhasil', isEdit ? 'Data peran berhasil diperbarui.' : 'Data peran baru berhasil disimpan.');
+            navigate('/roles');
+        } else {
+            showError('Gagal Menyimpan', result.message);
+        }
     };
 
     return (
@@ -62,7 +144,7 @@ const RoleForm = () => {
 
             {/* Header */}
             <div className="page-header">
-                <div className="header-left">
+                <div className="header-info">
                     <h1>{isEdit ? 'Ubah Data Peran' : 'Tambah Peran Baru'}</h1>
                     <p>Tentukan nama peran dan atur hak akses spesifik untuk modul CMS SmashClub.</p>
                 </div>
@@ -79,11 +161,43 @@ const RoleForm = () => {
                         <Info size={20} className="section-icon teal" />
                         <h3>Informasi Dasar</h3>
                     </div>
-                    <div className="form-group">
-                        <label>NAMA PERAN</label>
-                        <input type="text" placeholder="Contoh: Admin Lapangan, Kasir, atau Manager" />
-                        <span className="input-hint">Nama peran harus unik dan mudah diidentifikasi.</span>
+                    <div className="basic-info-grid">
+                        <div className="form-group">
+                            <label>NAMA PERAN</label>
+                            <input
+                                type="text"
+                                placeholder="Contoh: Admin Lapangan"
+                                value={roleName}
+                                onChange={(e) => setRoleName(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>KODE PERAN</label>
+                            <input
+                                type="text"
+                                placeholder="Contoh: ADM_LAP"
+                                value={roleCode}
+                                onChange={(e) => setRoleCode(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>STATUS</label>
+                            <div className="toggle-container">
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={status === STATUS_FLAGS.ACTIVE}
+                                        onChange={(e) => setStatus(e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE)}
+                                    />
+                                    <span className="slider"></span>
+                                </label>
+                                <span className={`status-text ${status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                    {getStatusLabel(status)}
+                                </span>
+                            </div>
+                        </div>
                     </div>
+                    <span className="input-hint">Nama dan kode peran harus unik dalam sistem.</span>
                 </div>
 
                 {/* Permissions Section */}
@@ -93,118 +207,61 @@ const RoleForm = () => {
                         <h3>Konfigurasi Hak Akses</h3>
                     </div>
 
-                    {/* Module: Management Lapangan */}
-                    <div className="module-card">
-                        <div className="module-header">
-                            <div className="module-title">
-                                <MapPin size={18} className="module-icon" />
-                                <span>Manajemen Lapangan</span>
-                            </div>
-                            <label className="select-all">
-                                <span>PILIH SEMUA</span>
-                                <input
-                                    type="checkbox"
-                                    checked={Object.values(permissions.fields).every(v => v)}
-                                    onChange={() => toggleAll('fields')}
-                                />
-                                <span className="checkbox-custom"></span>
-                            </label>
+                    {isLoadingPermissions ? (
+                        <div className="loading-state">
+                            <Loader2 className="animate-spin" size={24} />
+                            <span>Memuat daftar hak akses...</span>
                         </div>
-                        <div className="permission-grid">
-                            {['view', 'add', 'edit', 'delete'].map(action => (
-                                <div
-                                    key={action}
-                                    className={`permission-item ${permissions.fields[action as keyof typeof permissions.fields] ? 'active' : ''}`}
-                                    onClick={() => togglePermission('fields', action)}
-                                >
-                                    <div className="checkbox-box">
-                                        {permissions.fields[action as keyof typeof permissions.fields] && <Check size={14} />}
+                    ) : Object.keys(groupedPermissions).length === 0 ? (
+                        <div className="empty-state">
+                            Tidak ada data hak akses yang tersedia.
+                        </div>
+                    ) : (
+                        Object.entries(groupedPermissions).map(([menuCode, data]) => {
+                            const permissionIds = data.permissions.map(p => p.id);
+                            const selectedCount = permissionIds.filter(id => selectedPermissions.includes(id)).length;
+                            const isAllSelected = permissionIds.length > 0 && selectedCount === permissionIds.length;
+                            const MenuIcon = getMenuIcon(menuCode);
+
+                            return (
+                                <div className="module-card" key={menuCode}>
+                                    <div className="module-header">
+                                        <div className="module-title">
+                                            <MenuIcon size={18} className="module-icon" />
+                                            <span>{data.menuName}</span>
+                                            <span className="selection-badge">{selectedCount} terpilih</span>
+                                        </div>
+                                        <label className="select-all">
+                                            <span>PILIH SEMUA</span>
+                                            <input
+                                                type="checkbox"
+                                                checked={isAllSelected}
+                                                onChange={() => toggleMenuAll(permissionIds)}
+                                            />
+                                            <span className="checkbox-custom"></span>
+                                        </label>
                                     </div>
-                                    <span>{action === 'view' ? 'Lihat' : action === 'add' ? 'Tambah' : action === 'edit' ? 'Edit' : 'Hapus'} Lapangan</span>
+                                    <div className="permission-grid">
+                                        {data.permissions.map(p => (
+                                            <div
+                                                key={p.id}
+                                                className={`permission-item ${selectedPermissions.includes(p.id) ? 'active' : ''}`}
+                                                onClick={() => togglePermissionId(p.id)}
+                                            >
+                                                <div className="checkbox-box">
+                                                    {selectedPermissions.includes(p.id) && <Check size={14} />}
+                                                </div>
+                                                <span>{p.permissionName}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Module: Manajemen Keuangan */}
-                    <div className="module-card">
-                        <div className="module-header">
-                            <div className="module-title">
-                                <DollarSign size={18} className="module-icon" />
-                                <span>Manajemen Keuangan</span>
-                            </div>
-                            <label className="select-all">
-                                <span>PILIH SEMUA</span>
-                                <input
-                                    type="checkbox"
-                                    checked={Object.values(permissions.finance).every(v => v)}
-                                    onChange={() => toggleAll('finance')}
-                                />
-                                <span className="checkbox-custom"></span>
-                            </label>
-                        </div>
-                        <div className="permission-grid">
-                            <div
-                                className={`permission-item ${permissions.finance.view ? 'active' : ''}`}
-                                onClick={() => togglePermission('finance', 'view')}
-                            >
-                                <div className="checkbox-box">
-                                    {permissions.finance.view && <Check size={14} />}
-                                </div>
-                                <span>Lihat Laporan</span>
-                            </div>
-                            <div
-                                className={`permission-item ${permissions.finance.add ? 'active' : ''}`}
-                                onClick={() => togglePermission('finance', 'add')}
-                            >
-                                <div className="checkbox-box">
-                                    {permissions.finance.add && <Check size={14} />}
-                                </div>
-                                <span>Input Transaksi</span>
-                            </div>
-                            <div
-                                className={`permission-item ${permissions.finance.edit ? 'active' : ''}`}
-                                onClick={() => togglePermission('finance', 'edit')}
-                            >
-                                <div className="checkbox-box">
-                                    {permissions.finance.edit && <Check size={14} />}
-                                </div>
-                                <span>Proses Refund</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Module: Manajemen Pengguna */}
-                    <div className="module-card">
-                        <div className="module-header">
-                            <div className="module-title">
-                                <Users size={18} className="module-icon" />
-                                <span>Manajemen Pengguna</span>
-                            </div>
-                            <label className="select-all">
-                                <span>PILIH SEMUA</span>
-                                <input
-                                    type="checkbox"
-                                    checked={Object.values(permissions.users).every(v => v)}
-                                    onChange={() => toggleAll('users')}
-                                />
-                                <span className="checkbox-custom"></span>
-                            </label>
-                        </div>
-                        <div className="permission-grid">
-                            <div
-                                className={`permission-item ${permissions.users.view ? 'active' : ''}`}
-                                onClick={() => togglePermission('users', 'view')}
-                            >
-                                <div className="checkbox-box">
-                                    {permissions.users.view && <Check size={14} />}
-                                </div>
-                                <span>Lihat Profil</span>
-                            </div>
-                        </div>
-                    </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
+
 
             {/* Sticky Actions Footer */}
             <div className="sticky-footer">
@@ -214,9 +271,17 @@ const RoleForm = () => {
                 </div>
                 <div className="footer-actions">
                     <button className="btn-outline" onClick={() => navigate('/roles')}>Batal</button>
-                    <button className="btn-primary-teal">
-                        <Save size={18} />
-                        <span>Simpan Perubahan</span>
+                    <button
+                        className="btn-primary-teal"
+                        onClick={handleSave}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                            <Save size={18} />
+                        )}
+                        <span>{isLoading ? 'Menyimpan...' : (isEdit ? 'Ubah Sekarang' : 'Simpan Peran')}</span>
                     </button>
                 </div>
             </div>
@@ -225,3 +290,4 @@ const RoleForm = () => {
 };
 
 export default RoleForm;
+

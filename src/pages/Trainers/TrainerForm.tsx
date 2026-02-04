@@ -7,7 +7,8 @@ import {
     Camera,
     Eye,
     EyeOff,
-    Save
+    Save,
+    ChevronLeft
 } from 'lucide-react';
 import './TrainerForm.css';
 
@@ -33,8 +34,14 @@ const TrainerForm = () => {
 
             {/* Header */}
             <div className="page-header">
-                <h1>{isEdit ? `Ubah Profil Pelatih ${id}` : 'Tambah Pelatih Baru'}</h1>
-                <p>{isEdit ? 'Perbarui informasi profil dan hak akses pelatih SmashClub.' : 'Lengkapi informasi profil pelatih SmashClub di bawah ini untuk didaftarkan ke sistem.'}</p>
+                <div className="header-info">
+                    <h1>{isEdit ? `Ubah Profil Pelatih ${id}` : 'Tambah Pelatih Baru'}</h1>
+                    <p>{isEdit ? 'Perbarui informasi profil dan hak akses pelatih SmashClub.' : 'Lengkapi informasi profil pelatih SmashClub di bawah ini untuk didaftarkan ke sistem.'}</p>
+                </div>
+                <button className="btn-secondary" onClick={() => navigate('/trainers')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Form Content */}

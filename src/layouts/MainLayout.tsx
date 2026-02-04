@@ -1,72 +1,72 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
-    LayoutGrid,
-    MapPin,
-    Megaphone,
-    Package,
-    Users,
-    Banknote,
-    ShoppingBag,
-    HelpCircle,
     LogOut,
-    Bell,
+    HelpCircle,
     Settings,
-    Plus,
-    Search,
-    ShieldCheck,
-    LayoutDashboard,
     Menu
 } from 'lucide-react';
+import { getMenuIcon } from '../components/icons/MenuIcons';
+import AlertModal from '../components/ui/AlertModal/AlertModal';
+import ConfirmModal from '../components/ui/ConfirmModal/ConfirmModal';
 import './MainLayout.css';
 
 const navigation = [
     {
         items: [
-            { name: 'Dashboard', to: '/dashboard', icon: LayoutGrid }
+            { name: 'Dashboard', to: '/dashboard', menuCode: 'home' }
         ]
     },
     {
         section: 'Master Data',
         items: [
-            { name: 'Lapangan', to: '/fields', icon: MapPin },
-            { name: 'Pelatih', to: '/trainers', icon: Megaphone },
-            { name: 'Peralatan', to: '/equipment', icon: Package },
-            { name: 'Produk', to: '/products', icon: ShoppingBag },
+            { name: 'Lapangan', to: '/fields', menuCode: 'court' },
+            { name: 'Pelatih', to: '/trainers', menuCode: 'coach' },
+            { name: 'Peralatan', to: '/equipment', menuCode: 'equipment' },
+            { name: 'Produk', to: '/products', menuCode: 'product' },
         ]
     },
     {
         section: 'Laporan',
         items: [
-            { name: 'Data Pemain', to: '/players', icon: LayoutDashboard },
-            { name: 'Penjualan', to: '/reports/sales', icon: Banknote },
-            { name: 'Pemesanan Lapangan', to: '/reports/bookings', icon: LayoutGrid },
-            { name: 'Pemesanan Produk', to: '/reports/products', icon: ShoppingBag },
+            { name: 'Data Pemain', to: '/players', menuCode: 'player' },
+            { name: 'Penjualan', to: '/reports/sales', menuCode: 'sales' },
+            { name: 'Pemesanan Lapangan', to: '/reports/bookings', menuCode: 'court-booking' },
+            { name: 'Pemesanan Produk', to: '/reports/products', menuCode: 'product-sales' },
         ]
     },
     {
         section: 'Manajemen Pengguna',
         items: [
-            { name: 'Peran', to: '/roles', icon: ShieldCheck },
-            { name: 'Pengguna', to: '/users', icon: Users },
+            { name: 'Peran', to: '/roles', menuCode: 'role' },
+            { name: 'Pengguna', to: '/users', menuCode: 'user' },
         ]
     }
 ];
 
+
 const MainLayout = () => {
     const navigate = useNavigate();
     const [isMinimized, setIsMinimized] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
         navigate('/login');
     };
 
     const toggleSidebar = () => {
-        setIsMinimized(!isMinimized);
+        if (window.innerWidth <= 1024) {
+            setIsMobileMenuOpen(!isMobileMenuOpen);
+        } else {
+            setIsMinimized(!isMinimized);
+        }
     };
 
     return (
-        <div className={`main-layout ${isMinimized ? 'sidebar-minimized' : ''}`}>
+        <div className={`main-layout ${isMinimized ? 'sidebar-minimized' : ''} ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+            {/* Mobile Overlay */}
+            <div className="mobile-overlay" onClick={() => setIsMobileMenuOpen(false)}></div>
+
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
@@ -74,7 +74,7 @@ const MainLayout = () => {
                         <div className="logo-icon-sm">
                             <img src="/logo.png" alt="logo" width="40" />
                         </div>
-                        {!isMinimized && (
+                        {(!isMinimized || isMobileMenuOpen) && (
                             <div className="logo-text-block">
                                 <span className="brand-name">SmashClub</span>
                                 <span className="brand-subtitle">MANAGEMENT SYSTEM</span>
@@ -87,7 +87,7 @@ const MainLayout = () => {
                         <div key={groupIdx} className="nav-group">
                             {group.section && (
                                 <div className="nav-section-label">
-                                    {isMinimized ? '•••' : group.section}
+                                    {(isMinimized && !isMobileMenuOpen) ? '•••' : group.section}
                                 </div>
                             )}
                             {group.items.map((item) => (
@@ -96,9 +96,13 @@ const MainLayout = () => {
                                     to={item.to}
                                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                                     title={item.name}
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    <item.icon size={20} />
-                                    {!isMinimized && <span>{item.name}</span>}
+                                    {(() => {
+                                        const MenuIcon = getMenuIcon(item.menuCode);
+                                        return <MenuIcon size={20} />;
+                                    })()}
+                                    {(!isMinimized || isMobileMenuOpen) && <span>{item.name}</span>}
                                 </NavLink>
                             ))}
                         </div>
@@ -107,11 +111,11 @@ const MainLayout = () => {
                 <div className="sidebar-footer">
                     <button className="btn-sidebar-help" title="Bantuan">
                         <HelpCircle size={20} />
-                        {!isMinimized && 'Bantuan'}
+                        {(!isMinimized || isMobileMenuOpen) && 'Bantuan'}
                     </button>
                     <button className="btn-logout" onClick={handleLogout} title="Keluar">
                         <LogOut size={20} />
-                        {!isMinimized && <span>Keluar</span>}
+                        {(!isMinimized || isMobileMenuOpen) && <span>Keluar</span>}
                     </button>
                 </div>
             </aside>
@@ -122,26 +126,26 @@ const MainLayout = () => {
                         <button className="icon-btn toggle-sidebar-btn" onClick={toggleSidebar}>
                             <Menu size={24} />
                         </button>
-                        <h1>Beranda</h1>
-                        <div className="search-bar">
+                        <h1 className="header-title">Beranda</h1>
+                        {/* <div className="search-bar desktop-search">
                             <Search size={18} className="search-icon" />
                             <input type="text" placeholder="Cari jadwal atau member..." />
-                        </div>
+                        </div> */}
                     </div>
                     <div className="header-right">
-                        <button className="btn-add-order">
+                        {/* <button className="btn-add-order hide-mobile">
                             <Plus size={18} />
                             <span>Tambah Pesanan</span>
                         </button>
                         <button className="icon-btn">
                             <Bell size={20} />
                             <div className="notification-dot"></div>
-                        </button>
-                        <button className="icon-btn">
+                        </button> */}
+                        <button className="icon-btn hide-tablet">
                             <Settings size={20} />
                         </button>
                         <div className="user-profile">
-                            <div className="user-info">
+                            <div className="user-info hide-mobile">
                                 <span className="user-name">Andi Wijaya</span>
                                 <span className="user-role">Super Admin</span>
                             </div>
@@ -153,8 +157,12 @@ const MainLayout = () => {
                     <Outlet />
                 </main>
             </div>
+            <AlertModal />
+            <ConfirmModal />
         </div>
     );
 };
 
+
 export default MainLayout;
+

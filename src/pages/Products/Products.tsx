@@ -9,6 +9,7 @@ import {
     ChevronRight,
     Package
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Products.css';
 
 // Mock Data
@@ -60,14 +61,20 @@ const Products = () => {
     const [products, setProducts] = useState(productsData);
     const [activeFilter, setActiveFilter] = useState('Semua');
 
+    const { showConfirm } = useConfirmStore();
+
     const handleEdit = (id: number) => {
         navigate(`/products/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-            setProducts(products.filter(p => p.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setProducts(products.filter(p => p.id !== id));
+            }
+        });
     };
 
     const filteredProducts = activeFilter === 'Semua'
@@ -180,18 +187,18 @@ const Products = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
-                {/* Pagination */}
-                <div className="pagination-bar">
-                    <div className="pagination-info">
-                        Menampilkan 1 - 4 dari 32 produk
-                    </div>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active-page">1</button>
-                        <button className="pagination-btn">2</button>
-                        <button className="pagination-btn">3</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan 1 - 4 dari 32 produk
+                        </div>
+                        <div className="pagination-controls">
+                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
+                            <button className="pagination-btn active-page">1</button>
+                            <button className="pagination-btn">2</button>
+                            <button className="pagination-btn">3</button>
+                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                        </div>
                     </div>
                 </div>
             </div>

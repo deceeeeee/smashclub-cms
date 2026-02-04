@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     UserPlus,
@@ -6,14 +7,17 @@ import {
     Mail,
     Calendar,
     Save,
-    HelpCircle
+    HelpCircle,
+    ChevronLeft
 } from 'lucide-react';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import './PlayerForm.css';
 
 const PlayerForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = !!id;
+    const [status, setStatus] = useState(STATUS_FLAGS.ACTIVE);
 
     return (
         <div className="player-form-page">
@@ -30,8 +34,14 @@ const PlayerForm = () => {
 
             {/* Header */}
             <div className="page-header">
-                <h1>{isEdit ? `Ubah Data Pemain ${id}` : 'Tambah Pemain Baru'}</h1>
-                <p>{isEdit ? 'Perbarui informasi detail pemain dan status keanggotaan SmashClub.' : 'Isi informasi detail pemain di bawah ini untuk didaftarkan ke sistem SmashClub.'}</p>
+                <div className="header-info">
+                    <h1>{isEdit ? `Ubah Data Pemain ${id}` : 'Tambah Pemain Baru'}</h1>
+                    <p>{isEdit ? 'Perbarui informasi detail pemain dan status keanggotaan SmashClub.' : 'Isi informasi detail pemain di bawah ini untuk didaftarkan ke sistem SmashClub.'}</p>
+                </div>
+                <button className="btn-secondary" onClick={() => navigate('/players')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Form Content */}
@@ -81,17 +91,18 @@ const PlayerForm = () => {
                     {/* Status Keanggotaan */}
                     <div className="form-group full-width">
                         <label>STATUS KEANGGOTAAN</label>
-                        <div className="radio-group">
-                            <label className="radio-label">
-                                <input type="radio" name="status" value="aktif" defaultChecked />
-                                <span className="radio-custom"></span>
-                                Aktif
+                        <div className="toggle-container">
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    checked={status === STATUS_FLAGS.ACTIVE}
+                                    onChange={(e) => setStatus(e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE)}
+                                />
+                                <span className="slider"></span>
                             </label>
-                            <label className="radio-label">
-                                <input type="radio" name="status" value="non-aktif" />
-                                <span className="radio-custom"></span>
-                                Non-Aktif
-                            </label>
+                            <span className={`status-text ${status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                {getStatusLabel(status)}
+                            </span>
                         </div>
                     </div>
                 </div>

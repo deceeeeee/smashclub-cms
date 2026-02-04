@@ -9,6 +9,7 @@ import {
     Edit2,
     Trash2
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Players.css';
 
 const playersData = [
@@ -23,14 +24,20 @@ const Players = () => {
     const navigate = useNavigate();
     const [players, setPlayers] = useState(playersData);
 
+    const { showConfirm } = useConfirmStore();
+
     const handleEdit = (id: string) => {
         navigate(`/players/edit/${id}`);
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus data pemain ini?')) {
-            setPlayers(players.filter(p => p.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setPlayers(players.filter(p => p.id !== id));
+            }
+        });
     };
 
     return (
@@ -130,18 +137,20 @@ const Players = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
-
-                <div className="pagination-wrapper">
-                    <span className="pagination-info">Menampilkan 1-5 dari 1,248 pemain</span>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active">1</button>
-                        <button className="pagination-btn">2</button>
-                        <button className="pagination-btn">3</button>
-                        <span className="pagination-ellipsis">...</span>
-                        <button className="pagination-btn">250</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan 1-5 dari 1,248 pemain
+                        </div>
+                        <div className="pagination-controls">
+                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
+                            <button className="pagination-btn active">1</button>
+                            <button className="pagination-btn">2</button>
+                            <button className="pagination-btn">3</button>
+                            <span className="pagination-ellipsis">...</span>
+                            <button className="pagination-btn">250</button>
+                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                        </div>
                     </div>
                 </div>
             </div>

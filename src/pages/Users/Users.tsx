@@ -12,6 +12,7 @@ import {
     Edit3,
     Mail
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Users.css';
 
 // Mock Data
@@ -20,7 +21,7 @@ const usersData = [
         id: 1,
         name: 'Budi Santoso',
         email: 'budi.santoso@smashclub.com',
-        role: 'SUPER ADMIN',
+        role: 'Admin',
         status: 'Aktif',
         avatarColor: '#fde047' // Yellowish
     },
@@ -28,7 +29,7 @@ const usersData = [
         id: 2,
         name: 'Siti Aminah',
         email: 'siti.a@smashclub.com',
-        role: 'EDITOR',
+        role: 'User',
         status: 'Aktif',
         avatarColor: '#bfdbfe' // Light Blue
     },
@@ -36,7 +37,7 @@ const usersData = [
         id: 3,
         name: 'Rian Hidayat',
         email: 'rian.hidayat@smashclub.com',
-        role: 'EDITOR',
+        role: 'User',
         status: 'Non-aktif',
         avatarColor: '#bbf7d0' // Light Green
     },
@@ -44,7 +45,7 @@ const usersData = [
         id: 4,
         name: 'Maya Sari',
         email: 'maya.sari@smashclub.com',
-        role: 'SUPER ADMIN',
+        role: 'Admin',
         status: 'Pending',
         avatarColor: '#fed7aa' // Light Orange
     },
@@ -53,17 +54,30 @@ const usersData = [
 const Users = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState(usersData);
-    const [activeTab, _] = useState('Semua Peran');
+    const [activeTab, setActiveTab] = useState('Semua Peran');
+
+    const { showConfirm } = useConfirmStore();
 
     const handleEdit = (id: number) => {
         navigate(`/users/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-            setUsers(users.filter(u => u.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setUsers(users.filter(u => u.id !== id));
+            }
+        });
     };
+
+    const filteredUsers = users.filter((item) => {
+        if (activeTab == "Semua Peran") {
+            return item;
+        }
+        return item.role == activeTab;
+    });
 
     return (
         <div className="users-page">
@@ -94,26 +108,8 @@ const Users = () => {
                         <ShieldCheck size={20} />
                     </div>
                     <div className="stat-info">
-                        <span className="stat-label-sm">Total Admin</span>
+                        <span className="stat-label-sm">Total User</span>
                         <span className="stat-number">24</span>
-                    </div>
-                </div>
-                <div className="stat-card-simple bg-dark-teal">
-                    <div className="stat-icon-square icon-green">
-                        <Edit3 size={20} />
-                    </div>
-                    <div className="stat-info">
-                        <span className="stat-label-sm">Editor Aktif</span>
-                        <span className="stat-number">18</span>
-                    </div>
-                </div>
-                <div className="stat-card-simple bg-dark-teal">
-                    <div className="stat-icon-square icon-yellow">
-                        <Mail size={20} />
-                    </div>
-                    <div className="stat-info">
-                        <span className="stat-label-sm">Undangan Tertunda</span>
-                        <span className="stat-number">2</span>
                     </div>
                 </div>
             </div>
@@ -127,15 +123,16 @@ const Users = () => {
                     </div>
                     <div className="filter-group">
                         <button
-                            className={`filter-btn-teal ${activeTab === 'Semua Peran' ? 'active' : ''}`}
+                            className={`${activeTab === 'Semua Peran' ? 'filter-btn-teal' : 'filter-btn-dark'}`}
+                            onClick={() => setActiveTab('Semua Peran')}
                         >
-                            Semua Peran <ChevronDown size={14} className="ml-1" />
+                            Semua Peran
                         </button>
-                        <button className="filter-btn-dark">
-                            Super Admin <ChevronDown size={14} className="ml-1" />
+                        <button className={`${activeTab === 'Admin' ? 'filter-btn-teal' : 'filter-btn-dark'}`} onClick={() => setActiveTab('Admin')}>
+                            Admin
                         </button>
-                        <button className="filter-btn-dark">
-                            Editor <ChevronDown size={14} className="ml-1" />
+                        <button className={`${activeTab === 'User' ? 'filter-btn-teal' : 'filter-btn-dark'}`} onClick={() => setActiveTab('User')}>
+                            User
                         </button>
                     </div>
                 </div>
@@ -145,33 +142,21 @@ const Users = () => {
                         <thead>
                             <tr>
                                 <th style={{ width: '25%' }}>NAMA PENGGUNA</th>
-                                <th style={{ width: '30%' }}>EMAIL</th>
                                 <th style={{ width: '15%' }}>PERAN</th>
                                 <th style={{ width: '15%' }}>STATUS</th>
                                 <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map((user) => (
+                            {filteredUsers.map((user) => (
                                 <tr key={user.id}>
                                     <td>
                                         <div className="user-cell">
-                                            <div className="user-avatar-sm" style={{ backgroundColor: user.avatarColor }}>
-                                                {/* Avatar placeholder with initials or image */}
-                                                <img
-                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`}
-                                                    alt="avatar"
-                                                    className="avatar-img"
-                                                />
-                                            </div>
                                             <span className="user-name">{user.name}</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <span className="email-text">{user.email}</span>
-                                    </td>
-                                    <td>
-                                        <span className={`role-badge ${user.role === 'SUPER ADMIN' ? 'role-super' : 'role-editor'}`}>
+                                        <span className={`role-badge ${user.role === 'Admin' ? 'role-super' : 'role-editor'}`}>
                                             {user.role}
                                         </span>
                                     </td>
@@ -193,18 +178,18 @@ const Users = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
-                {/* Pagination */}
-                <div className="pagination-bar">
-                    <div className="pagination-info">
-                        Menampilkan 1 sampai 4 dari 24 pengguna
-                    </div>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active-page">1</button>
-                        <button className="pagination-btn">2</button>
-                        <button className="pagination-btn">3</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan 1 sampai 4 dari {filteredUsers.length} pengguna
+                        </div>
+                        <div className="pagination-controls">
+                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
+                            <button className="pagination-btn active-page">1</button>
+                            <button className="pagination-btn">2</button>
+                            <button className="pagination-btn">3</button>
+                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                        </div>
                     </div>
                 </div>
             </div>

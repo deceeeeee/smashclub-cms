@@ -3,15 +3,17 @@ import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     ChevronDown,
     Image as ImageIcon,
-    Info
+    Info,
+    ChevronLeft
 } from 'lucide-react';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import './FieldForm.css';
 
 const FieldForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = !!id;
-    const [isActive, setIsActive] = useState(true);
+    const [status, setStatus] = useState(STATUS_FLAGS.ACTIVE);
 
     return (
         <div className="field-form-page">
@@ -28,10 +30,14 @@ const FieldForm = () => {
 
             {/* Header Section */}
             <div className="page-header">
-                <div className="header-text">
+                <div className="header-info">
                     <h1>{isEdit ? `Ubah Data Lapangan ${id}` : 'Tambah Lapangan Baru'}</h1>
                     <p>{isEdit ? 'Perbarui informasi fasilitas lapangan Anda di bawah ini.' : 'Silakan isi formulir di bawah untuk menambah fasilitas baru ke sistem SmashClub.'}</p>
                 </div>
+                <button className="btn-secondary" onClick={() => navigate('/fields')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Form Content */}
@@ -73,13 +79,13 @@ const FieldForm = () => {
                             <label className="switch">
                                 <input
                                     type="checkbox"
-                                    checked={isActive}
-                                    onChange={(e) => setIsActive(e.target.checked)}
+                                    checked={status === STATUS_FLAGS.ACTIVE}
+                                    onChange={(e) => setStatus(e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE)}
                                 />
                                 <span className="slider"></span>
                             </label>
-                            <span className={`status-text ${isActive ? 'active' : 'inactive'}`}>
-                                {isActive ? 'Lapangan Aktif' : 'Lapangan Non-aktif'}
+                            <span className={`status-text ${status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                {getStatusLabel(status)}
                             </span>
                         </div>
                     </div>

@@ -1,6 +1,5 @@
 Dashboard
 Master Data
-├─ Pengguna
 ├─ Lapangan
 ├─ Pelatih
 ├─ Peralatan
@@ -10,4 +9,6 @@ Laporan
 ├─ Penjualan
 ├─ Pemesanan Lapangan
 ├─ Pemesanan Produk
-
+Manajemen Pengguna
+├─ Peran
+├─ Pengguna

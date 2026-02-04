@@ -12,6 +12,7 @@ import {
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Trainers.css';
 
 // Mock Data
@@ -25,20 +26,27 @@ const trainersData = [
 ];
 
 const Trainers = () => {
+
     const navigate = useNavigate();
     const [trainers, setTrainers] = useState(trainersData);
     const [activeFilter, setActiveFilter] = useState('Semua');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const { showConfirm } = useConfirmStore();
 
     const handleEdit = (id: number) => {
         navigate(`/trainers/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus pelatih ini?')) {
-            setTrainers(trainers.filter(t => t.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setTrainers(trainers.filter(t => t.id !== id));
+            }
+        });
     };
+
 
     const filteredTrainers = activeFilter === 'Semua'
         ? trainers

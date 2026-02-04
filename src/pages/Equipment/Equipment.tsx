@@ -9,6 +9,7 @@ import {
     ChevronRight,
     Package
 } from 'lucide-react';
+import { useConfirmStore } from '../../app/confirm.store';
 import './Equipment.css';
 
 // Mock Data
@@ -45,15 +46,20 @@ const equipmentData = [
 const Equipment = () => {
     const navigate = useNavigate();
     const [equipment, setEquipment] = useState(equipmentData);
+    const { showConfirm } = useConfirmStore();
 
     const handleEdit = (id: number) => {
         navigate(`/equipment/edit/${id}`);
     };
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus peralatan ini?')) {
-            setEquipment(equipment.filter(e => e.id !== id));
-        }
+        showConfirm({
+            title: 'Hapus Data?',
+            message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
+            onConfirm: () => {
+                setEquipment(equipment.filter(e => e.id !== id));
+            }
+        });
     };
 
     return (
@@ -140,18 +146,18 @@ const Equipment = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
-                {/* Pagination */}
-                <div className="pagination-bar">
-                    <div className="pagination-info">
-                        Menampilkan 1 sampai 3 dari 12 peralatan
-                    </div>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active-page">1</button>
-                        <button className="pagination-btn">2</button>
-                        <button className="pagination-btn">3</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
+                    {/* Pagination */}
+                    <div className="pagination-bar">
+                        <div className="pagination-info">
+                            Menampilkan 1 sampai 3 dari 12 peralatan
+                        </div>
+                        <div className="pagination-controls">
+                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
+                            <button className="pagination-btn active-page">1</button>
+                            <button className="pagination-btn">2</button>
+                            <button className="pagination-btn">3</button>
+                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,8 @@ import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     ChevronDown,
     Eye,
-    EyeOff
+    EyeOff,
+    ChevronLeft
 } from 'lucide-react';
 import './UserForm.css';
 
@@ -29,8 +30,14 @@ const UserForm = () => {
 
             {/* Header */}
             <div className="page-header">
-                <h1>{isEdit ? `Ubah Data Pengguna ${id}` : 'Tambah Pengguna Baru'}</h1>
-                <p>{isEdit ? 'Perbarui akses dan informasi profil admin dashboard SmashClub.' : 'Silakan lengkapi formulir di bawah ini untuk mengelola akses dashboard SmashClub.'}</p>
+                <div className="header-info">
+                    <h1>{isEdit ? `Ubah Data Pengguna ${id}` : 'Tambah Pengguna Baru'}</h1>
+                    <p>{isEdit ? 'Perbarui akses dan informasi profil admin dashboard SmashClub.' : 'Silakan lengkapi formulir di bawah ini untuk mengelola akses dashboard SmashClub.'}</p>
+                </div>
+                <button className="btn-secondary" onClick={() => navigate('/users')}>
+                    <ChevronLeft size={18} />
+                    <span>Kembali</span>
+                </button>
             </div>
 
             {/* Main Form Card */}
@@ -86,22 +93,6 @@ const UserForm = () => {
                 <div className="form-actions">
                     <button className="btn-batal" onClick={() => navigate('/users')}>Batal</button>
                     <button className="btn-submit">{isEdit ? 'Simpan Perubahan' : 'Daftarkan Pengguna'}</button>
-                </div>
-            </div>
-
-            {/* Bottom Summary Cards */}
-            <div className="summary-grid-users">
-                <div className="summary-card-dark">
-                    <span className="summary-label">TOTAL ADMIN</span>
-                    <span className="summary-value">12</span>
-                </div>
-                <div className="summary-card-dark">
-                    <span className="summary-label">SISA SLOT LISENSI</span>
-                    <span className="summary-value">8</span>
-                </div>
-                <div className="summary-card-dark">
-                    <span className="summary-label">TERAKHIR DITAMBAH</span>
-                    <span className="summary-value">2 jam yang lalu</span>
                 </div>
             </div>
         </div>
