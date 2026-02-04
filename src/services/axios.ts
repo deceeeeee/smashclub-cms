@@ -7,13 +7,29 @@ const api = axios.create({
 });
 
 const ALERT_WHITELIST = [
-    '/admin/roles',
-    '/admin/courts',
-    '/admin/coach',
-    '/admin/product',
-    '/admin/equipment',
-    '/admin/users',
-    '/admin/players'
+    '/admin/court/save',
+    '/admin/court/update',
+    '/admin/court/delete',
+    '/admin/coach/save',
+    '/admin/coach/update',
+    '/admin/coach/delete',
+    '/admin/product/save',
+    '/admin/product/update',
+    '/admin/product/delete',
+    '/admin/equipment/save',
+    '/admin/equipment/update',
+    '/admin/equipment/delete',
+    '/admin/equipment-category/save',
+    '/admin/equipment-category/update',
+    '/admin/equipment-category/delete',
+    '/admin/users/save',
+    '/admin/users/update',
+    '/admin/users/delete',
+    '/admin/player/update',
+    '/admin/player/delete',
+    '/admin/roles/save',
+    '/admin/roles/update',
+    '/admin/roles/delete',
 ];
 
 const shouldShowAlert = (url?: string) => {

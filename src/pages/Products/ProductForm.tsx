@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     ChevronDown,
@@ -7,8 +7,15 @@ import {
     X,
     Image as ImageIcon,
     Save,
-    ChevronLeft
+    ChevronLeft,
+    Loader2,
+    Plus,
+    Trash2
 } from 'lucide-react';
+import { useProductsStore } from '../../features/products/products.store';
+import { useAlertStore } from '../../app/alert.store';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import { formatNumber, parseFormattedNumber } from '../../utils/format';
 import './ProductForm.css';
 
 const ProductForm = () => {
@@ -16,9 +23,161 @@ const ProductForm = () => {
     const { id } = useParams();
     const isEdit = !!id;
 
-    const [images, _setImages] = useState([
-        { id: 1, url: 'https://images.unsplash.com/photo-1617083281297-af33e2501717?auto=format&fit=crop&q=80&w=200&h=200', isMain: true }
-    ]);
+    const { getProductDetail, submitProduct } = useProductsStore();
+    const { showAlert } = useAlertStore();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        productName: '',
+        category: '',
+        status: STATUS_FLAGS.ACTIVE,
+        productDesc: '',
+        defaultImgLink: '',
+        productVariants: [] as any[]
+    });
+
+    const [images, setImages] = useState<{ id: number; url: string; isMain: boolean }[]>([]);
+
+    const mainFilePickerRef = useRef<HTMLInputElement>(null);
+    const variantFilePickerRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    useEffect(() => {
+        if (isEdit) {
+            loadProductData();
+        }
+    }, [id]);
+
+    const loadProductData = async () => {
+        setIsLoading(true);
+        try {
+            const response = await getProductDetail(Number(id));
+            if (response && response.success) {
+                const data = response.data;
+                setFormData({
+                    productName: data.productName,
+                    category: data.category,
+                    status: data.status,
+                    productDesc: data.productDesc || '',
+                    defaultImgLink: data.defaultImgLink || '',
+                    productVariants: data.productVariants || []
+                });
+
+                if (data.defaultImgLink) {
+                    setImages([{ id: Date.now(), url: data.defaultImgLink, isMain: true }]);
+                }
+            } else {
+                showAlert('error', 'Gagal', 'Gagal memuat data produk');
+                navigate('/products');
+            }
+        } catch (error) {
+            showAlert('error', 'Error', 'Terjadi kesalahan sistem');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleAddVariant = () => {
+        setFormData(prev => ({
+            ...prev,
+            productVariants: [
+                ...prev.productVariants,
+                { name: '', sku: '', price: 0, stock: 0, variantImgLink: '' }
+            ]
+        }));
+    };
+
+    const handleRemoveVariant = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            productVariants: prev.productVariants.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleVariantChange = (index: number, field: string, value: any) => {
+        setFormData(prev => {
+            const newVariants = [...prev.productVariants];
+            newVariants[index] = { ...newVariants[index], [field]: value };
+            return { ...prev, productVariants: newVariants };
+        });
+    };
+
+    const processFile = (file: File, type: 'main' | 'variant', index?: number) => {
+        if (!file.type.startsWith('image/')) {
+            showAlert('error', 'Format Salah', 'Hanya diperbolehkan mengupload file gambar');
+            return;
+        }
+
+        const imageUrl = URL.createObjectURL(file);
+
+        if (type === 'main') {
+            setImages([{ id: Date.now(), url: imageUrl, isMain: true }]);
+            setFormData(prev => ({ ...prev, defaultImgLink: imageUrl }));
+        } else if (type === 'variant' && index !== undefined) {
+            handleVariantChange(index, 'variantImgLink', imageUrl);
+        }
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'variant', index?: number) => {
+        const file = e.target.files?.[0];
+        if (file) processFile(file, type, index);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent, type: 'main' | 'variant', index?: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const file = e.dataTransfer.files?.[0];
+        if (file) processFile(file, type, index);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!formData.productName || !formData.category) {
+            showAlert('error', 'Validasi Gagal', 'Nama produk dan kategori wajib diisi');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                ...formData,
+                defaultImgLink: images.find(img => img.isMain)?.url || formData.defaultImgLink
+            };
+            const result = await submitProduct(payload, id ? Number(id) : undefined);
+            if (result.success) {
+                navigate('/products');
+            } else {
+                showAlert('error', 'Gagal', result.message || 'Gagal menyimpan produk');
+            }
+        } catch (error: any) {
+            showAlert('error', 'Error', error.message || 'Terjadi kesalahan sistem');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Loader2 className="animate-spin" size={40} />
+            </div>
+        );
+    }
 
     return (
         <div className="product-form-page">
@@ -36,7 +195,7 @@ const ProductForm = () => {
             {/* Header */}
             <div className="page-header">
                 <div className="header-info">
-                    <h1>{isEdit ? `Ubah Data Produk ${id}` : 'Tambah Produk Baru'}</h1>
+                    <h1>{isEdit ? `Ubah Data Produk` : 'Tambah Produk Baru'}</h1>
                     <p>{isEdit ? 'Perbarui informasi detail produk dan inventaris toko Anda.' : 'Lengkapi informasi detail produk dan unggah foto produk di bawah ini.'}</p>
                 </div>
                 <button className="btn-secondary" onClick={() => navigate('/products')}>
@@ -52,91 +211,238 @@ const ProductForm = () => {
                     <span>Informasi Detail Produk</span>
                 </div>
 
-                <div className="form-grid">
-                    {/* Nama Produk */}
-                    <div className="form-group">
-                        <label>NAMA PRODUK</label>
-                        <input type="text" placeholder="Contoh: Raket Badminton Pro" />
-                    </div>
-
-                    {/* Kategori Produk */}
-                    <div className="form-group">
-                        <label>KATEGORI PRODUK</label>
-                        <div className="select-wrapper">
-                            <select defaultValue="">
-                                <option value="" disabled>Pilih Kategori</option>
-                                <option value="raket">Raket</option>
-                                <option value="shuttlecock">Shuttlecock</option>
-                                <option value="sepatu">Sepatu</option>
-                                <option value="aksesori">Aksesori</option>
-                            </select>
-                            <ChevronDown className="select-icon" size={18} />
+                <form onSubmit={handleSubmit}>
+                    <div className="form-grid">
+                        {/* Nama Produk */}
+                        <div className="form-group">
+                            <label>NAMA PRODUK</label>
+                            <input
+                                type="text"
+                                name="productName"
+                                placeholder="Contoh: Raket Badminton Pro"
+                                value={formData.productName}
+                                onChange={handleInputChange}
+                                required
+                            />
                         </div>
-                    </div>
 
-                    {/* Harga Jual */}
-                    <div className="form-group">
-                        <label>HARGA JUAL (IDR)</label>
-                        <div className="input-with-label">
-                            <span className="input-prefix">Rp</span>
-                            <input type="number" placeholder="0" />
-                        </div>
-                    </div>
-
-                    {/* Stok Tersedia */}
-                    <div className="form-group">
-                        <label>STOK TERSEDIA</label>
-                        <div className="input-with-label">
-                            <input type="number" placeholder="0" />
-                            <span className="input-suffix">UNIT</span>
-                        </div>
-                    </div>
-
-                    {/* Foto Produk */}
-                    <div className="form-group full-width">
-                        <label>FOTO PRODUK (MAKS. 5 FOTO)</label>
-                        <div className="photo-upload-container">
-                            {/* Dropbox (Upload Box) */}
-                            <div className="upload-box-main">
-                                <Upload size={32} className="upload-icon-form" />
-                                <span className="upload-title">Unggah Foto Produk</span>
-                                <span className="upload-label">Klik atau tarik foto ke sini</span>
-                                <span className="upload-hint">PNG, JPG, WEBP (MAX 5MB)</span>
+                        {/* Kategori Produk */}
+                        <div className="form-group">
+                            <label>KATEGORI PRODUK</label>
+                            <div className="select-wrapper">
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="" disabled>Pilih Kategori</option>
+                                    <option value="Makanan">Makanan</option>
+                                    <option value="Minuman">Minuman</option>
+                                    <option value="Raket">Raket</option>
+                                    <option value="Shuttlecock">Shuttlecock</option>
+                                    <option value="Sepatu">Sepatu</option>
+                                    <option value="Aksesori">Aksesori</option>
+                                </select>
+                                <ChevronDown className="select-icon" size={18} />
                             </div>
+                        </div>
 
-                            {/* Image Previews and Placeholders */}
-                            <div className="photo-previews-grid">
-                                {images.map(img => (
-                                    <div key={img.id} className="image-preview-box">
-                                        <img src={img.url} alt="Product" />
-                                        {img.isMain && <div className="main-indicator">UTAMA</div>}
-                                        <button className="delete-photo-btn">
-                                            <X size={14} />
+                        {/* Status */}
+                        <div className="form-group">
+                            <label>STATUS PRODUK</label>
+                            <div className="toggle-container">
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.status === STATUS_FLAGS.ACTIVE}
+                                        onChange={(e) => setFormData(prev => ({
+                                            ...prev,
+                                            status: e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE
+                                        }))}
+                                    />
+                                    <span className="slider"></span>
+                                </label>
+                                <span className={`status-text ${formData.status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                    {getStatusLabel(formData.status)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Deskripsi Produk */}
+                        <div className="form-group full-width">
+                            <label>DESKRIPSI PRODUK</label>
+                            <textarea
+                                name="productDesc"
+                                placeholder="Masukkan deskripsi produk..."
+                                value={formData.productDesc}
+                                onChange={handleInputChange}
+                                rows={3}
+                                className="form-textarea"
+                            />
+                        </div>
+
+                        {/* Foto Utama */}
+                        <div className="form-group full-width">
+                            <label>FOTO UTAMA PRODUK</label>
+                            <div className="photo-upload-container">
+                                <input
+                                    type="file"
+                                    ref={mainFilePickerRef}
+                                    style={{ display: 'none' }}
+                                    accept="image/*"
+                                    onChange={(e) => handleFileUpload(e, 'main')}
+                                />
+                                <div
+                                    className="upload-box-main"
+                                    onClick={() => mainFilePickerRef.current?.click()}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, 'main')}
+                                >
+                                    <Upload size={32} className="upload-icon-form" />
+                                    <span className="upload-title">Unggah Foto Utama</span>
+                                    <span className="upload-label">Klik atau tarik ke sini</span>
+                                </div>
+
+                                <div className="photo-previews-grid">
+                                    {images.map(img => (
+                                        <div key={img.id} className="image-preview-box">
+                                            <img src={img.url} alt="Product" />
+                                            <button type="button" className="delete-photo-btn" onClick={() => {
+                                                setImages([]);
+                                                setFormData(prev => ({ ...prev, defaultImgLink: '' }));
+                                            }}>
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {images.length === 0 && (
+                                        <div className="image-placeholder-box">
+                                            <ImageIcon size={24} className="placeholder-icon" />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Varian Section */}
+                    <div className="variants-section">
+                        <div className="section-header-variants">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <Info size={18} className="info-icon" />
+                                <span>Varian Produk</span>
+                            </div>
+                            <button type="button" className="btn-add-variant" onClick={handleAddVariant}>
+                                <Plus size={16} />
+                                <span>Tambah Varian</span>
+                            </button>
+                        </div>
+
+                        {formData.productVariants.length === 0 && (
+                            <div className="empty-variants">
+                                <p>Belum ada varian produk. Klik "Tambah Varian" untuk mulai menambahkan.</p>
+                            </div>
+                        )}
+
+                        <div className="variants-list">
+                            {formData.productVariants.map((variant, index) => (
+                                <div key={index} className="variant-item-card">
+                                    <div className="variant-header">
+                                        <h4>Varian #{index + 1}</h4>
+                                        <button type="button" className="btn-remove-variant" onClick={() => handleRemoveVariant(index)}>
+                                            <Trash2 size={16} />
                                         </button>
                                     </div>
-                                ))}
-
-                                {/* Empty Placeholders */}
-                                {[...Array(images.length >= 5 ? 0 : 5 - images.length)].map((_, i) => (
-                                    <div key={i} className="image-placeholder-box">
-                                        <ImageIcon size={24} className="placeholder-icon" />
+                                    <div className="variant-content-wrapper">
+                                        <div className="variant-photo-section">
+                                            <input
+                                                type="file"
+                                                ref={el => { variantFilePickerRefs.current[index] = el; }}
+                                                style={{ display: 'none' }}
+                                                accept="image/*"
+                                                onChange={(e) => handleFileUpload(e, 'variant', index)}
+                                            />
+                                            <div
+                                                className="variant-upload-box"
+                                                onClick={() => variantFilePickerRefs.current[index]?.click()}
+                                                onDragOver={handleDragOver}
+                                                onDrop={(e) => handleDrop(e, 'variant', index)}
+                                            >
+                                                {variant.variantImgLink ? (
+                                                    <div className="variant-image-preview">
+                                                        <img src={variant.variantImgLink} alt="Variant" />
+                                                        <button type="button" className="btn-remove-photo" onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleVariantChange(index, 'variantImgLink', '');
+                                                        }}>
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="variant-upload-placeholder">
+                                                        <Upload size={20} />
+                                                        <span>Foto Varian</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="variant-grid">
+                                            <div className="form-group">
+                                                <label>Nama Varian</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Contoh: Rasa Ayam Bawang"
+                                                    value={variant.name}
+                                                    onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>SKU</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="INDM-001"
+                                                    value={variant.sku}
+                                                    onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Harga (Rp)</label>
+                                                <div className="input-with-label">
+                                                    <span className="input-prefix">Rp</span>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="0"
+                                                        value={formatNumber(variant.price)}
+                                                        onChange={(e) => handleVariantChange(index, 'price', parseFormattedNumber(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Stok</label>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={variant.stock}
+                                                    onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                        <p className="photo-note">
-                            *Gunakan foto dengan rasio 1:1 untuk hasil tampilan terbaik di aplikasi member.
-                        </p>
                     </div>
-                </div>
 
-                <div className="form-actions">
-                    <button className="btn-batal" onClick={() => navigate('/products')}>Batal</button>
-                    <button className="btn-simpan">
-                        <Save size={18} />
-                        {isEdit ? 'Simpan Perubahan' : 'Simpan Produk'}
-                    </button>
-                </div>
+                    <div className="form-actions">
+                        <button type="button" className="btn-batal" onClick={() => navigate('/products')}>Batal</button>
+                        <button type="submit" className="btn-simpan" disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                            <span>{isEdit ? 'Simpan Perubahan' : 'Simpan Produk'}</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

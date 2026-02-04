@@ -117,7 +117,7 @@ const PlayerForm = () => {
             </div>
 
             {/* Help Banner */}
-            <div className="help-banner">
+            {/* <div className="help-banner">
                 <div className="help-content">
                     <h3>Butuh Bantuan?</h3>
                     <p>Hubungi IT Support SmashClub jika mengalami kendala input data.</p>
@@ -125,7 +125,7 @@ const PlayerForm = () => {
                 <div className="help-icon-wrapper">
                     <HelpCircle size={48} />
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Trainer, TrainerPayload } from './trainers.types';
 import { fetchTrainers, fetchTrainerDetail, saveTrainer, removeTrainer } from './trainers.api';
+import type { BaseResponse } from '../../services/api.types';
 
 interface TrainersState {
     trainers: Trainer[];
@@ -9,15 +10,9 @@ interface TrainersState {
     isLoading: boolean;
     error: string | null;
     getTrainers: (keyword?: string, page?: number, size?: number) => Promise<void>;
-    getTrainer: (id: number) => Promise<ActionResponse<Trainer> | null>;
+    getTrainer: (id: number) => Promise<BaseResponse<Trainer> | null>;
     submitTrainer: (payload: TrainerPayload, id?: number) => Promise<{ success: boolean; message: string }>;
     deleteTrainer: (id: number) => Promise<{ success: boolean; message: string }>;
-}
-
-interface ActionResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
 }
 
 export const useTrainersStore = create<TrainersState>((set) => ({

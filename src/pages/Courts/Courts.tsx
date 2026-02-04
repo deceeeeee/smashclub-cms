@@ -130,19 +130,19 @@ const Courts = () => {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="loading-cell">
-                                        <div className="loading-content">
-                                            <Loader2 className="animate-spin" size={24} />
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                            <Loader2 className="animate-spin" size={32} />
                                             <span>Memuat data lapangan...</span>
                                         </div>
                                     </td>
                                 </tr>
                             ) : courts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="empty-cell">
-                                        <div className="empty-content">
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
                                             <AlertCircle size={40} />
-                                            <p>Tidak ada data lapangan ditemukan.</p>
+                                            <span>Tidak ada data lapangan ditemukan.</span>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,3 +1,5 @@
+import type { PaginatedData } from "../../services/api.types";
+
 export interface Court {
     id: number;
     courtCode: string;
@@ -10,25 +12,7 @@ export interface Court {
     updatedAt: string | null;
 }
 
-export interface CourtPageResponse {
-    content: Court[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-    numberOfElements: number;
-    first: boolean;
-    last: boolean;
-    empty: boolean;
-}
-
-export interface ActionResponse<T = any> {
-    success: boolean;
-    message: string;
-    status: number;
-    timestamp: string;
-    data: T;
-}
+export type CourtPageResponse = PaginatedData<Court>;
 
 export interface CourtPayload {
     courtCode: string;

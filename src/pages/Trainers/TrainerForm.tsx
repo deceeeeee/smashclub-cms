@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     User,
@@ -8,8 +8,13 @@ import {
     Eye,
     EyeOff,
     Save,
-    ChevronLeft
+    ChevronLeft,
+    Loader2
 } from 'lucide-react';
+import { useTrainersStore } from '../../features/trainers/trainers.store';
+import { useAlertStore } from '../../app/alert.store';
+import { STATUS_FLAGS } from '../../constant/flags';
+import { formatNumber, parseFormattedNumber } from '../../utils/format';
 import './TrainerForm.css';
 
 const TrainerForm = () => {
@@ -17,7 +22,99 @@ const TrainerForm = () => {
     const { id } = useParams();
     const isEdit = !!id;
 
+    const { getTrainer, submitTrainer, isLoading } = useTrainersStore();
+    const { showAlert } = useAlertStore();
+
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Form state
+    const [formData, setFormData] = useState({
+        coachCode: '',
+        coachName: '',
+        pricePerHour: 0,
+        status: STATUS_FLAGS.ACTIVE
+    });
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Load trainer data if editing
+    useEffect(() => {
+        if (isEdit && id) {
+            loadTrainerData();
+        }
+    }, [id, isEdit]);
+
+    const loadTrainerData = async () => {
+        if (!id) return;
+
+        const response = await getTrainer(Number(id));
+        if (response && response.success) {
+            const trainer = response.data;
+            setFormData({
+                coachCode: trainer.coachCode,
+                coachName: trainer.coachName,
+                pricePerHour: trainer.pricePerHour,
+                status: trainer.status
+            });
+        } else {
+            showAlert('error', 'Error', 'Gagal memuat data pelatih');
+            navigate('/trainers');
+        }
+    };
+
+    const handleInputChange = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.coachCode.trim()) {
+            newErrors.coachCode = 'Kode pelatih harus diisi';
+        }
+
+        if (!formData.coachName.trim()) {
+            newErrors.coachName = 'Nama pelatih harus diisi';
+        }
+
+        if (!formData.pricePerHour || formData.pricePerHour <= 0) {
+            newErrors.pricePerHour = 'Harga per jam harus lebih dari 0';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            showAlert('error', 'Validasi Gagal', 'Mohon lengkapi semua field yang wajib diisi');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const result = await submitTrainer(formData, id ? Number(id) : undefined);
+
+            if (result.success) {
+                showAlert('success', 'Berhasil', isEdit ? 'Data pelatih berhasil diperbarui' : 'Pelatih baru berhasil ditambahkan');
+                navigate('/trainers');
+            } else {
+                showAlert('error', 'Gagal', result.message || 'Terjadi kesalahan saat menyimpan data');
+            }
+        } catch (error: any) {
+            showAlert('error', 'Error', error.message || 'Terjadi kesalahan pada sistem');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="trainer-form-page">
@@ -46,99 +143,109 @@ const TrainerForm = () => {
 
             {/* Form Content */}
             <div className="form-card">
-                {/* Section 1: Profil */}
-                <div className="form-section">
-                    <div className="section-title">
-                        <User size={20} className="section-icon" />
-                        <h3>Informasi Profil</h3>
-                    </div>
-
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label>Nama Lengkap</label>
-                            <input type="text" placeholder="Contoh: Budi Santoso" />
+                <form onSubmit={handleSubmit}>
+                    {/* Section 1: Profil */}
+                    <div className="form-section">
+                        <div className="section-title">
+                            <User size={20} className="section-icon" />
+                            <h3>Informasi Profil</h3>
                         </div>
 
-                        <div className="form-group">
-                            <label>Spesialisasi</label>
-                            <div className="select-wrapper">
-                                <select defaultValue="">
-                                    <option value="" disabled>Pilih Cabang Olahraga</option>
-                                    <option value="futsal">Futsal</option>
-                                    <option value="badminton">Badminton</option>
-                                    <option value="basket">Basket</option>
-                                </select>
-                                <ChevronDown className="select-icon" size={18} />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Nomor Telepon (WhatsApp)</label>
-                            <div className="phone-input-group">
-                                <span className="phone-prefix">+62</span>
-                                <input type="text" placeholder="8123456789" />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Foto Profil Pelatih</label>
-                            <div className="avatar-upload-group">
-                                <div className="avatar-preview-circle">
-                                    <Camera size={24} color="#94a3b8" />
-                                </div>
-                                <button className="btn-upload">Unggah Foto</button>
-                                <span className="upload-hint">JPG, PNG max. 2MB (Rasio 1:1)</span>
-                            </div>
-                        </div>
-
-                        <div className="form-group full-width">
-                            <label>Bio Singkat & Pengalaman</label>
-                            <textarea placeholder="Ceritakan singkat tentang pengalaman melatih dan prestasi..."></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="section-divider"></div>
-
-                {/* Section 2: Akses */}
-                <div className="form-section">
-                    <div className="section-title">
-                        <ShieldCheck size={20} className="section-icon" />
-                        <h3>Akses Portal Pelatih</h3>
-                    </div>
-
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label>Email (untuk login)</label>
-                            <input type="email" placeholder="pelatih@smashclub.id" />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Kata Sandi Sementara</label>
-                            <div className="password-input-group">
+                        <div className="form-grid">
+                            {/* Kode Pelatih */}
+                            <div className="form-group">
+                                <label>Kode Pelatih <span style={{ color: '#ef4444' }}>*</span></label>
                                 <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="********"
+                                    type="text"
+                                    placeholder="Contoh: CCH-01"
+                                    value={formData.coachCode}
+                                    onChange={(e) => handleInputChange('coachCode', e.target.value)}
+                                    disabled={isLoading || isSubmitting}
                                 />
-                                <button
-                                    type="button"
-                                    className="password-toggle"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+                                {errors.coachCode && <span className="error-text">{errors.coachCode}</span>}
+                            </div>
+
+                            {/* Nama Lengkap */}
+                            <div className="form-group">
+                                <label>Nama Lengkap <span style={{ color: '#ef4444' }}>*</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="Contoh: Budi Santoso"
+                                    value={formData.coachName}
+                                    onChange={(e) => handleInputChange('coachName', e.target.value)}
+                                    disabled={isLoading || isSubmitting}
+                                />
+                                {errors.coachName && <span className="error-text">{errors.coachName}</span>}
+                            </div>
+
+                            {/* Harga per Jam */}
+                            <div className="form-group">
+                                <label>Harga per Jam (Rp) <span style={{ color: '#ef4444' }}>*</span></label>
+                                <div className="price-input-group">
+                                    <span className="price-prefix">Rp</span>
+                                    <input
+                                        type="text"
+                                        placeholder="200.000"
+                                        value={formatNumber(formData.pricePerHour)}
+                                        onChange={(e) => handleInputChange('pricePerHour', parseFormattedNumber(e.target.value))}
+                                        disabled={isLoading || isSubmitting}
+                                    />
+                                </div>
+                                {errors.pricePerHour && <span className="error-text">{errors.pricePerHour}</span>}
+                            </div>
+
+                            {/* Status */}
+                            <div className="form-group">
+                                <label>Status</label>
+                                <div className="toggle-container">
+                                    <label className="switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.status === STATUS_FLAGS.ACTIVE}
+                                            onChange={(e) => handleInputChange('status', e.target.checked ? STATUS_FLAGS.ACTIVE : STATUS_FLAGS.INACTIVE)}
+                                            disabled={isLoading || isSubmitting}
+                                        />
+                                        <span className="slider"></span>
+                                    </label>
+                                    <span className={`status-text ${formData.status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
+                                        {formData.status === STATUS_FLAGS.ACTIVE ? 'Aktif' : 'Tidak Aktif'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="form-actions">
-                    <button className="btn-batal" onClick={() => navigate('/trainers')}>Batal</button>
-                    <button className="btn-simpan">
-                        <Save size={18} />
-                        {isEdit ? 'Simpan Perubahan' : 'Simpan Data Pelatih'}
-                    </button>
-                </div>
+                    <div className="section-divider"></div>
+
+                    {/* Form Actions */}
+                    <div className="form-actions">
+                        <button
+                            type="button"
+                            className="btn-batal"
+                            onClick={() => navigate('/trainers')}
+                            disabled={isSubmitting}
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            className="btn-simpan"
+                            disabled={isLoading || isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 size={18} className="animate-spin" />
+                                    <span>{isEdit ? 'Memperbarui...' : 'Menyimpan...'}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save size={18} />
+                                    {isEdit ? 'Simpan Perubahan' : 'Simpan Data Pelatih'}
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

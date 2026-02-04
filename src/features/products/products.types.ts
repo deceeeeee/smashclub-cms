@@ -1,3 +1,13 @@
+import type { PaginatedData } from "../../services/api.types";
+export interface ProductVariant {
+    id?: number;
+    name: string;
+    price: number;
+    sku: string;
+    stock: number;
+    variantImgLink: string;
+}
+
 export interface Product {
     id: number;
     productName: string;
@@ -5,15 +15,10 @@ export interface Product {
     defaultImgLink: string;
     status: number;
     productDesc?: string;
+    productVariants: ProductVariant[];
 }
 
-export interface ProductPageResponse {
-    content: Product[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-}
+export type ProductPageResponse = PaginatedData<Product>;
 
 export interface ProductPayload {
     productName: string;
@@ -21,12 +26,5 @@ export interface ProductPayload {
     defaultImgLink: string;
     status: number;
     productDesc?: string;
-}
-
-export interface ActionResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    status: number;
-    timestamp: string;
+    productVariants: ProductVariant[];
 }

@@ -1,0 +1,99 @@
+.equipment-category-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.toolbar-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.equipment-category-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.equipment-category-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.equipment-category-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    color: white;
+    vertical-align: middle;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.equipment-category-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.category-id {
+    color: var(--color-text-mutex);
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.category-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.category-icon {
+    color: var(--color-primary);
+    opacity: 0.7;
+}
+
+.category-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.status-ok {
+    color: var(--color-primary);
+}
+
+.status-ok .status-dot {
+    background-color: var(--color-primary);
+}
+
+.status-warning {
+    color: #f59e0b;
+}
+
+.status-warning .status-dot {
+    background-color: #f59e0b;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: var(--color-error);
+}

@@ -18,6 +18,8 @@ import CourtBookingReport from "../pages/Reports/CourtBookingReport";
 import ProductBookingReport from "../pages/Reports/ProductBookingReport";
 import Roles from "../pages/Roles/Roles";
 import RoleForm from "../pages/Roles/RoleForm";
+import EquipmentCategory from "../pages/EquipmentCategory/EquipmentCategory";
+import EquipmentCategoryForm from "../pages/EquipmentCategory/EquipmentCategoryForm";
 import MainLayout from "../layouts/MainLayout";
 
 export const router = createBrowserRouter([
@@ -84,6 +86,18 @@ export const router = createBrowserRouter([
             {
                 path: "equipment/edit/:id",
                 element: <EquipmentForm />,
+            },
+            {
+                path: "equipment-categories",
+                element: <EquipmentCategory />,
+            },
+            {
+                path: "equipment-categories/add",
+                element: <EquipmentCategoryForm />,
+            },
+            {
+                path: "equipment-categories/edit/:id",
+                element: <EquipmentCategoryForm />,
             },
             {
                 path: "users",

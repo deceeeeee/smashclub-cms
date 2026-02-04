@@ -131,6 +131,33 @@
     flex: 1;
 }
 
+/* Price input */
+.price-input-group {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.price-prefix {
+    padding: 0 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: 600;
+    border-right: 1px solid var(--color-border);
+}
+
+.price-input-group input {
+    border: none !important;
+    background-color: transparent !important;
+    flex: 1;
+}
+
 /* Avatar upload */
 .avatar-upload-group {
     display: flex;
@@ -198,6 +225,77 @@
     color: white;
 }
 
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: .4s;
+    border-radius: 34px;
+    border: 1px solid var(--color-border);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+input:checked+.slider {
+    background-color: rgba(0, 210, 190, 0.2);
+    border-color: var(--color-primary);
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+    background-color: var(--color-primary);
+}
+
+.status-text {
+    font-size: 1rem;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.status-text.active {
+    color: var(--color-primary);
+}
+
+.status-text.inactive {
+    color: var(--color-text-mutex);
+}
+
 .section-divider {
     height: 1px;
     background-color: rgba(255, 255, 255, 0.05);
@@ -242,4 +340,40 @@
 .btn-simpan:hover {
     background-color: var(--color-primary-hover);
     transform: translateY(-2px);
+}
+
+/* Error Text */
+.error-text {
+    display: block;
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Disabled Button States */
+.btn-simpan:disabled,
+.btn-batal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-simpan:disabled:hover {
+    background-color: var(--color-primary);
+    transform: none;
+}
+
+/* Animate Spin */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }

@@ -4,7 +4,8 @@ import {
     LogOut,
     HelpCircle,
     Settings,
-    Menu
+    Menu,
+    Bell
 } from 'lucide-react';
 import { getMenuIcon } from '../components/icons/MenuIcons';
 import AlertModal from '../components/ui/AlertModal/AlertModal';
@@ -22,6 +23,7 @@ const navigation = [
         items: [
             { name: 'Lapangan', to: '/courts', menuCode: 'court' },
             { name: 'Pelatih', to: '/trainers', menuCode: 'coach' },
+            { name: 'Kategori Peralatan', to: '/equipment-categories', menuCode: 'equipment-category' },
             { name: 'Peralatan', to: '/equipment', menuCode: 'equipment' },
             { name: 'Produk', to: '/products', menuCode: 'product' },
         ]
@@ -136,11 +138,11 @@ const MainLayout = () => {
                         {/* <button className="btn-add-order hide-mobile">
                             <Plus size={18} />
                             <span>Tambah Pesanan</span>
-                        </button>
+                        </button> */}
                         <button className="icon-btn">
                             <Bell size={20} />
                             <div className="notification-dot"></div>
-                        </button> */}
+                        </button>
                         <button className="icon-btn hide-tablet">
                             <Settings size={20} />
                         </button>

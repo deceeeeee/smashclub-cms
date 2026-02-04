@@ -61,7 +61,8 @@ const Trainers = () => {
     // Helper to get random avatar URL based on coachCode/ID
     const avatarSeeds: Record<number | string, string> = {
         1: "a042",
-        2: "a045"
+        2: "a045",
+        3: "trainer-3"
     };
 
     const getAvatarUrl = (id: number | string) => {
@@ -152,7 +153,7 @@ const Trainers = () => {
 
                             <div className="card-content">
                                 <h3 className="trainer-name">{trainer.coachName}</h3>
-                                <p className="trainer-specialist">{trainer.coachCode} • Spesialis Lapangan</p>
+                                <p className="trainer-specialist">{trainer.coachCode}</p>
 
                                 <div className="card-actions">
                                     <button className="btn-schedule">Lihat Jadwal</button>
@@ -184,8 +185,8 @@ const Trainers = () => {
                     <table className="trainers-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '40%' }}>NAMA PELATIH</th>
                                 <th style={{ width: '25%' }}>KODE</th>
+                                <th style={{ width: '40%' }}>NAMA PELATIH</th>
                                 <th style={{ width: '15%' }}>RATING</th>
                                 <th style={{ width: '20%', textAlign: 'center' }}>AKSI</th>
                             </tr>
@@ -194,15 +195,15 @@ const Trainers = () => {
                             {trainers.map((trainer) => (
                                 <tr key={trainer.id}>
                                     <td>
+                                        <span className="specialist-badge">{trainer.coachCode}</span>
+                                    </td>
+                                    <td>
                                         <div className="trainer-info-cell">
                                             <div className="trainer-avatar-mini">
                                                 <img src={getAvatarUrl(trainer.id)} alt={trainer.coachName} />
                                             </div>
                                             <span className="trainer-name-row">{trainer.coachName}</span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span className="specialist-badge">{trainer.coachCode}</span>
                                     </td>
                                     <td>
                                         <div className="rating-cell">

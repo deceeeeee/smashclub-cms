@@ -2,6 +2,7 @@ Dashboard
 Master Data
 ├─ Lapangan
 ├─ Pelatih
+├─ Kategori Peralatan
 ├─ Peralatan
 ├─ Produk
 Laporan

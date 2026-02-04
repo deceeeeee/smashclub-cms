@@ -75,6 +75,25 @@
     pointer-events: none;
 }
 
+.form-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md) !important;
+    color: white !important;
+    padding: 0.8rem 1rem !important;
+    font-size: 0.95rem !important;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.form-textarea:focus {
+    border-color: var(--color-primary) !important;
+    background: rgba(0, 210, 190, 0.05) !important;
+}
+
 /* Photo Upload Grid */
 .photo-upload-container {
     display: flex;
@@ -241,4 +260,198 @@
 
 .btn-simpan:hover {
     background-color: var(--color-primary-hover);
+}
+
+/* Variants Section */
+.variants-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.section-header-variants {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-primary);
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-add-variant {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 210, 190, 0.1);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add-variant:hover {
+    background: var(--color-primary);
+    color: #000;
+}
+
+.empty-variants {
+    padding: 2rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+}
+
+.variants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.variant-item-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: border-color 0.2s;
+}
+
+.variant-item-card:hover {
+    border-color: rgba(0, 210, 190, 0.3);
+}
+
+.variant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.variant-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: white;
+}
+
+.btn-remove-variant {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: opacity 0.2s;
+}
+
+.btn-remove-variant:hover {
+    opacity: 0.7;
+}
+
+.variant-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr;
+    gap: 1rem;
+    flex: 1;
+}
+
+.variant-content-wrapper {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.variant-photo-section {
+    flex-shrink: 0;
+}
+
+.variant-upload-box {
+    width: 80px;
+    height: 80px;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.variant-upload-box:hover {
+    border-color: var(--color-primary);
+    background: rgba(0, 210, 190, 0.05);
+}
+
+.variant-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-text-mutex);
+}
+
+.variant-upload-placeholder span {
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.variant-image-preview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.variant-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-remove-photo {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .variant-content-wrapper {
+        flex-direction: column;
+    }
+
+    .variant-upload-box {
+        width: 100px;
+        height: 100px;
+    }
+
+    .variant-grid {
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .variant-grid {
+        grid-template-columns: 1fr;
+    }
 }

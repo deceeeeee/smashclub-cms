@@ -1,3 +1,5 @@
+import type { PaginatedData } from "../../services/api.types";
+
 export interface Trainer {
     id: number;
     coachCode: string;
@@ -8,25 +10,11 @@ export interface Trainer {
     updatedAt: string | null;
 }
 
-export interface TrainerPageResponse {
-    content: Trainer[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-}
+export type TrainerPageResponse = PaginatedData<Trainer>;
 
 export interface TrainerPayload {
     coachCode: string;
     coachName: string;
     pricePerHour: number;
     status: number;
-}
-
-export interface ActionResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    status: number;
-    timestamp: string;
 }

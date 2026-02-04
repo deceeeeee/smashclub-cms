@@ -11,6 +11,7 @@ import {
     User,
     UserCheck,
     Settings,
+    Tag,
     type LucideIcon
 } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export const menuIconMap: Record<string, LucideIcon> = {
     'home': LayoutDashboard,
     'court': MapPin,
     'coach': UserCheck,
+    'equipment-category': Tag,
     'equipment': Package,
     'product': ShoppingBag,
     'player': Users,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Search,
@@ -7,24 +7,37 @@ import {
     ChevronLeft,
     ChevronRight,
     Edit2,
-    Trash2
+    Trash2,
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import { useConfirmStore } from '../../app/confirm.store';
 import './Players.css';
-
-const playersData = [
-    { id: 'SC-001', name: 'Budi Santoso', contact: '+62 812-3456-7890', joinDate: '12 Jan 2024', status: 'Aktif', avatar: 'BS', avatarColor: '#0d9488' },
-    { id: 'SC-002', name: 'Siti Aminah', contact: 'siti.a@email.com', joinDate: '15 Jan 2024', status: 'Aktif', avatar: 'SA', avatarColor: '#0f766e' },
-    { id: 'SC-003', name: 'Andi Wijaya', contact: '+62 857-1122-3344', joinDate: '02 Feb 2024', status: 'Non-Aktif', avatar: 'AW', avatarColor: '#115e59' },
-    { id: 'SC-004', name: 'Dewi Lestari', contact: 'dewi.l@email.com', joinDate: '10 Feb 2024', status: 'Aktif', avatar: 'DL', avatarColor: '#134e4a' },
-    { id: 'SC-005', name: 'Rizky Pratama', contact: '+62 813-9988-7766', joinDate: '20 Feb 2024', status: 'Aktif', avatar: 'RP', avatarColor: '#0f766e' },
-];
+import { usePlayerStore } from '../../features/player/player.store';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const Players = () => {
     const navigate = useNavigate();
-    const [players, setPlayers] = useState(playersData);
+    const {
+        players,
+        isLoading,
+        getPlayers,
+        // deletePlayer, 
+        totalElements,
+        totalPages
+    } = usePlayerStore();
 
     const { showConfirm } = useConfirmStore();
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(25);
+
+    const debouncedSearch = useDebounce(search, 500);
+
+    useEffect(() => {
+        getPlayers(debouncedSearch, page, size);
+    }, [debouncedSearch, page, size, getPlayers]);
 
     const handleEdit = (id: string) => {
         navigate(`/players/edit/${id}`);
@@ -35,9 +48,15 @@ const Players = () => {
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
             onConfirm: () => {
-                setPlayers(players.filter(p => p.id !== id));
+                // deletePlayer(id);
             }
         });
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPage(newPage);
+        }
     };
 
     return (
@@ -62,16 +81,16 @@ const Players = () => {
             <div className="stats-grid">
                 <div className="stat-card">
                     <span className="stat-label">Total Pemain</span>
-                    <h2 className="stat-value">1,248</h2>
+                    <h2 className="stat-value">{totalElements}</h2>
                 </div>
                 <div className="stat-card">
                     <span className="stat-label">Pemain Aktif</span>
-                    <h2 className="stat-value">1,102</h2>
+                    <h2 className="stat-value">{totalElements}</h2>
                 </div>
-                <div className="stat-card">
+                {/* <div className="stat-card">
                     <span className="stat-label">Baru (Bulan Ini)</span>
                     <h2 className="stat-value text-primary">+34</h2>
-                </div>
+                </div> */}
             </div>
 
             <div className="content-container-card">
@@ -105,53 +124,92 @@ const Players = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {players.map((player) => (
-                                <tr key={player.id}>
-                                    <td>{player.id}</td>
-                                    <td>
-                                        <div className="player-info-cell">
-                                            <div className="player-avatar-circle" style={{ backgroundColor: player.avatarColor }}>
-                                                {player.avatar}
-                                            </div>
-                                            <span className="player-name-text">{player.name}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={player.contact.includes('@') ? 'email-text' : 'phone-text'}>
-                                            {player.contact}
-                                        </span>
-                                    </td>
-                                    <td>{player.joinDate}</td>
-                                    <td>
-                                        <span className={`status-badge ${player.status === 'Aktif' ? 'status-active' : 'status-inactive'}`}>
-                                            {player.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button className="btn-icon-action" onClick={() => handleEdit(player.id)}><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(player.id)}><Trash2 size={16} /></button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                            <Loader2 className="animate-spin" size={32} />
+                                            <span>Memuat data pemain...</span>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : players.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
+                                            <AlertCircle size={40} />
+                                            <span>Tidak ada data pemain ditemukan.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                players.map((player) => (
+                                    <tr key={player.id}>
+                                        <td>{player.id}</td>
+                                        <td>
+                                            <div className="player-info-cell">
+                                                {/* <div className="player-avatar-circle" style={{ backgroundColor: player.avatarColor }}>
+                                                {player.avatar}
+                                            </div> */}
+                                                <span className="player-name-text">{player.fullName}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={'email-text'}>
+                                                {player.email}
+                                            </span>
+                                        </td>
+                                        <td>{player.createdAt}</td>
+                                        <td>
+                                            <span className={`status-badge ${player.status ? 'status-active' : 'status-inactive'}`}>
+                                                {player.status ? 'Aktif' : 'Tidak Aktif'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="action-buttons">
+                                                <button className="btn-icon-action" onClick={() => handleEdit(player.id)}><Edit2 size={16} /></button>
+                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(player.id)}><Trash2 size={16} /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
+
                     {/* Pagination */}
-                    <div className="pagination-bar">
-                        <div className="pagination-info">
-                            Menampilkan 1-5 dari 1,248 pemain
+                    {!isLoading && totalElements > 0 && (
+                        <div className="pagination-bar">
+                            <div className="pagination-info">
+                                Menampilkan <strong>{(page * size) + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> lapangan
+                            </div>
+                            <div className="pagination-controls">
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => handlePageChange(page - 1)}
+                                    disabled={page === 0}
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={`pagination-btn ${page === i ? 'active' : ''}`}
+                                        onClick={() => handlePageChange(i)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => handlePageChange(page + 1)}
+                                    disabled={page === totalPages - 1}
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="pagination-controls">
-                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                            <button className="pagination-btn active">1</button>
-                            <button className="pagination-btn">2</button>
-                            <button className="pagination-btn">3</button>
-                            <span className="pagination-ellipsis">...</span>
-                            <button className="pagination-btn">250</button>
-                            <button className="pagination-btn"><ChevronRight size={16} /></button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

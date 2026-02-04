@@ -38,11 +38,3 @@ export interface UserPageResponse {
     last: boolean;
     empty: boolean;
 }
-
-export interface ActionResponse<T = any> {
-    success: boolean;
-    message: string;
-    status: number;
-    timestamp: string;
-    data: T;
-}

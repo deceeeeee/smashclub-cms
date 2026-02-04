@@ -1,7 +1,5 @@
-export interface EquipmentCategory {
-    id: number;
-    categoryName: string;
-}
+import type { PaginatedData } from "../../services/api.types";
+import type { EquipmentCategory } from "../equipment-category/equipment-category.types";
 
 export interface Equipment {
     id: number;
@@ -15,13 +13,7 @@ export interface Equipment {
     equipmentCategory: EquipmentCategory;
 }
 
-export interface EquipmentPageResponse {
-    content: Equipment[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-}
+export type EquipmentPageResponse = PaginatedData<Equipment>;
 
 export interface EquipmentPayload {
     equipmentName: string;
@@ -30,13 +22,7 @@ export interface EquipmentPayload {
     stock: number;
     price: number;
     status: number;
-    categoryId: number;
-}
-
-export interface ActionResponse<T> {
-    success: boolean;
-    message: string;
-    data: T;
-    status: number;
-    timestamp: string;
+    equipmentCategory: {
+        id: number;
+    };
 }

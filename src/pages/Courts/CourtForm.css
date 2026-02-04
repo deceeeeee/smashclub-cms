@@ -208,6 +208,10 @@ input:checked+.slider:before {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
 .btn-simpan:hover {
@@ -241,4 +245,39 @@ input:checked+.slider:before {
     color: var(--color-text-mutex);
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+/* Error Text */
+.error-text {
+    display: block;
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* Disabled Button States */
+.btn-simpan:disabled,
+.btn-batal:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-simpan:disabled:hover {
+    background-color: var(--color-primary);
+}
+
+/* Animate Spin */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }

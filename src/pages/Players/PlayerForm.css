@@ -71,7 +71,9 @@
     color: rgba(255, 255, 255, 0.4);
 }
 
-.input-with-icon input {
+.form-group .input-with-icon input[type="text"],
+.form-group .input-with-icon input[type="email"],
+.form-group .input-with-icon input[type="date"] {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -82,7 +84,7 @@
     transition: all 0.2s;
 }
 
-.input-with-icon input:focus {
+.form-group .input-with-icon input:focus {
     border-color: #10b981;
     outline: none;
     background-color: rgba(0, 0, 0, 0.3);
