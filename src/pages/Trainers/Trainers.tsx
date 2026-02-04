@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
@@ -10,28 +10,30 @@ import {
     List,
     UserPlus,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import { useConfirmStore } from '../../app/confirm.store';
+import { useTrainersStore } from '../../features/trainers/trainers.store';
+import { useDebounce } from '../../hooks/useDebounce';
 import './Trainers.css';
 
-// Mock Data
-const trainersData = [
-    { id: 1, name: 'Budi Santoso', role: 'Bulutangkis', rating: 4.8, imageColor: '#1e3a8a' },
-    { id: 2, name: 'Sari Wijaya', role: 'Tenis', rating: 4.9, imageColor: '#9d174d' },
-    { id: 3, name: 'Andi Wijaya', role: 'Basket', rating: 4.7, imageColor: '#0f766e' },
-    { id: 4, name: 'Dewi Lestari', role: 'Voli', rating: 4.5, imageColor: '#ea580c' },
-    { id: 5, name: 'Rahmat Hidayat', role: 'Futsal', rating: 4.9, imageColor: '#0e7490' },
-    { id: 6, name: 'Siska Putri', role: 'Bulutangkis', rating: 4.6, imageColor: '#be185d' },
-];
-
 const Trainers = () => {
-
     const navigate = useNavigate();
-    const [trainers, setTrainers] = useState(trainersData);
-    const [activeFilter, setActiveFilter] = useState('Semua');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const { trainers, isLoading, getTrainers, deleteTrainer, totalElements, totalPages } = useTrainersStore();
     const { showConfirm } = useConfirmStore();
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(12);
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+    const debouncedSearch = useDebounce(search, 500);
+
+    useEffect(() => {
+        getTrainers(debouncedSearch, page, size);
+    }, [debouncedSearch, page, size, getTrainers]);
 
     const handleEdit = (id: number) => {
         navigate(`/trainers/edit/${id}`);
@@ -41,16 +43,31 @@ const Trainers = () => {
         showConfirm({
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
-            onConfirm: () => {
-                setTrainers(trainers.filter(t => t.id !== id));
+            onConfirm: async () => {
+                const result = await deleteTrainer(id);
+                if (result.success) {
+                    getTrainers(debouncedSearch, page, size);
+                }
             }
         });
     };
 
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPage(newPage);
+        }
+    };
 
-    const filteredTrainers = activeFilter === 'Semua'
-        ? trainers
-        : trainers.filter(t => t.role === activeFilter);
+    // Helper to get random avatar URL based on coachCode/ID
+    const avatarSeeds: Record<number | string, string> = {
+        1: "a042",
+        2: "a045"
+    };
+
+    const getAvatarUrl = (id: number | string) => {
+        const seed = avatarSeeds[id as keyof typeof avatarSeeds] || `trainer-${id}`;
+        return `https://i.pravatar.cc/300?u=${seed}`;
+    };
 
     return (
         <div className="trainers-page">
@@ -77,20 +94,14 @@ const Trainers = () => {
 
             {/* Filter & View Toggle */}
             <div className="filters-toolbar">
-                <div className="category-filters">
-                    {['Semua', 'Bulutangkis', 'Tenis', 'Basket', 'Futsal', 'Voli'].map(filter => (
-                        <button
-                            key={filter}
-                            className={`filter-chip ${activeFilter === filter ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(filter)}
-                        >
-                            {filter}
-                        </button>
-                    ))}
-                </div>
                 <div className="search-bar">
                     <Search size={18} className="search-icon" />
-                    <input type="text" placeholder="Cari pelatih berdasarkan nama..." />
+                    <input
+                        type="text"
+                        placeholder="Cari pelatih berdasarkan nama..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
                 </div>
                 <div className="view-toggle">
                     <span className="view-label">Tampilan:</span>
@@ -110,61 +121,144 @@ const Trainers = () => {
                     </div>
                 </div>
             </div>
-            {/* Grid Content */}
-            <div className="trainers-grid">
-                {filteredTrainers.map((trainer) => (
-                    <div key={trainer.id} className="trainer-card">
-                        <div className="card-image-container" style={{ backgroundColor: trainer.imageColor }}>
-                            <div className="rating-badge">
-                                <Star size={12} fill="#fbbf24" stroke="#fbbf24" />
-                                <span>{trainer.rating}</span>
+            {/* Main Content */}
+            {isLoading ? (
+                <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                        <Loader2 className="animate-spin" size={40} />
+                        <span>Memuat data pelatih...</span>
+                    </div>
+                </div>
+            ) : trainers.length === 0 ? (
+                <div className="empty-container" style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
+                        <AlertCircle size={48} />
+                        <span>Tidak ada data pelatih ditemukan.</span>
+                    </div>
+                </div>
+            ) : viewMode === 'grid' ? (
+                <div className="trainers-grid">
+                    {trainers.map((trainer) => (
+                        <div key={trainer.id} className="trainer-card">
+                            <div className="card-image-container">
+                                <div className="rating-badge">
+                                    <Star size={12} fill="#fbbf24" stroke="#fbbf24" />
+                                    <span>{4.5 + (trainer.id % 5) / 10}</span>
+                                </div>
+                                <div className="trainer-img-wrapper">
+                                    <img src={getAvatarUrl(trainer.id)} alt={trainer.coachName} className="trainer-avatar-img" />
+                                </div>
                             </div>
-                            {/* Placeholder for trainer image - using simple initials or just color for now as per "slicing" without assets */}
-                            <div className="trainer-img-placeholder">
-                                {/* Image would go here */}
-                            </div>
-                        </div>
 
-                        <div className="card-content">
-                            <h3 className="trainer-name">{trainer.name}</h3>
-                            <p className="trainer-specialist">Spesialis: {trainer.role}</p>
+                            <div className="card-content">
+                                <h3 className="trainer-name">{trainer.coachName}</h3>
+                                <p className="trainer-specialist">{trainer.coachCode} • Spesialis Lapangan</p>
 
-                            <div className="card-actions">
-                                <button className="btn-schedule">Lihat Jadwal</button>
-                                <div className="card-action-btns">
-                                    <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
-                                        <Trash2 size={16} />
-                                    </button>
+                                <div className="card-actions">
+                                    <button className="btn-schedule">Lihat Jadwal</button>
+                                    <div className="card-action-btns">
+                                        <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
-                {/* Add New Trainer Card (Dashed) */}
-                <div className="add-trainer-card" onClick={() => navigate('/trainers/add')}>
-                    <div className="add-content">
-                        <div className="add-icon-circle">
-                            <UserPlus size={32} />
+                    {/* Add New Trainer Card (Dashed) */}
+                    <div className="add-trainer-card" onClick={() => navigate('/trainers/add')}>
+                        <div className="add-content">
+                            <div className="add-icon-circle">
+                                <UserPlus size={32} />
+                            </div>
+                            <span>TAMBAH PELATIH</span>
                         </div>
-                        <span>TAMBAH PELATIH</span>
                     </div>
                 </div>
-            </div>
-            {/* Pagination */}
-            <div className="pagination-footer">
-                <span className="pagination-text">Menampilkan 6 dari 24 pelatih terdaftar</span>
-                <div className="pagination-buttons">
-                    <button className="page-btn"><ChevronLeft size={16} /></button>
-                    <button className="page-btn active-page">1</button>
-                    <button className="page-btn">2</button>
-                    <button className="page-btn">3</button>
-                    <button className="page-btn"><ChevronRight size={16} /></button>
+            ) : (
+                <div className="table-card">
+                    <table className="trainers-table">
+                        <thead>
+                            <tr>
+                                <th style={{ width: '40%' }}>NAMA PELATIH</th>
+                                <th style={{ width: '25%' }}>KODE</th>
+                                <th style={{ width: '15%' }}>RATING</th>
+                                <th style={{ width: '20%', textAlign: 'center' }}>AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {trainers.map((trainer) => (
+                                <tr key={trainer.id}>
+                                    <td>
+                                        <div className="trainer-info-cell">
+                                            <div className="trainer-avatar-mini">
+                                                <img src={getAvatarUrl(trainer.id)} alt={trainer.coachName} />
+                                            </div>
+                                            <span className="trainer-name-row">{trainer.coachName}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span className="specialist-badge">{trainer.coachCode}</span>
+                                    </td>
+                                    <td>
+                                        <div className="rating-cell">
+                                            <Star size={14} fill="#fbbf24" stroke="#fbbf24" />
+                                            <span>{4.5 + (trainer.id % 5) / 10}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="action-buttons">
+                                            <button className="btn-icon-action" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            )}
+            {/* Pagination */}
+            {!isLoading && totalElements > 0 && (
+                <div className="pagination-footer">
+                    <span className="pagination-text">
+                        Menampilkan <strong>{page * size + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> pelatih terdaftar
+                    </span>
+                    <div className="pagination-buttons">
+                        <button
+                            className="page-btn"
+                            onClick={() => handlePageChange(page - 1)}
+                            disabled={page === 0}
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i}
+                                className={`page-btn ${page === i ? 'active-page' : ''}`}
+                                onClick={() => handlePageChange(i)}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                        <button
+                            className="page-btn"
+                            onClick={() => handlePageChange(page + 1)}
+                            disabled={page === totalPages - 1}
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

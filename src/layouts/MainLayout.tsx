@@ -20,7 +20,7 @@ const navigation = [
     {
         section: 'Master Data',
         items: [
-            { name: 'Lapangan', to: '/fields', menuCode: 'court' },
+            { name: 'Lapangan', to: '/courts', menuCode: 'court' },
             { name: 'Pelatih', to: '/trainers', menuCode: 'coach' },
             { name: 'Peralatan', to: '/equipment', menuCode: 'equipment' },
             { name: 'Produk', to: '/products', menuCode: 'product' },

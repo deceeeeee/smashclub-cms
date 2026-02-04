@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
-import Fields from "../pages/Fields/Fields";
-import FieldForm from "../pages/Fields/FieldForm";
+import Courts from "../pages/Courts/Courts";
+import CourtForm from "../pages/Courts/CourtForm";
 import Products from "../pages/Products/Products";
 import ProductForm from "../pages/Products/ProductForm";
 import Trainers from "../pages/Trainers/Trainers";
@@ -14,7 +14,7 @@ import UserForm from "../pages/Users/UserForm";
 import Players from "../pages/Players/Players";
 import PlayerForm from "../pages/Players/PlayerForm";
 import SalesReport from "../pages/Reports/SalesReport";
-import FieldBookingReport from "../pages/Reports/FieldBookingReport";
+import CourtBookingReport from "../pages/Reports/CourtBookingReport";
 import ProductBookingReport from "../pages/Reports/ProductBookingReport";
 import Roles from "../pages/Roles/Roles";
 import RoleForm from "../pages/Roles/RoleForm";
@@ -38,16 +38,16 @@ export const router = createBrowserRouter([
                 element: <Dashboard />,
             },
             {
-                path: "fields",
-                element: <Fields />,
+                path: "courts",
+                element: <Courts />,
             },
             {
-                path: "fields/add",
-                element: <FieldForm />,
+                path: "courts/add",
+                element: <CourtForm />,
             },
             {
-                path: "fields/edit/:id",
-                element: <FieldForm />,
+                path: "courts/edit/:id",
+                element: <CourtForm />,
             },
             {
                 path: "products",
@@ -128,7 +128,7 @@ export const router = createBrowserRouter([
             // Placeholder routes for navigation items not yet implemented
             {
                 path: "reports/bookings",
-                element: <FieldBookingReport />,
+                element: <CourtBookingReport />,
             },
             {
                 path: "reports/products",

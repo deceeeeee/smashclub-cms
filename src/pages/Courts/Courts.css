@@ -1,0 +1,225 @@
+.courts-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Filter Bar Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.filter-tab {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-mutex);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.filter-tab:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.filter-tab.active {
+    background-color: var(--color-primary);
+    color: #000;
+}
+
+.filter-tab .tab-icon {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+}
+
+.sort-control {
+    display: flex;
+    align-items: center;
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.sort-control:hover {
+    color: white;
+}
+
+/* Table Specific Layout */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.custom-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.custom-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    color: white;
+    vertical-align: middle;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.custom-table tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Table Cells */
+.court-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.court-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 210, 190, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 210, 190, 0.2);
+}
+
+.court-emoji-icon {
+    font-size: 1.25rem;
+}
+
+.court-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.type-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #e2e8f0;
+}
+
+.price-text {
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+.status-active {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.status-active .status-dot {
+    background-color: #10b981;
+}
+
+.status-maintenance {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.status-maintenance .status-dot {
+    background-color: #f59e0b;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* Summary Grid */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.summary-card {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.summary-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-blue {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.icon-green {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.icon-orange {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.summary-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-mutex);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+}

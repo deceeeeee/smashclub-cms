@@ -12,32 +12,6 @@
     align-items: center;
 }
 
-.category-filters {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.filter-chip {
-    padding: 0.5rem 1.25rem;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--color-text-mutex);
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.filter-chip:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.filter-chip.active {
-    background-color: var(--color-primary);
-    color: #000;
-    font-weight: 600;
-}
-
 .view-toggle {
     display: flex;
     align-items: center;
@@ -61,6 +35,9 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .toggle-btn.active {
@@ -71,7 +48,7 @@
 /* Grid Layout */
 .trainers-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
 }
 
@@ -91,10 +68,28 @@
 }
 
 .card-image-container {
-    height: 220px;
+    height: 240px;
     width: 100%;
     position: relative;
-    /* Image styling handled by inline styles or backgrounds in real app */
+    background-color: #0d2528;
+}
+
+.trainer-img-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.trainer-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%) contrast(110%);
+    transition: transform 0.3s;
+}
+
+.trainer-card:hover .trainer-avatar-img {
+    transform: scale(1.05);
 }
 
 .rating-badge {
@@ -111,6 +106,7 @@
     color: white;
     font-size: 0.8rem;
     font-weight: 600;
+    z-index: 10;
 }
 
 .card-content {
@@ -177,8 +173,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 380px;
-    /* Match approx height of other cards */
+    min-height: 400px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -216,4 +211,75 @@
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.05em;
+}
+
+/* List View (Table) Styles */
+.trainers-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.trainers-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.trainers-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background-color: rgba(0, 0, 0, 0.1);
+    vertical-align: middle;
+}
+
+.trainers-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.trainer-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.trainer-avatar-mini {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trainer-avatar-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.trainer-name-row {
+    font-weight: 600;
+    color: white;
+}
+
+.specialist-badge {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
+}
+
+.rating-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fbbf24;
+    font-weight: 600;
+    font-size: 0.9rem;
 }

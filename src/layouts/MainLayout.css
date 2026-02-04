@@ -557,6 +557,38 @@
     padding: 0 0.5rem;
 }
 
+/* Global Size Selector (Shared across management pages) */
+.size-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-text-mutex);
+    font-size: 0.85rem;
+}
+
+.page-size-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: white;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-size-select:focus {
+    border-color: var(--color-primary);
+    background: var(--color-input-bg);
+}
+
+.page-size-select option {
+    background: #031214;
+    /* Match dark theme */
+    color: white;
+}
+
 
 /* Input*/
 .form-group {

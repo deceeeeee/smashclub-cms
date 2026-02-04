@@ -1,62 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
     Search,
-    ChevronDown,
     Edit2,
     Trash2,
     ChevronLeft,
     ChevronRight,
     ShieldCheck,
-    Edit3,
-    Mail
+    Loader2
 } from 'lucide-react';
+import { useUsersStore } from '../../features/users/users.store';
 import { useConfirmStore } from '../../app/confirm.store';
+import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import './Users.css';
-
-// Mock Data
-const usersData = [
-    {
-        id: 1,
-        name: 'Budi Santoso',
-        email: 'budi.santoso@smashclub.com',
-        role: 'Admin',
-        status: 'Aktif',
-        avatarColor: '#fde047' // Yellowish
-    },
-    {
-        id: 2,
-        name: 'Siti Aminah',
-        email: 'siti.a@smashclub.com',
-        role: 'User',
-        status: 'Aktif',
-        avatarColor: '#bfdbfe' // Light Blue
-    },
-    {
-        id: 3,
-        name: 'Rian Hidayat',
-        email: 'rian.hidayat@smashclub.com',
-        role: 'User',
-        status: 'Non-aktif',
-        avatarColor: '#bbf7d0' // Light Green
-    },
-    {
-        id: 4,
-        name: 'Maya Sari',
-        email: 'maya.sari@smashclub.com',
-        role: 'Admin',
-        status: 'Pending',
-        avatarColor: '#fed7aa' // Light Orange
-    },
-];
 
 const Users = () => {
     const navigate = useNavigate();
-    const [users, setUsers] = useState(usersData);
-    const [activeTab, setActiveTab] = useState('Semua Peran');
-
+    const { users, isLoading, getUsers, deleteUser, totalElements, totalPages } = useUsersStore();
     const { showConfirm } = useConfirmStore();
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(25);
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    // Debounce search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(0); // Reset to first page on new search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    useEffect(() => {
+        getUsers(debouncedSearch, page, size);
+    }, [getUsers, debouncedSearch, page, size]);
 
     const handleEdit = (id: number) => {
         navigate(`/users/edit/${id}`);
@@ -66,18 +46,14 @@ const Users = () => {
         showConfirm({
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
-            onConfirm: () => {
-                setUsers(users.filter(u => u.id !== id));
+            onConfirm: async () => {
+                const result = await deleteUser(id);
+                if (result.success) {
+                    getUsers(debouncedSearch, page, size);
+                }
             }
         });
     };
-
-    const filteredUsers = users.filter((item) => {
-        if (activeTab == "Semua Peran") {
-            return item;
-        }
-        return item.role == activeTab;
-    });
 
     return (
         <div className="users-page">
@@ -109,31 +85,38 @@ const Users = () => {
                     </div>
                     <div className="stat-info">
                         <span className="stat-label-sm">Total User</span>
-                        <span className="stat-number">24</span>
+                        <span className="stat-number">{totalElements}</span>
                     </div>
                 </div>
             </div>
             {/* Main Content Card */}
             <div className="content-card">
-                {/* Toolbar */}
-                <div className="toolbar">
+                {/* Filter & Search Bar */}
+                <div className="filter-bar">
                     <div className="search-bar">
                         <Search size={18} className="search-icon" />
-                        <input type="text" placeholder="Cari nama atau email pengguna..." />
+                        <input
+                            type="text"
+                            placeholder="Cari user..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
-                    <div className="filter-group">
-                        <button
-                            className={`${activeTab === 'Semua Peran' ? 'filter-btn-teal' : 'filter-btn-dark'}`}
-                            onClick={() => setActiveTab('Semua Peran')}
+                    <div className="size-selector">
+                        <span>Tampilkan:</span>
+                        <select
+                            value={size}
+                            onChange={(e) => {
+                                setSize(Number(e.target.value));
+                                setPage(0);
+                            }}
+                            className="page-size-select"
                         >
-                            Semua Peran
-                        </button>
-                        <button className={`${activeTab === 'Admin' ? 'filter-btn-teal' : 'filter-btn-dark'}`} onClick={() => setActiveTab('Admin')}>
-                            Admin
-                        </button>
-                        <button className={`${activeTab === 'User' ? 'filter-btn-teal' : 'filter-btn-dark'}`} onClick={() => setActiveTab('User')}>
-                            User
-                        </button>
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                        </select>
+                        <span>per halaman</span>
                     </div>
                 </div>
                 {/* Table */}
@@ -148,47 +131,86 @@ const Users = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers.map((user) => (
-                                <tr key={user.id}>
-                                    <td>
-                                        <div className="user-cell">
-                                            <span className="user-name">{user.name}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`role-badge ${user.role === 'Admin' ? 'role-super' : 'role-editor'}`}>
-                                            {user.role}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="status-cell">
-                                            <span className={`status-dot ${user.status === 'Aktif' ? 'dot-active' :
-                                                user.status === 'Non-aktif' ? 'dot-inactive' : 'dot-pending'
-                                                }`}></span>
-                                            <span className="status-text">{user.status}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button className="btn-icon-action" onClick={() => handleEdit(user.id)}><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(user.id)}><Trash2 size={16} /></button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                            <Loader2 className="animate-spin" size={32} />
+                                            <span>Memuat data...</span>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : users.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        Belum ada data pengguna.
+                                    </td>
+                                </tr>
+                            ) : (
+                                users.map((user) => (
+                                    <tr key={user.id}>
+                                        <td>
+                                            <div className="user-cell">
+                                                <div className="user-info-text">
+                                                    <span className="user-name">{user.fullName}</span>
+                                                    <span className="user-email-text">{user.username}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`role-badge ${user.adminRole.roleCode === 'DEV' ? 'role-super' : 'role-editor'}`}>
+                                                {user.adminRole.roleName}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="status-cell">
+                                                <span className={`status-dot ${user.status === STATUS_FLAGS.ACTIVE ? 'dot-active' : 'dot-inactive'}`}></span>
+                                                <span className="status-text">{getStatusLabel(user.status)}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="action-buttons">
+                                                <button className="btn-icon-action" onClick={() => handleEdit(user.id)}><Edit2 size={16} /></button>
+                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(user.id)}><Trash2 size={16} /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                     {/* Pagination */}
                     <div className="pagination-bar">
                         <div className="pagination-info">
-                            Menampilkan 1 sampai 4 dari {filteredUsers.length} pengguna
+                            Menampilkan <strong>{users.length > 0 ? page * size + 1 : 0}</strong> - <strong>{page * size + users.length}</strong> dari <strong>{totalElements}</strong> pengguna
                         </div>
                         <div className="pagination-controls">
-                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                            <button className="pagination-btn active-page">1</button>
-                            <button className="pagination-btn">2</button>
-                            <button className="pagination-btn">3</button>
-                            <button className="pagination-btn"><ChevronRight size={16} /></button>
+                            <button
+                                className="pagination-btn"
+                                disabled={page === 0 || isLoading}
+                                onClick={() => setPage(p => p - 1)}
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`pagination-btn ${page === i ? 'active-page' : ''}`}
+                                    onClick={() => setPage(i)}
+                                    disabled={isLoading}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                className="pagination-btn"
+                                disabled={page >= totalPages - 1 || isLoading}
+                                onClick={() => setPage(p => p + 1)}
+                            >
+                                <ChevronRight size={16} />
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -33,13 +33,8 @@
 
 .filter-btn.active {
     background-color: rgba(0, 210, 190, 0.15);
-    /* Darker teal for active state background */
     color: var(--color-primary);
     border-color: var(--color-primary);
-}
-
-.filter-btn.dropdown {
-    padding-right: 1rem;
 }
 
 /* Product Table Structure */
@@ -79,13 +74,21 @@
     gap: 1rem;
 }
 
-.product-img-placeholder {
+.product-img {
     width: 48px;
     height: 48px;
     border-radius: 8px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .product-name {
@@ -95,7 +98,6 @@
 
 .category-badge {
     background-color: rgba(255, 255, 255, 0.08);
-    /* Dark gray badge */
     color: #cbd5e1;
     padding: 0.35rem 0.85rem;
     border-radius: 20px;
@@ -105,49 +107,32 @@
     text-wrap: nowrap;
 }
 
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-active {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-inactive {
+    background-color: rgba(100, 116, 139, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
 .price-text {
     color: var(--color-primary);
     font-weight: 600;
     letter-spacing: 0.02em;
-}
-
-.stock-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.stock-value {
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.stock-value.text-red {
-    color: var(--color-error);
-}
-
-.stock-unit {
-    font-size: 0.8rem;
-    color: var(--color-text-mutex);
-    margin-top: 0.2rem;
-}
-
-.stock-status {
-    margin-left: 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.1rem 0;
-    letter-spacing: 0.05em;
-}
-
-.status-warning {
-    color: #f97316;
-    /* Orange */
-}
-
-.status-danger {
-    color: var(--color-error);
-    /* Red */
 }
 
 .btn-delete:hover {

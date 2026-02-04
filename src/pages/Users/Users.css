@@ -5,42 +5,16 @@
     width: 100%;
 }
 
-/* Filter Groups */
-.filter-group {
+
+.user-info-text {
     display: flex;
-    gap: 0.75rem;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
-.filter-btn-teal {
-    padding: 0.6rem 1.25rem;
-    background-color: var(--color-primary);
-    color: #000;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.filter-btn-dark {
-    padding: 0.6rem 1.25rem;
-    background-color: rgba(255, 255, 255, 0.05);
+.user-email-text {
+    font-size: 0.8rem;
     color: var(--color-text-mutex);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.filter-btn-dark:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
 }
 
 .ml-1 {

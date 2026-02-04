@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Plus,
@@ -7,61 +7,29 @@ import {
     Trash2,
     ChevronLeft,
     ChevronRight,
-    Package
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import { useConfirmStore } from '../../app/confirm.store';
+import { useProductsStore } from '../../features/products/products.store';
+import { useDebounce } from '../../hooks/useDebounce';
 import './Products.css';
-
-// Mock Data
-const productsData = [
-    {
-        id: 1,
-        name: 'Raket Yonex Astrox 99 Pro',
-        category: 'Alat Olahraga',
-        price: 2450000,
-        stock: 12,
-        unit: 'unit',
-        status: 'Normal',
-        imageColor: '#2d3748'
-    },
-    {
-        id: 2,
-        name: 'Shuttlecock JP Gold (12pcs)',
-        category: 'Alat Olahraga',
-        price: 125000,
-        stock: 4,
-        unit: '',
-        status: 'Menipis',
-        imageColor: '#fef3c7'
-    },
-    {
-        id: 3,
-        name: 'Pocari Sweat 500ml',
-        category: 'Minuman',
-        price: 8000,
-        stock: 48,
-        unit: 'botol',
-        status: 'Normal',
-        imageColor: '#e0f2fe'
-    },
-    {
-        id: 4,
-        name: 'Grip Karet RS Premium',
-        category: 'Alat Olahraga',
-        price: 15000,
-        stock: 0,
-        unit: '',
-        status: 'Habis',
-        imageColor: '#fed7aa'
-    }
-];
 
 const Products = () => {
     const navigate = useNavigate();
-    const [products, setProducts] = useState(productsData);
+    const { products, isLoading, getProducts, deleteProduct, totalElements, totalPages } = useProductsStore();
+    const { showConfirm } = useConfirmStore();
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(10);
     const [activeFilter, setActiveFilter] = useState('Semua');
 
-    const { showConfirm } = useConfirmStore();
+    const debouncedSearch = useDebounce(search, 500);
+
+    useEffect(() => {
+        getProducts(debouncedSearch, page, size);
+    }, [debouncedSearch, page, size, getProducts]);
 
     const handleEdit = (id: number) => {
         navigate(`/products/edit/${id}`);
@@ -71,10 +39,19 @@ const Products = () => {
         showConfirm({
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
-            onConfirm: () => {
-                setProducts(products.filter(p => p.id !== id));
+            onConfirm: async () => {
+                const result = await deleteProduct(id);
+                if (result.success) {
+                    getProducts(debouncedSearch, page, size);
+                }
             }
         });
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setPage(newPage);
+        }
     };
 
     const filteredProducts = activeFilter === 'Semua'
@@ -106,10 +83,15 @@ const Products = () => {
             {/* Main Content Card */}
             <div className="content-card">
                 {/* Toolbar: Search & Filter */}
-                <div className="toolbar">
+                <div className="filter-bar">
                     <div className="search-bar">
                         <Search size={18} className="search-icon" />
-                        <input type="text" placeholder="Cari nama produk atau kode..." />
+                        <input
+                            type="text"
+                            placeholder="Cari nama produk..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
                     <div className="filter-group">
                         <button
@@ -125,11 +107,27 @@ const Products = () => {
                             Minuman
                         </button>
                         <button
-                            className={`filter-btn ${activeFilter === 'Alat Olahraga' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('Alat Olahraga')}
+                            className={`filter-btn ${activeFilter === 'Makanan' ? 'active' : ''}`}
+                            onClick={() => setActiveFilter('Makanan')}
                         >
-                            Alat Olahraga
+                            Makanan
                         </button>
+                    </div>
+                    <div className="size-selector">
+                        <span>Tampilkan:</span>
+                        <select
+                            value={size}
+                            onChange={(e) => {
+                                setSize(Number(e.target.value));
+                                setPage(0);
+                            }}
+                            className="page-size-select"
+                        >
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                        </select>
+                        <span>per halaman</span>
                     </div>
                 </div>
                 {/* Table */}
@@ -137,69 +135,94 @@ const Products = () => {
                     <table className="product-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '40%' }}>NAMA PRODUK</th>
-                                <th style={{ width: '15%' }}>KATEGORI</th>
-                                <th style={{ width: '15%' }}>HARGA</th>
-                                <th style={{ width: '15%' }}>STOK</th>
+                                <th style={{ width: '45%' }}>NAMA PRODUK</th>
+                                <th style={{ width: '20%' }}>KATEGORI</th>
+                                <th style={{ width: '20%' }}>STATUS</th>
                                 <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredProducts.map((product) => (
-                                <tr key={product.id}>
-                                    <td>
-                                        <div className="product-cell">
-                                            <div className="product-img-placeholder" style={{ backgroundColor: product.imageColor }}>
-                                                <Package size={20} color="#64748b" />
-                                            </div>
-                                            <span className="product-name">{product.name}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className="category-badge">{product.category}</span>
-                                    </td>
-                                    <td>
-                                        <span className="price-text">Rp {product.price.toLocaleString('id-ID')}</span>
-                                    </td>
-                                    <td>
-                                        <div className="stock-cell">
-                                            <span className={`stock-value ${product.stock === 0 ? 'text-red' : ''}`}>
-                                                {product.stock}
-                                            </span>
-                                            {product.stock > 0 && product.unit && <span className="stock-unit">{product.unit}</span>}
-
-                                            {product.status === 'Menipis' && (
-                                                <span className="stock-status status-warning">MENIPIS</span>
-                                            )}
-
-                                            {product.status === 'Habis' && (
-                                                <span className="stock-status status-danger">HABIS</span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button className="btn-icon-action" onClick={() => handleEdit(product.id)}><Edit2 size={16} /></button>
-                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(product.id)}><Trash2 size={16} /></button>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                            <Loader2 className="animate-spin" size={32} />
+                                            <span>Memuat data produk...</span>
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : filteredProducts.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
+                                            <AlertCircle size={40} />
+                                            <span>Tidak ada data produk ditemukan.</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredProducts.map((product) => (
+                                    <tr key={product.id}>
+                                        <td>
+                                            <div className="product-cell">
+                                                <div className="product-img">
+                                                    <img src={product.defaultImgLink} alt={product.productName} />
+                                                </div>
+                                                <span className="product-name">{product.productName}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className="category-badge">{product.category}</span>
+                                        </td>
+                                        <td>
+                                            <div className={`status-badge ${product.status === 1 ? 'status-active' : 'status-inactive'}`}>
+                                                {product.status === 1 ? 'Aktif' : 'Tidak Aktif'}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="action-buttons">
+                                                <button className="btn-icon-action" onClick={() => handleEdit(product.id)}><Edit2 size={16} /></button>
+                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(product.id)}><Trash2 size={16} /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                     {/* Pagination */}
-                    <div className="pagination-bar">
-                        <div className="pagination-info">
-                            Menampilkan 1 - 4 dari 32 produk
+                    {!isLoading && totalElements > 0 && (
+                        <div className="pagination-bar">
+                            <div className="pagination-info">
+                                Menampilkan <strong>{page * size + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> produk
+                            </div>
+                            <div className="pagination-controls">
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => handlePageChange(page - 1)}
+                                    disabled={page === 0}
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={`pagination-btn ${page === i ? 'active-page' : ''}`}
+                                        onClick={() => handlePageChange(i)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    className="pagination-btn"
+                                    onClick={() => handlePageChange(page + 1)}
+                                    disabled={page === totalPages - 1}
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="pagination-controls">
-                            <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                            <button className="pagination-btn active-page">1</button>
-                            <button className="pagination-btn">2</button>
-                            <button className="pagination-btn">3</button>
-                            <button className="pagination-btn"><ChevronRight size={16} /></button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

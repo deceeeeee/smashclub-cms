@@ -8,8 +8,8 @@
 /* Simple Toolbar */
 .toolbar-simple {
     display: flex;
-    justify-content: flex-start;
-    /* Align search left/stretch */
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
 }
 
@@ -58,9 +58,21 @@
     justify-content: center;
 }
 
+.equipment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
 .equipment-name {
     font-weight: 600;
     font-size: 0.95rem;
+    color: white;
+}
+
+.equipment-brand {
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
 }
 
 .category-tag {

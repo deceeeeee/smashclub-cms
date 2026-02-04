@@ -1,0 +1,244 @@
+.court-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1000px;
+}
+
+/* Header Section */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Form Card */
+.form-card {
+    background-color: rgba(13, 37, 40, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Select Wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+    padding-right: 2.5rem;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+    pointer-events: none;
+}
+
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: .4s;
+    border-radius: 34px;
+    border: 1px solid var(--color-border);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+input:checked+.slider {
+    background-color: rgba(0, 210, 190, 0.2);
+    border-color: var(--color-primary);
+}
+
+input:checked+.slider:before {
+    transform: translateX(28px);
+    background-color: var(--color-primary);
+}
+
+.status-text {
+    font-size: 1rem;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.status-text.active {
+    color: var(--color-primary);
+}
+
+.status-text.inactive {
+    color: var(--color-text-mutex);
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.upload-area:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(0, 210, 190, 0.05);
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-mutex);
+    text-align: center;
+}
+
+.upload-icon {
+    margin-bottom: 0.5rem;
+    color: var(--color-text-mutex);
+}
+
+.upload-content p {
+    color: white;
+    font-weight: 500;
+}
+
+.upload-content span {
+    font-size: 0.8rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-batal {
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-batal:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-simpan {
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    border: none;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-simpan:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Tips Card */
+.tips-card {
+    background-color: rgba(0, 210, 190, 0.05);
+    border: 1px solid rgba(0, 210, 190, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.tips-icon {
+    color: var(--color-primary);
+    margin-top: 0.2rem;
+}
+
+.tips-content h4 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.tips-content p {
+    color: var(--color-text-mutex);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}

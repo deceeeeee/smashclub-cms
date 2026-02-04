@@ -8,9 +8,9 @@ const api = axios.create({
 
 const ALERT_WHITELIST = [
     '/admin/roles',
-    '/admin/fields',
-    '/admin/trainers',
-    '/admin/products',
+    '/admin/courts',
+    '/admin/coach',
+    '/admin/product',
     '/admin/equipment',
     '/admin/users',
     '/admin/players'

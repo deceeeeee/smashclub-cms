@@ -30,10 +30,10 @@ const revenueData = [
     { month: 'Des', value: 152000000 },
 ];
 const detailData = [
-    { month: 'Desember 2023', orders: 842, fieldRevenue: 152450000, otherRevenue: 30200000, total: 182650000 },
-    { month: 'November 2023', orders: 715, fieldRevenue: 118400000, otherRevenue: 20100000, total: 138500000 },
-    { month: 'Oktober 2023', orders: 790, fieldRevenue: 135000000, otherRevenue: 25400000, total: 160400000 },
-    { month: 'September 2023', orders: 650, fieldRevenue: 112000000, otherRevenue: 16200000, total: 128200000 },
+    { month: 'Desember 2023', orders: 842, courtRevenue: 152450000, otherRevenue: 30200000, total: 182650000 },
+    { month: 'November 2023', orders: 715, courtRevenue: 118400000, otherRevenue: 20100000, total: 138500000 },
+    { month: 'Oktober 2023', orders: 790, courtRevenue: 135000000, otherRevenue: 25400000, total: 160400000 },
+    { month: 'September 2023', orders: 650, courtRevenue: 112000000, otherRevenue: 16200000, total: 128200000 },
 ];
 const SalesReport = () => {
     const [year] = useState('2023');
@@ -160,7 +160,7 @@ const SalesReport = () => {
                                 <tr key={index}>
                                     <td>{row.month}</td>
                                     <td className="text-teal">{row.orders}</td>
-                                    <td className="text-teal">Rp {row.fieldRevenue.toLocaleString('id-ID')}</td>
+                                    <td className="text-teal">Rp {row.courtRevenue.toLocaleString('id-ID')}</td>
                                     <td className="text-teal">Rp {row.otherRevenue.toLocaleString('id-ID')}</td>
                                     <td className="text-teal text-right font-bold">Rp {row.total.toLocaleString('id-ID')}</td>
                                 </tr>
