@@ -34,7 +34,6 @@ const ALERT_WHITELIST = [
 
 const shouldShowAlert = (url?: string) => {
     if (!url) return false;
-    // Check if the URL matches any of the whitelisted paths (excluding query params)
     const pureUrl = url.split('?')[0];
     return ALERT_WHITELIST.some(path => pureUrl.includes(path));
 };
@@ -63,6 +62,27 @@ api.interceptors.response.use(
     },
     (error) => {
         const config = error.config;
+
+        // Handle 401 Unauthorized or 403 Forbidden
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            const isAuthError = error.response?.status === 401;
+            const modalTitle = isAuthError ? 'Sesi Berakhir' : 'Akses Ditolak';
+            const modalMessage = isAuthError
+                ? 'Sesi Anda telah berakhir. Silakan login kembali untuk melanjutkan.'
+                : 'Anda tidak memiliki akses ke halaman ini. Silakan login kembali dengan akun yang sesuai.';
+
+            useAlertStore.getState().showAlert(
+                'error',
+                modalTitle,
+                modalMessage,
+                () => {
+                    useAuthStore.getState().logout();
+                    if (!window.location.pathname.includes('/login')) {
+                        window.location.href = '/login';
+                    }
+                }
+            );
+        }
 
         // Always show error if it's in whitelist, or handle globally
         if (shouldShowAlert(config?.url)) {

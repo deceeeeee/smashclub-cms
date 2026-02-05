@@ -1,0 +1,186 @@
+.error-page-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #0d2528 0%, #050a0a 100%);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.error-page-container::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.error-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 600px;
+    padding: 2rem;
+    animation: fadeInError 0.8s ease-out;
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.error-illustration {
+    position: relative;
+    margin-bottom: 3rem;
+    display: inline-block;
+}
+
+.error-icon-main {
+    color: var(--color-primary, #00d2be);
+    filter: drop-shadow(0 0 20px rgba(0, 210, 190, 0.4));
+    animation: pulseErrorIcon 3s infinite ease-in-out;
+}
+
+@keyframes pulseErrorIcon {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.error-page-container .status-badge {
+    position: absolute;
+    top: -10px;
+    right: -20px;
+    background: #ef4444;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+    z-index: 2;
+}
+
+.glow-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0, 210, 190, 0.1) 0%, transparent 70%);
+    z-index: -1;
+}
+
+.error-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.error-description {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-primary-error,
+.btn-secondary-error {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary-error {
+    background-color: var(--color-primary, #00d2be);
+    color: #050a0a;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 210, 190, 0.3);
+}
+
+.btn-primary-error:hover {
+    background-color: #00b8a6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 210, 190, 0.4);
+}
+
+.btn-secondary-error {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary-error:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.error-footer {
+    margin-top: 4rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.error-footer a {
+    color: var(--color-primary, #00d2be);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.error-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .error-title {
+        font-size: 1.75rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary-error,
+    .btn-secondary-error {
+        width: 100%;
+        justify-content: center;
+    }
+}

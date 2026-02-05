@@ -4,9 +4,16 @@ import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
 import './AlertModal.css';
 
 const AlertModal: React.FC = () => {
-    const { isOpen, type, title, message, hideAlert } = useAlertStore();
+    const { isOpen, type, title, message, hideAlert, onConfirm } = useAlertStore();
 
     if (!isOpen) return null;
+
+    const handleClose = () => {
+        hideAlert();
+        if (onConfirm) {
+            onConfirm();
+        }
+    };
 
     const getIcon = () => {
         switch (type) {
@@ -23,7 +30,7 @@ const AlertModal: React.FC = () => {
     return (
         <div className="alert-overlay">
             <div className={`alert-modal ${type}`}>
-                <button className="alert-close" onClick={hideAlert} aria-label="Close">
+                <button className="alert-close" onClick={handleClose} aria-label="Close">
                     <X size={20} />
                 </button>
                 <div className="alert-content">
@@ -32,7 +39,7 @@ const AlertModal: React.FC = () => {
                     </div>
                     <h2 className="alert-title">{title}</h2>
                     <p className="alert-message">{message}</p>
-                    <button className="alert-button" onClick={hideAlert}>
+                    <button className="alert-button" onClick={handleClose}>
                         Tutup
                     </button>
                 </div>

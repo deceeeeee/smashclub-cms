@@ -156,15 +156,12 @@ const Trainers = () => {
                                 <p className="trainer-specialist">{trainer.coachCode}</p>
 
                                 <div className="card-actions">
-                                    <button className="btn-schedule">Lihat Jadwal</button>
-                                    <div className="card-action-btns">
-                                        <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                                    <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             </div>
                         </div>

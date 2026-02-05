@@ -7,9 +7,10 @@ interface AlertState {
     type: AlertType;
     title: string;
     message: string;
-    showAlert: (type: AlertType, title: string, message: string) => void;
-    showSuccess: (title: string, message: string) => void;
-    showError: (title: string, message: string) => void;
+    onConfirm?: () => void;
+    showAlert: (type: AlertType, title: string, message: string, onConfirm?: () => void) => void;
+    showSuccess: (title: string, message: string, onConfirm?: () => void) => void;
+    showError: (title: string, message: string, onConfirm?: () => void) => void;
     hideAlert: () => void;
 }
 
@@ -18,9 +19,10 @@ export const useAlertStore = create<AlertState>((set) => ({
     type: 'info',
     title: '',
     message: '',
-    showAlert: (type, title, message) => set({ isOpen: true, type, title, message }),
-    showSuccess: (title, message) => set({ isOpen: true, type: 'success', title, message }),
-    showError: (title, message) => set({ isOpen: true, type: 'error', title, message }),
-    hideAlert: () => set({ isOpen: false }),
+    onConfirm: undefined,
+    showAlert: (type, title, message, onConfirm) => set({ isOpen: true, type, title, message, onConfirm }),
+    showSuccess: (title, message, onConfirm) => set({ isOpen: true, type: 'success', title, message, onConfirm }),
+    showError: (title, message, onConfirm) => set({ isOpen: true, type: 'error', title, message, onConfirm }),
+    hideAlert: () => set({ isOpen: false, onConfirm: undefined }),
 }));
 

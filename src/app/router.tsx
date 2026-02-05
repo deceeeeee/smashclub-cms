@@ -21,132 +21,141 @@ import RoleForm from "../pages/Roles/RoleForm";
 import EquipmentCategory from "../pages/EquipmentCategory/EquipmentCategory";
 import EquipmentCategoryForm from "../pages/EquipmentCategory/EquipmentCategoryForm";
 import MainLayout from "../layouts/MainLayout";
+import ErrorPage from "../pages/Error/ErrorPage";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export const router = createBrowserRouter([
     {
         path: "/login",
         element: <LoginPage />,
+        errorElement: <ErrorPage />,
     },
     {
-        path: "/",
-        element: <MainLayout />,
+        element: <ProtectedRoute />,
+        errorElement: <ErrorPage />,
         children: [
             {
-                index: true,
-                element: <Navigate to="/dashboard" replace />,
-            },
-            {
-                path: "dashboard",
-                element: <Dashboard />,
-            },
-            {
-                path: "courts",
-                element: <Courts />,
-            },
-            {
-                path: "courts/add",
-                element: <CourtForm />,
-            },
-            {
-                path: "courts/edit/:id",
-                element: <CourtForm />,
-            },
-            {
-                path: "products",
-                element: <Products />,
-            },
-            {
-                path: "products/add",
-                element: <ProductForm />,
-            },
-            {
-                path: "products/edit/:id",
-                element: <ProductForm />,
-            },
-            {
-                path: "trainers",
-                element: <Trainers />,
-            },
-            {
-                path: "trainers/add",
-                element: <TrainerForm />,
-            },
-            {
-                path: "trainers/edit/:id",
-                element: <TrainerForm />,
-            },
-            {
-                path: "equipment",
-                element: <Equipment />,
-            },
-            {
-                path: "equipment/add",
-                element: <EquipmentForm />,
-            },
-            {
-                path: "equipment/edit/:id",
-                element: <EquipmentForm />,
-            },
-            {
-                path: "equipment-categories",
-                element: <EquipmentCategory />,
-            },
-            {
-                path: "equipment-categories/add",
-                element: <EquipmentCategoryForm />,
-            },
-            {
-                path: "equipment-categories/edit/:id",
-                element: <EquipmentCategoryForm />,
-            },
-            {
-                path: "users",
-                element: <Users />,
-            },
-            {
-                path: "users/add",
-                element: <UserForm />,
-            },
-            {
-                path: "users/edit/:id",
-                element: <UserForm />,
-            },
-            {
-                path: "players",
-                element: <Players />,
-            },
-            {
-                path: "players/add",
-                element: <PlayerForm />,
-            },
-            {
-                path: "players/edit/:id",
-                element: <PlayerForm />,
-            },
-            {
-                path: "reports/sales",
-                element: <SalesReport />,
-            },
-            {
-                path: "roles",
-                element: <Roles />,
-            },
-            {
-                path: "roles/add",
-                element: <RoleForm />,
-            },
-            {
-                path: "roles/edit/:id",
-                element: <RoleForm />,
-            },
-            // Placeholder routes for navigation items not yet implemented
-            {
-                path: "reports/bookings",
-                element: <CourtBookingReport />,
-            },
-            {
-                path: "reports/products",
-                element: <ProductBookingReport />,
+                path: "/",
+                element: <MainLayout />,
+                children: [
+                    {
+                        index: true,
+                        element: <Navigate to="/dashboard" replace />,
+                    },
+                    {
+                        path: "dashboard",
+                        element: <Dashboard />,
+                    },
+                    {
+                        path: "courts",
+                        element: <Courts />,
+                    },
+                    {
+                        path: "courts/add",
+                        element: <CourtForm />,
+                    },
+                    {
+                        path: "courts/edit/:id",
+                        element: <CourtForm />,
+                    },
+                    {
+                        path: "products",
+                        element: <Products />,
+                    },
+                    {
+                        path: "products/add",
+                        element: <ProductForm />,
+                    },
+                    {
+                        path: "products/edit/:id",
+                        element: <ProductForm />,
+                    },
+                    {
+                        path: "trainers",
+                        element: <Trainers />,
+                    },
+                    {
+                        path: "trainers/add",
+                        element: <TrainerForm />,
+                    },
+                    {
+                        path: "trainers/edit/:id",
+                        element: <TrainerForm />,
+                    },
+                    {
+                        path: "equipment",
+                        element: <Equipment />,
+                    },
+                    {
+                        path: "equipment/add",
+                        element: <EquipmentForm />,
+                    },
+                    {
+                        path: "equipment/edit/:id",
+                        element: <EquipmentForm />,
+                    },
+                    {
+                        path: "equipment-categories",
+                        element: <EquipmentCategory />,
+                    },
+                    {
+                        path: "equipment-categories/add",
+                        element: <EquipmentCategoryForm />,
+                    },
+                    {
+                        path: "equipment-categories/edit/:id",
+                        element: <EquipmentCategoryForm />,
+                    },
+                    {
+                        path: "users",
+                        element: <Users />,
+                    },
+                    {
+                        path: "users/add",
+                        element: <UserForm />,
+                    },
+                    {
+                        path: "users/edit/:id",
+                        element: <UserForm />,
+                    },
+                    {
+                        path: "players",
+                        element: <Players />,
+                    },
+                    {
+                        path: "players/add",
+                        element: <PlayerForm />,
+                    },
+                    {
+                        path: "players/edit/:id",
+                        element: <PlayerForm />,
+                    },
+                    {
+                        path: "reports/sales",
+                        element: <SalesReport />,
+                    },
+                    {
+                        path: "roles",
+                        element: <Roles />,
+                    },
+                    {
+                        path: "roles/add",
+                        element: <RoleForm />,
+                    },
+                    {
+                        path: "roles/edit/:id",
+                        element: <RoleForm />,
+                    },
+                    // Placeholder routes for navigation items not yet implemented
+                    {
+                        path: "reports/bookings",
+                        element: <CourtBookingReport />,
+                    },
+                    {
+                        path: "reports/products",
+                        element: <ProductBookingReport />,
+                    },
+                ],
             },
         ],
     },

@@ -127,43 +127,6 @@
     color: var(--color-primary);
 }
 
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid transparent;
-}
-
-.status-active {
-    background-color: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.2);
-}
-
-.status-active .status-dot {
-    background-color: #10b981;
-}
-
-.status-maintenance {
-    background-color: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-    border-color: rgba(245, 158, 11, 0.2);
-}
-
-.status-maintenance .status-dot {
-    background-color: #f59e0b;
-}
-
-.status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
 /* Summary Grid */
 .summary-grid {
     display: grid;

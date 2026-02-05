@@ -47,12 +47,16 @@ const navigation = [
 ];
 
 
+import { useAuthStore } from '../features/auth/auth.store';
+
 const MainLayout = () => {
     const navigate = useNavigate();
+    const { user, logout } = useAuthStore();
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleLogout = () => {
+        logout();
         navigate('/login');
     };
 
@@ -148,8 +152,8 @@ const MainLayout = () => {
                         </button>
                         <div className="user-profile">
                             <div className="user-info hide-mobile">
-                                <span className="user-name">Andi Wijaya</span>
-                                <span className="user-role">Super Admin</span>
+                                <span className="user-name">{user?.fullname || 'Admin'}</span>
+                                <span className="user-role">Administrator</span>
                             </div>
                             <div className="user-avatar"></div>
                         </div>

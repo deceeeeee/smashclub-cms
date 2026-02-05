@@ -64,35 +64,6 @@
     font-size: 0.95rem;
 }
 
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-}
-
-.status-ok {
-    color: var(--color-primary);
-}
-
-.status-ok .status-dot {
-    background-color: var(--color-primary);
-}
-
-.status-warning {
-    color: #f59e0b;
-}
-
-.status-warning .status-dot {
-    background-color: #f59e0b;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
 .btn-delete:hover {
     background-color: rgba(239, 68, 68, 0.2);
     color: var(--color-error);

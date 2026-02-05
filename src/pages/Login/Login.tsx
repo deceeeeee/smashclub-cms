@@ -1,19 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
+import { useAlertStore } from '../../app/alert.store';
+import { loginAdmin } from '../../features/auth/auth.api';
 import './Login.css';
+
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuthStore();
+  const { showAlert } = useAlertStore();
+
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const handleSubmit = (e: React.FormEvent) => {
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password, rememberMe });
-    // TODO: Implement actual login logic
-    navigate('/dashboard');
+
+    setIsLoading(true);
+    try {
+      const result = await loginAdmin({ username, password });
+
+      if (result.success) {
+        login(
+          {
+            fullname: result.data.fullname,
+            username: result.data.username
+          },
+          result.data.accessToken
+        );
+        navigate('/dashboard');
+      } else {
+        showAlert('error', 'Login Gagal', result.message || 'Username atau password salah');
+      }
+    } catch (error) {
+      showAlert('error', 'Error', 'Terjadi kesalahan sistem');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <div className="login-page">
       {/* Navbar */}
@@ -26,29 +61,31 @@ const LoginPage = () => {
         </div>
         <button className="btn-help">Bantuan</button>
       </header>
+
       {/* Main Content */}
       <main className="login-container">
         <div className="login-header-text">
           <h1>Selamat Datang</h1>
           <p>Silakan masuk ke akun administrator SmashClub Anda</p>
         </div>
+
         <div className="login-card">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="username">Username</label>
               <input
-                type="email"
-                id="email"
-                placeholder="nama@perusahaan.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="username"
+                placeholder="Masukkan username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
+
             <div className="form-group">
               <div className="label-row">
                 <label htmlFor="password">Kata Sandi</label>
-                <a href="#" className="forgot-password">Lupa Kata Sandi?</a>
               </div>
               <div className="password-input-wrapper">
                 <input
@@ -68,7 +105,8 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-            <div className="form-check">
+
+            {/* <div className="form-check">
               <input
                 type="checkbox"
                 id="remember"
@@ -76,16 +114,26 @@ const LoginPage = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
               <label htmlFor="remember">Ingat saya di perangkat ini</label>
-            </div>
-            <button type="submit" className="btn-submit">
-              Masuk Sekarang
+            </div> */}
+
+            <button type="submit" className="btn-submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  <span>Sedang Masuk...</span>
+                </>
+              ) : (
+                'Masuk Sekarang'
+              )}
             </button>
           </form>
+
           <div className="card-footer">
             <p>Belum punya akses? <a href="#">Hubungi IT Support</a></p>
           </div>
         </div>
       </main>
+
       {/* Footer */}
       <footer className="login-footer">
         <div className="language-selector">
@@ -98,4 +146,5 @@ const LoginPage = () => {
     </div>
   );
 };
+
 export default LoginPage;

@@ -112,6 +112,7 @@
 .card-content {
     padding: 1.25rem;
     background-color: rgba(13, 37, 40, 0.3);
+    height: 100%;
 }
 
 .trainer-name {

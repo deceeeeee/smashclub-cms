@@ -150,7 +150,7 @@ const EquipmentCategory = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <div className={`status-indicator ${item.status === 1 ? 'status-ok' : 'status-warning'}`}>
+                                            <div className={`status-badge ${item.status === 1 ? 'status-active' : 'status-inactive'}`}>
                                                 <span className="status-dot"></span>
                                                 {item.status === 1 ? 'Aktif' : 'Tidak Aktif'}
                                             </div>
