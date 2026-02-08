@@ -2,6 +2,7 @@ export interface User {
     fullname: string;
     username: string;
     adminRole?: AdminRole;
+    profilePicture?: string;
 }
 
 export interface Permission {
@@ -26,6 +27,7 @@ export interface Menu {
     parentId: number;
     category?: Category;
     permissions?: MenuPermission[];
+    menuOrder: number;
 }
 
 export interface AdminRole {
@@ -41,6 +43,7 @@ export interface AuthenticatedData {
     fullname: string;
     username: string;
     adminRole: AdminRole;
+    profilePicture?: string;
 }
 
 export interface LoginData {
@@ -48,6 +51,7 @@ export interface LoginData {
     fullname: string;
     username: string;
     adminRole?: AdminRole;
+    profilePicture?: string;
 }
 
 export interface LoginPayload {

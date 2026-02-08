@@ -35,3 +35,32 @@ export const checkAuth = async (): Promise<BaseResponse<AuthenticatedData>> => {
         };
     }
 };
+
+export const updateProfile = async (payload: { fullName: string; username: string; password?: string; profilePicture?: File | string | null }): Promise<BaseResponse<AuthenticatedData>> => {
+    try {
+        const formData = new FormData();
+        formData.append('fullName', payload.fullName);
+        formData.append('username', payload.username);
+
+        if (payload.password) {
+            formData.append('password', payload.password);
+        }
+
+        if (payload.profilePicture instanceof File) {
+            formData.append('profilePicture', payload.profilePicture);
+        }
+
+        const response = await axiosInstance.put('/admin/auth/update', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal memperbarui profil',
+            status: error.response?.status || 500,
+            timestamp: new Date().toISOString(),
+            data: {} as AuthenticatedData
+        };
+    }
+};

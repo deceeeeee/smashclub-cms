@@ -15,6 +15,7 @@ export interface AdminUser {
         roleCode: string;
         roleName: string;
     };
+    profilePicture?: string;
 }
 
 export interface UserPayload {
@@ -25,6 +26,7 @@ export interface UserPayload {
     adminRole: {
         id: number | string;
     };
+    profilePicture?: File | string | null;
 }
 
 export interface UserPageResponse {

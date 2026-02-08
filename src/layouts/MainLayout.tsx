@@ -39,6 +39,7 @@ interface NavigationGroup {
         name: string;
         to: string;
         menuCode: string;
+        menuOrder: number;
     }[];
 }
 
@@ -72,8 +73,14 @@ const MainLayout = () => {
         categoryMap.get(catId)?.items.push({
             name: menu.menuName,
             to: getPathByMenuCode(menu.menuCode),
-            menuCode: menu.menuCode
+            menuCode: menu.menuCode,
+            menuOrder: menu.menuOrder || 0
         });
+    });
+
+    // Sort items inside each category by menuOrder
+    categoryMap.forEach(group => {
+        group.items.sort((a, b) => a.menuOrder - b.menuOrder);
     });
 
     // Convert map to array and sort by categoryId
@@ -82,11 +89,17 @@ const MainLayout = () => {
 
     // Access Management: Redirect if path not allowed
     useEffect(() => {
+        const PAGE_WHITELIST = [
+            '/login',
+            '/dashboard',
+            '/profile',
+            '/'
+        ];
         const currentPath = location.pathname;
 
         // Allowed for everyone authenticated
         if (!isAuthenticated) return;
-        if (currentPath === '/dashboard' || currentPath === '/' || currentPath === '/login') {
+        if (PAGE_WHITELIST.includes(currentPath)) {
             setIsAllowed(true);
             return;
         }
@@ -195,27 +208,35 @@ const MainLayout = () => {
                         <h1 className="header-title">Beranda</h1>
                     </div>
                     <div className="header-right">
-                        <button className="icon-btn">
+                        {/* <button className="icon-btn">
                             <Bell size={20} />
                             <div className="notification-dot"></div>
                         </button>
                         <button className="icon-btn hide-tablet">
                             <Settings size={20} />
-                        </button>
-                        <div className="user-profile">
+                        </button> */}
+                        <div className="user-profile" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
                             <div className="user-info hide-mobile">
                                 <span className="user-name">{user?.fullname || 'Admin'}</span>
                                 <span className="user-role">{user?.adminRole?.roleName || 'Administrator'}</span>
                             </div>
-                            <div className="user-avatar"></div>
+                            <div className="user-avatar">
+                                {user?.profilePicture ? (
+                                    <img
+                                        src={user.profilePicture}
+                                        alt={user.fullname}
+                                        className="header-user-avatar-img"
+                                    />
+                                ) : null}
+                            </div>
                         </div>
                     </div>
                 </header>
                 <main className="content-container">
                     {isAllowed ? <Outlet /> : <AccessDenied />}
                 </main>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

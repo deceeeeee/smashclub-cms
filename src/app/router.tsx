@@ -20,6 +20,7 @@ import Roles from "../pages/Roles/Roles";
 import RoleForm from "../pages/Roles/RoleForm";
 import EquipmentCategory from "../pages/EquipmentCategory/EquipmentCategory";
 import EquipmentCategoryForm from "../pages/EquipmentCategory/EquipmentCategoryForm";
+import ProfileForm from "../pages/Profile/ProfileForm";
 import MainLayout from "../layouts/MainLayout";
 import ErrorPage from "../pages/Error/ErrorPage";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -145,6 +146,10 @@ export const router = createBrowserRouter([
                     {
                         path: "roles/edit/:id",
                         element: <RoleForm />,
+                    },
+                    {
+                        path: "profile",
+                        element: <ProfileForm />,
                     },
                     // Placeholder routes for navigation items not yet implemented
                     {

@@ -133,7 +133,8 @@ const Users = () => {
                     <table className="user-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '25%' }}>NAMA PENGGUNA</th>
+                                <th className="col-avatar">AVATAR</th>
+                                <th style={{ width: '40%' }}>NAMA PENGGUNA</th>
                                 <th style={{ width: '15%' }}>PERAN</th>
                                 <th style={{ width: '15%' }}>STATUS</th>
                                 <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
@@ -142,8 +143,8 @@ const Users = () => {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                    <td colSpan={5} className="loading-cell-container">
+                                        <div className="loading-cell-content">
                                             <Loader2 className="animate-spin" size={32} />
                                             <span>Memuat data...</span>
                                         </div>
@@ -151,13 +152,28 @@ const Users = () => {
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}>
+                                    <td colSpan={5} className="empty-cell-container">
                                         Belum ada data pengguna.
                                     </td>
                                 </tr>
                             ) : (
                                 users.map((user) => (
                                     <tr key={user.id}>
+                                        <td>
+                                            <div className="users-avatar-container">
+                                                <div className="users-avatar-wrapper">
+                                                    {user.profilePicture ? (
+                                                        <img
+                                                            src={user.profilePicture}
+                                                            alt={user.fullName}
+                                                            className="users-avatar-img"
+                                                        />
+                                                    ) : (
+                                                        <span className="users-avatar-placeholder">NA</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td>
                                             <div className="user-cell">
                                                 <div className="user-info-text">
