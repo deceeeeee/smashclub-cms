@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Save, Loader2 } from 'lucide-react';
 import { useEquipmentCategoryStore } from '../../features/equipment-category/equipment-category.store';
+import { useAuthStore } from '../../features/auth/auth.store';
+import AccessDenied from '../../components/common/AccessDenied';
 import './EquipmentCategoryForm.css';
 
 const EquipmentCategoryForm = () => {
@@ -10,12 +12,16 @@ const EquipmentCategoryForm = () => {
     const isEdit = !!id;
 
     const { getCategoryDetail, submitCategory } = useEquipmentCategoryStore();
+    const { hasPermission } = useAuthStore();
+
+    const canAccess = isEdit ? hasPermission('EQUIPMENT_CATEGORY_EDIT') : hasPermission('EQUIPMENT_CATEGORY_CREATE');
 
     const [formData, setFormData] = useState({
         categoryName: '',
         status: 1
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -43,10 +49,16 @@ const EquipmentCategoryForm = () => {
         if (result.success) {
             // success is handled by axios interceptor usually, but let's be safe
             navigate('/equipment-categories');
+        } else if (result.errors) {
+            setErrors(result.errors);
         }
 
         setIsSubmitting(false);
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     return (
         <div className="equipment-category-form-page">
@@ -82,9 +94,14 @@ const EquipmentCategoryForm = () => {
                             type="text"
                             placeholder="Contoh: Raket, Bola, dll."
                             value={formData.categoryName}
-                            onChange={(e) => setFormData({ ...formData, categoryName: e.target.value })}
+                            onChange={(e) => {
+                                setFormData({ ...formData, categoryName: e.target.value });
+                                if (errors.categoryName) setErrors({ ...errors, categoryName: '' });
+                            }}
                             required
+                            className={errors.categoryName ? 'error-input' : ''}
                         />
+                        {errors.categoryName && <span className="error-text">{errors.categoryName}</span>}
                     </div>
 
                     <div className="form-group">

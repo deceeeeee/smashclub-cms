@@ -10,20 +10,27 @@ import {
     ShieldCheck,
     Loader2
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useUsersStore } from '../../features/users/users.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Users.css';
 
 const Users = () => {
     const navigate = useNavigate();
     const { users, isLoading, getUsers, deleteUser, totalElements, totalPages } = useUsersStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
     const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    const canCreate = hasPermission('USERS_CREATE');
+    const canEdit = hasPermission('USERS_EDIT');
+    const canDelete = hasPermission('USERS_DELETE');
 
     // Debounce search input
     useEffect(() => {
@@ -72,10 +79,12 @@ const Users = () => {
                     <h1>Manajemen Pengguna Dashboard</h1>
                     <p>Kelola akses dan peran admin untuk sistem SmashClub</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/users/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Pengguna</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/users/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Pengguna</span>
+                    </button>
+                )}
             </div>
             {/* Stats Cards */}
             <div className="stats-row">
@@ -112,9 +121,9 @@ const Users = () => {
                             }}
                             className="page-size-select"
                         >
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
+                            {PAGE_SIZE_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
                         </select>
                         <span>per halaman</span>
                     </div>
@@ -169,10 +178,22 @@ const Users = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(user.id)}><Edit2 size={16} /></button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(user.id)}><Trash2 size={16} /></button>
-                                            </div>
+                                            {
+                                                user.adminRole.roleCode === "DEV" ? "" : (
+                                                    <div className="action-buttons">
+                                                        {canEdit && (
+                                                            <button className="btn-icon-action" onClick={() => handleEdit(user.id)} title="Edit">
+                                                                <Edit2 size={16} />
+                                                            </button>
+                                                        )}
+                                                        {canDelete && (
+                                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(user.id)} title="Hapus">
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )
+                                            }
                                         </td>
                                     </tr>
                                 ))

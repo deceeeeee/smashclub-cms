@@ -10,9 +10,11 @@ import {
 } from 'lucide-react';
 import { useRolesStore } from '../../features/roles/roles.store';
 import { usePermissionsStore } from '../../features/permissions/permissions.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useAlertStore } from '../../app/alert.store';
 import { getMenuIcon } from '../../components/icons/MenuIcons';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import AccessDenied from '../../components/common/AccessDenied';
 import './RoleForm.css';
 
 const RoleForm = () => {
@@ -23,6 +25,9 @@ const RoleForm = () => {
     const { getRole, submitRole, isLoading } = useRolesStore();
     const { getPermissions, permissions: availablePermissions, isLoading: isLoadingPermissions } = usePermissionsStore();
     const { showSuccess, showError } = useAlertStore();
+    const { hasPermission } = useAuthStore();
+
+    const canAccess = isEdit ? hasPermission('ROLES_EDIT') : hasPermission('ROLES_CREATE');
 
     const [roleName, setRoleName] = useState('');
     const [roleCode, setRoleCode] = useState('');
@@ -30,6 +35,7 @@ const RoleForm = () => {
 
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
     const [selectedMenuIds, setSelectedMenuIds] = useState<number[]>([]);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         getPermissions();
@@ -125,9 +131,16 @@ const RoleForm = () => {
             showSuccess('Berhasil', isEdit ? 'Data peran berhasil diperbarui.' : 'Data peran baru berhasil disimpan.');
             navigate('/roles');
         } else {
+            if (result.errors) {
+                setErrors(result.errors);
+            }
             showError('Gagal Menyimpan', result.message);
         }
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     return (
         <div className="role-form-page">
@@ -168,8 +181,13 @@ const RoleForm = () => {
                                 type="text"
                                 placeholder="Contoh: Admin Lapangan"
                                 value={roleName}
-                                onChange={(e) => setRoleName(e.target.value)}
+                                onChange={(e) => {
+                                    setRoleName(e.target.value);
+                                    if (errors.roleName) setErrors(prev => ({ ...prev, roleName: '' }));
+                                }}
+                                className={errors.roleName ? 'error-input' : ''}
                             />
+                            {errors.roleName && <span className="error-text">{errors.roleName}</span>}
                         </div>
                         <div className="form-group">
                             <label>KODE PERAN</label>
@@ -177,12 +195,17 @@ const RoleForm = () => {
                                 type="text"
                                 placeholder="Contoh: ADM_LAP"
                                 value={roleCode}
-                                onChange={(e) => setRoleCode(e.target.value)}
+                                onChange={(e) => {
+                                    setRoleCode(e.target.value);
+                                    if (errors.roleCode) setErrors(prev => ({ ...prev, roleCode: '' }));
+                                }}
+                                className={errors.roleCode ? 'error-input' : ''}
                             />
+                            {errors.roleCode && <span className="error-text">{errors.roleCode}</span>}
                         </div>
                         <div className="form-group">
                             <label>STATUS</label>
-                            <div className="toggle-container">
+                            <div className={`toggle-container ${errors.status ? 'error-input' : ''}`}>
                                 <label className="switch">
                                     <input
                                         type="checkbox"

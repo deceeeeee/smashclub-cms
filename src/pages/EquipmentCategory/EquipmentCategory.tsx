@@ -11,19 +11,26 @@ import {
     Loader2,
     AlertCircle
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useEquipmentCategoryStore } from '../../features/equipment-category/equipment-category.store';
 import { useDebounce } from '../../hooks/useDebounce';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './EquipmentCategory.css';
 
 const EquipmentCategory = () => {
     const navigate = useNavigate();
     const { categories, isLoading, getCategories, deleteCategory, totalElements, totalPages } = useEquipmentCategoryStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(10);
+
+    const canCreate = hasPermission('EQUIPMENT_CATEGORY_CREATE');
+    const canEdit = hasPermission('EQUIPMENT_CATEGORY_EDIT');
+    const canDelete = hasPermission('EQUIPMENT_CATEGORY_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -71,10 +78,12 @@ const EquipmentCategory = () => {
                     <h1>Manajemen Kategori Peralatan</h1>
                     <p>Kelola kategori untuk inventaris peralatan olahraga Anda.</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/equipment-categories/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Kategori</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/equipment-categories/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Kategori</span>
+                    </button>
+                )}
             </div>
 
             {/* Main Content Card */}
@@ -99,9 +108,9 @@ const EquipmentCategory = () => {
                             }}
                             className="page-size-select"
                         >
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
+                            {PAGE_SIZE_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
                         </select>
                         <span>per halaman</span>
                     </div>
@@ -112,7 +121,7 @@ const EquipmentCategory = () => {
                     <table className="equipment-category-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '10%' }}>ID</th>
+                                {/* <th style={{ width: '10%' }}>ID</th> */}
                                 <th style={{ width: '50%' }}>NAMA KATEGORI</th>
                                 <th style={{ width: '20%' }}>STATUS</th>
                                 <th style={{ width: '20%', textAlign: 'center' }}>AKSI</th>
@@ -140,9 +149,9 @@ const EquipmentCategory = () => {
                             ) : (
                                 categories.map((item) => (
                                     <tr key={item.id}>
-                                        <td>
+                                        {/* <td>
                                             <span className="category-id">#{item.id}</span>
-                                        </td>
+                                        </td> */}
                                         <td>
                                             <div className="category-info">
                                                 <Tag size={16} className="category-icon" />
@@ -157,8 +166,16 @@ const EquipmentCategory = () => {
                                         </td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(item.id)}><Edit2 size={16} /></button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
+                                                {canEdit && (
+                                                    <button className="btn-icon-action" onClick={() => handleEdit(item.id)} title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button className="btn-icon-action btn-delete" onClick={() => handleDelete(item.id)} title="Hapus">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

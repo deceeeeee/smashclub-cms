@@ -19,11 +19,25 @@ export const fetchTrainerDetail = async (id: number): Promise<BaseResponse<Train
 };
 
 export const saveTrainer = async (payload: TrainerPayload, id?: number): Promise<BaseResponse<Trainer>> => {
+    const formData = new FormData();
+    formData.append('coachCode', payload.coachCode);
+    formData.append('coachName', payload.coachName);
+    formData.append('pricePerHour', payload.pricePerHour.toString());
+    formData.append('status', payload.status.toString());
+
+    if (payload.coachImgLink instanceof File) {
+        formData.append('coachImgLink', payload.coachImgLink);
+    }
+
     if (id) {
-        const response = await axiosInstance.put(`/admin/coach/update/${id}`, payload);
+        const response = await axiosInstance.put(`/admin/coach/update/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     } else {
-        const response = await axiosInstance.post('/admin/coach/save', payload);
+        const response = await axiosInstance.post('/admin/coach/save', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     }
 };

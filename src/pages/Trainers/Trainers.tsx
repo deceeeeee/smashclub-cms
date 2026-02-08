@@ -14,20 +14,27 @@ import {
     Loader2,
     AlertCircle
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useTrainersStore } from '../../features/trainers/trainers.store';
 import { useDebounce } from '../../hooks/useDebounce';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Trainers.css';
 
 const Trainers = () => {
     const navigate = useNavigate();
     const { trainers, isLoading, getTrainers, deleteTrainer, totalElements, totalPages } = useTrainersStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
-    const [size, setSize] = useState(12);
+    const [size, setSize] = useState(10);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+    const canCreate = hasPermission('COACH_CREATE');
+    const canEdit = hasPermission('COACH_EDIT');
+    const canDelete = hasPermission('COACH_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -87,10 +94,12 @@ const Trainers = () => {
                     <h1>Manajemen Pelatih</h1>
                     <p>Kelola data pelatih, spesialisasi, dan jadwal ketersediaan mereka.</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/trainers/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Pelatih Baru</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/trainers/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Pelatih Baru</span>
+                    </button>
+                )}
             </div>
 
             {/* Filter & View Toggle */}
@@ -156,26 +165,32 @@ const Trainers = () => {
                                 <p className="trainer-specialist">{trainer.coachCode}</p>
 
                                 <div className="card-actions">
-                                    <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
-                                        <Trash2 size={16} />
-                                    </button>
+                                    {canEdit && (
+                                        <button className="btn-icon" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                            <Edit2 size={16} />
+                                        </button>
+                                    )}
+                                    {canDelete && (
+                                        <button className="btn-icon btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     ))}
 
                     {/* Add New Trainer Card (Dashed) */}
-                    <div className="add-trainer-card" onClick={() => navigate('/trainers/add')}>
-                        <div className="add-content">
-                            <div className="add-icon-circle">
-                                <UserPlus size={32} />
+                    {canCreate && (
+                        <div className="add-trainer-card" onClick={() => navigate('/trainers/add')}>
+                            <div className="add-content">
+                                <div className="add-icon-circle">
+                                    <UserPlus size={32} />
+                                </div>
+                                <span>TAMBAH PELATIH</span>
                             </div>
-                            <span>TAMBAH PELATIH</span>
                         </div>
-                    </div>
+                    )}
                 </div>
             ) : (
                 <div className="table-card">
@@ -210,12 +225,16 @@ const Trainers = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="btn-icon-action" onClick={() => handleEdit(trainer.id)} title="Ubah">
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button className="btn-icon-action btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
-                                                <Trash2 size={16} />
-                                            </button>
+                                            {canEdit && (
+                                                <button className="btn-icon-action" onClick={() => handleEdit(trainer.id)} title="Ubah">
+                                                    <Edit2 size={16} />
+                                                </button>
+                                            )}
+                                            {canDelete && (
+                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(trainer.id)} title="Hapus">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -226,10 +245,34 @@ const Trainers = () => {
             )}
             {/* Pagination */}
             {!isLoading && totalElements > 0 && (
-                <div className="pagination-footer">
-                    <span className="pagination-text">
-                        Menampilkan <strong>{page * size + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> pelatih terdaftar
-                    </span>
+                <div className="pagination-footer" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '1rem 1.5rem',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    borderTop: '1px solid var(--color-border)'
+                }}>
+                    <div className="pagination-info-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <span className="pagination-text">
+                            Menampilkan <strong>{page * size + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> pelatih terdaftar
+                        </span>
+                        <div className="size-selector">
+                            <span>Tampilkan:</span>
+                            <select
+                                value={size}
+                                onChange={(e) => {
+                                    setSize(Number(e.target.value));
+                                    setPage(0);
+                                }}
+                                className="page-size-select"
+                            >
+                                {PAGE_SIZE_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option} Data</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                     <div className="pagination-buttons">
                         <button
                             className="page-btn"

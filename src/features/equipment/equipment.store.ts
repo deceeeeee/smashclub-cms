@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Equipment, EquipmentPayload } from './equipment.types';
 import { fetchEquipment, fetchEquipmentDetail, saveEquipment, removeEquipment } from './equipment.api';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
+import type { ErrorResponse } from '../../services/api.types';
 
 interface EquipmentState {
     equipment: Equipment[];
@@ -10,7 +12,11 @@ interface EquipmentState {
     error: string | null;
     getEquipment: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getEquipmentDetail: (id: number) => Promise<any>;
-    submitEquipment: (payload: EquipmentPayload, id?: number) => Promise<{ success: boolean; message: string }>;
+    submitEquipment: (payload: EquipmentPayload, id?: number) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteEquipment: (id: number) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -59,9 +65,23 @@ export const useEquipmentStore = create<EquipmentState>((set) => ({
             set({ isLoading: false });
             return { success: response.success, message: response.message };
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Gagal menyimpan data peralatan';
+            const errorData = err.response?.data as ErrorResponse;
+            const message = errorData?.message || 'Gagal menyimpan data peralatan';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: message, isLoading: false });
-            return { success: false, message };
+            return {
+                success: false,
+                message,
+                errors: validationErrors
+            };
         }
     },
 

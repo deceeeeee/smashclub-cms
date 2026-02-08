@@ -6,7 +6,8 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // Fallback URL
 });
 
-const ALERT_WHITELIST = [
+const ALERT_FAILED_WHITELIST = [
+    '/admin/auth/login',
     '/admin/court/save',
     '/admin/court/update',
     '/admin/court/delete',
@@ -32,10 +33,47 @@ const ALERT_WHITELIST = [
     '/admin/roles/delete',
 ];
 
-const shouldShowAlert = (url?: string) => {
+const ALERT_SUCCESS_WHITELIST = [
+    '/admin/court/save',
+    '/admin/court/update',
+    '/admin/court/delete',
+    '/admin/coach/save',
+    '/admin/coach/update',
+    '/admin/coach/delete',
+    '/admin/product/save',
+    '/admin/product/update',
+    '/admin/product/delete',
+    '/admin/equipment/save',
+    '/admin/equipment/update',
+    '/admin/equipment/delete',
+    '/admin/equipment-category/save',
+    '/admin/equipment-category/update',
+    '/admin/equipment-category/delete',
+    '/admin/users/save',
+    '/admin/users/update',
+    '/admin/users/delete',
+    '/admin/player/update',
+    '/admin/player/delete',
+    '/admin/roles/save',
+    '/admin/roles/update',
+    '/admin/roles/delete',
+];
+
+const shouldShowAlertFailed = (url?: string) => {
     if (!url) return false;
     const pureUrl = url.split('?')[0];
-    return ALERT_WHITELIST.some(path => pureUrl.includes(path));
+    return ALERT_FAILED_WHITELIST.some(path => pureUrl.includes(path));
+};
+
+const shouldShowAlertSuccess = (url?: string) => {
+    if (!url) return false;
+    const pureUrl = url.split('?')[0];
+    return ALERT_SUCCESS_WHITELIST.some(path => pureUrl.includes(path));
+};
+
+const shouldShowAlert = (url?: string, isSuccess?: boolean) => {
+    if (!url) return false;
+    return isSuccess ? shouldShowAlertSuccess(url) : shouldShowAlertFailed(url);
 };
 
 api.interceptors.request.use((config) => {
@@ -52,7 +90,7 @@ api.interceptors.response.use(
 
         // Show success alert only for non-GET methods and whitelisted endpoints
         // or as specified by backend message availability
-        if (method !== 'get' && shouldShowAlert(url)) {
+        if (method !== 'get' && shouldShowAlert(url, true)) {
             const title = 'Berhasil';
             const message = response?.data?.message || 'Aksi berhasil dilakukan!';
             useAlertStore.getState().showSuccess(title, message);
@@ -64,7 +102,7 @@ api.interceptors.response.use(
         const config = error.config;
 
         // Handle 401 Unauthorized or 403 Forbidden
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        if (error.response?.status === 401) {
             const isAuthError = error.response?.status === 401;
             const modalTitle = isAuthError ? 'Sesi Berakhir' : 'Akses Ditolak';
             const modalMessage = isAuthError
@@ -85,7 +123,7 @@ api.interceptors.response.use(
         }
 
         // Always show error if it's in whitelist, or handle globally
-        if (shouldShowAlert(config?.url)) {
+        if (shouldShowAlert(config?.url, false)) {
             const title = 'Gagal';
             const message = error.response?.data?.message || error.message || 'Terjadi kesalahan pada sistem!';
             useAlertStore.getState().showError(title, message);

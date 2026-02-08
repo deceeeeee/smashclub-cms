@@ -12,9 +12,11 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useConfirmStore } from '../../app/confirm.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import './Players.css';
 import { usePlayerStore } from '../../features/player/player.store';
 import { useDebounce } from '../../hooks/useDebounce';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 
 const Players = () => {
     const navigate = useNavigate();
@@ -28,10 +30,14 @@ const Players = () => {
     } = usePlayerStore();
 
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
+
+    const canEdit = hasPermission('PLAYER_EDIT');
+    const canDelete = hasPermission('PLAYER_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -87,17 +93,18 @@ const Players = () => {
                     <span className="stat-label">Pemain Aktif</span>
                     <h2 className="stat-value">{totalElements}</h2>
                 </div>
-                {/* <div className="stat-card">
-                    <span className="stat-label">Baru (Bulan Ini)</span>
-                    <h2 className="stat-value text-primary">+34</h2>
-                </div> */}
             </div>
 
             <div className="content-container-card">
                 <div className="toolbar">
                     <div className="search-bar">
                         <Search size={18} className="search-icon" />
-                        <input type="text" placeholder="Cari nama atau ID pemain..." />
+                        <input
+                            type="text"
+                            placeholder="Cari nama atau ID pemain..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
                     <div className="toolbar-actions">
                         <button className="btn-secondary">
@@ -148,9 +155,6 @@ const Players = () => {
                                         <td>{player.id}</td>
                                         <td>
                                             <div className="player-info-cell">
-                                                {/* <div className="player-avatar-circle" style={{ backgroundColor: player.avatarColor }}>
-                                                {player.avatar}
-                                            </div> */}
                                                 <span className="player-name-text">{player.fullName}</span>
                                             </div>
                                         </td>
@@ -167,8 +171,16 @@ const Players = () => {
                                         </td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(player.id)}><Edit2 size={16} /></button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(player.id)}><Trash2 size={16} /></button>
+                                                {canEdit && (
+                                                    <button className="btn-icon-action" onClick={() => handleEdit(player.id)} title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button className="btn-icon-action btn-delete" onClick={() => handleDelete(player.id)} title="Hapus">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -181,7 +193,22 @@ const Players = () => {
                     {!isLoading && totalElements > 0 && (
                         <div className="pagination-bar">
                             <div className="pagination-info">
-                                Menampilkan <strong>{(page * size) + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> lapangan
+                                Menampilkan <strong>{(page * size) + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> pemain
+                            </div>
+                            <div className="size-selector">
+                                <span>Tampilkan:</span>
+                                <select
+                                    value={size}
+                                    onChange={(e) => {
+                                        setSize(Number(e.target.value));
+                                        setPage(0);
+                                    }}
+                                    className="page-size-select"
+                                >
+                                    {PAGE_SIZE_OPTIONS.map((option) => (
+                                        <option key={option} value={option}>{option} Data</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="pagination-controls">
                                 <button

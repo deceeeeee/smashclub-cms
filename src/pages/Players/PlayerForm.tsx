@@ -7,17 +7,27 @@ import {
     Mail,
     Calendar,
     Save,
-    HelpCircle,
     ChevronLeft
 } from 'lucide-react';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import { useAuthStore } from '../../features/auth/auth.store';
+import AccessDenied from '../../components/common/AccessDenied';
 import './PlayerForm.css';
 
 const PlayerForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = !!id;
+    const { hasPermission } = useAuthStore();
+
+    // Players only has EDIT/READ/DELETE in API docs, so we use EDIT for form access
+    const canAccess = hasPermission('PLAYER_EDIT');
+
     const [status, setStatus] = useState(STATUS_FLAGS.ACTIVE);
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     return (
         <div className="player-form-page">

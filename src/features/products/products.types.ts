@@ -5,7 +5,7 @@ export interface ProductVariant {
     price: number;
     sku: string;
     stock: number;
-    variantImgLink: string;
+    variantImgLink: File | string | null;
 }
 
 export interface Product {
@@ -23,7 +23,7 @@ export type ProductPageResponse = PaginatedData<Product>;
 export interface ProductPayload {
     productName: string;
     category: string;
-    defaultImgLink: string;
+    defaultImgLink: File | null;
     status: number;
     productDesc?: string;
     productVariants: ProductVariant[];

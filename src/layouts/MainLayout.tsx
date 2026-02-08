@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     LogOut,
     HelpCircle,
@@ -8,56 +8,116 @@ import {
     Bell
 } from 'lucide-react';
 import { getMenuIcon } from '../components/icons/MenuIcons';
-import AlertModal from '../components/ui/AlertModal/AlertModal';
-import ConfirmModal from '../components/ui/ConfirmModal/ConfirmModal';
+import { useAuthStore } from '../features/auth/auth.store';
+import { useConfirmStore } from '../app/confirm.store';
+import AccessDenied from '../components/common/AccessDenied';
 import './MainLayout.css';
 
-const navigation = [
-    {
-        items: [
-            { name: 'Dashboard', to: '/dashboard', menuCode: 'home' }
-        ]
-    },
-    {
-        section: 'Master Data',
-        items: [
-            { name: 'Lapangan', to: '/courts', menuCode: 'court' },
-            { name: 'Pelatih', to: '/trainers', menuCode: 'coach' },
-            { name: 'Kategori Peralatan', to: '/equipment-categories', menuCode: 'equipment-category' },
-            { name: 'Peralatan', to: '/equipment', menuCode: 'equipment' },
-            { name: 'Produk', to: '/products', menuCode: 'product' },
-        ]
-    },
-    {
-        section: 'Laporan',
-        items: [
-            { name: 'Data Pemain', to: '/players', menuCode: 'player' },
-            { name: 'Penjualan', to: '/reports/sales', menuCode: 'sales' },
-            { name: 'Pemesanan Lapangan', to: '/reports/bookings', menuCode: 'court-booking' },
-            { name: 'Penjualan Produk', to: '/reports/products', menuCode: 'product-sales' },
-        ]
-    },
-    {
-        section: 'Manajemen Pengguna',
-        items: [
-            { name: 'Peran', to: '/roles', menuCode: 'role' },
-            { name: 'Pengguna', to: '/users', menuCode: 'user' },
-        ]
+// Helper to map menuCode to route path
+const getPathByMenuCode = (menuCode: string): string => {
+    switch (menuCode) {
+        case 'home': return '/dashboard';
+        case 'court': return '/courts';
+        case 'coach': return '/trainers';
+        case 'equipment-category': return '/equipment-categories';
+        case 'equipment': return '/equipment';
+        case 'product': return '/products';
+        case 'player': return '/players';
+        case 'sales': return '/reports/sales';
+        case 'court-booking': return '/reports/bookings';
+        case 'product-sales': return '/reports/products';
+        case 'role': return '/roles';
+        case 'user': return '/users';
+        default: return '/dashboard';
     }
-];
+};
 
-
-import { useAuthStore } from '../features/auth/auth.store';
+interface NavigationGroup {
+    categoryId: number;
+    section?: string;
+    items: {
+        name: string;
+        to: string;
+        menuCode: string;
+    }[];
+}
 
 const MainLayout = () => {
     const navigate = useNavigate();
-    const { user, logout } = useAuthStore();
+    const { user, logout, isAuthenticated } = useAuthStore();
+    const { showConfirm } = useConfirmStore();
     const [isMinimized, setIsMinimized] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+    const location = useLocation();
+    const menuSet = user?.adminRole?.menuSet || [];
+    const [isAllowed, setIsAllowed] = useState(true);
+
+    // Group by category
+    const categoryMap = new Map<number, NavigationGroup>();
+
+    menuSet.forEach(menu => {
+        // Fallback for missing category (e.g. from login response)
+        const catId = menu.category?.id ?? 0;
+        const catName = menu.category?.categoryName ?? '';
+
+        if (!categoryMap.has(catId)) {
+            categoryMap.set(catId, {
+                categoryId: catId,
+                section: catName || undefined,
+                items: []
+            });
+        }
+
+        categoryMap.get(catId)?.items.push({
+            name: menu.menuName,
+            to: getPathByMenuCode(menu.menuCode),
+            menuCode: menu.menuCode
+        });
+    });
+
+    // Convert map to array and sort by categoryId
+    const navigation: NavigationGroup[] = Array.from(categoryMap.values())
+        .sort((a, b) => a.categoryId - b.categoryId);
+
+    // Access Management: Redirect if path not allowed
+    useEffect(() => {
+        const currentPath = location.pathname;
+
+        // Allowed for everyone authenticated
+        if (!isAuthenticated) return;
+        if (currentPath === '/dashboard' || currentPath === '/' || currentPath === '/login') {
+            setIsAllowed(true);
+            return;
+        }
+
+        // Check if current path matches any allowed menu item
+        if (menuSet.length > 0) {
+            const allowed = menuSet.some(menu => {
+                const menuPath = getPathByMenuCode(menu.menuCode);
+                return currentPath === menuPath || currentPath.startsWith(`${menuPath}/`);
+            });
+
+            setIsAllowed(allowed);
+            if (!allowed) {
+                console.warn(`Access denied for path: ${currentPath}`);
+            }
+        } else {
+            setIsAllowed(false);
+        }
+    }, [location.pathname, isAuthenticated, menuSet]);
+
     const handleLogout = () => {
-        logout();
-        navigate('/login');
+        showConfirm({
+            title: 'Konfirmasi Keluar',
+            message: 'Apakah Anda yakin ingin keluar dari sistem SmashClub?',
+            confirmText: 'Keluar Sekarang',
+            cancelText: 'Batal',
+            onConfirm: () => {
+                logout();
+                navigate('/login');
+            }
+        });
     };
 
     const toggleSidebar = () => {
@@ -133,16 +193,8 @@ const MainLayout = () => {
                             <Menu size={24} />
                         </button>
                         <h1 className="header-title">Beranda</h1>
-                        {/* <div className="search-bar desktop-search">
-                            <Search size={18} className="search-icon" />
-                            <input type="text" placeholder="Cari jadwal atau member..." />
-                        </div> */}
                     </div>
                     <div className="header-right">
-                        {/* <button className="btn-add-order hide-mobile">
-                            <Plus size={18} />
-                            <span>Tambah Pesanan</span>
-                        </button> */}
                         <button className="icon-btn">
                             <Bell size={20} />
                             <div className="notification-dot"></div>
@@ -153,22 +205,18 @@ const MainLayout = () => {
                         <div className="user-profile">
                             <div className="user-info hide-mobile">
                                 <span className="user-name">{user?.fullname || 'Admin'}</span>
-                                <span className="user-role">Administrator</span>
+                                <span className="user-role">{user?.adminRole?.roleName || 'Administrator'}</span>
                             </div>
                             <div className="user-avatar"></div>
                         </div>
                     </div>
                 </header>
                 <main className="content-container">
-                    <Outlet />
+                    {isAllowed ? <Outlet /> : <AccessDenied />}
                 </main>
             </div>
-            <AlertModal />
-            <ConfirmModal />
         </div>
     );
 };
 
-
 export default MainLayout;
-

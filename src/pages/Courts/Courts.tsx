@@ -9,23 +9,29 @@ import {
     ChevronLeft,
     ChevronRight,
     Search,
-    Filter,
     Loader2
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useCourtsStore } from '../../features/courts/courts.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useDebounce } from '../../hooks/useDebounce';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Courts.css';
 
 const Courts = () => {
     const navigate = useNavigate();
     const { courts, isLoading, getCourts, deleteCourt, totalElements, totalPages } = useCourtsStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
+
+    const canCreate = hasPermission('COURT_CREATE');
+    const canEdit = hasPermission('COURT_EDIT');
+    const canDelete = hasPermission('COURT_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -73,10 +79,12 @@ const Courts = () => {
                     <h1>Manajemen Lapangan</h1>
                     <p>Kelola detail, harga, dan ketersediaan lapangan SmashClub secara real-time.</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/courts/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Lapangan Baru</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/courts/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Lapangan Baru</span>
+                    </button>
+                )}
             </div>
 
             {/* Content Card with Filters and Table */}
@@ -168,12 +176,16 @@ const Courts = () => {
                                         </td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(court.id)}>
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(court.id)}>
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                {canEdit && (
+                                                    <button className="btn-icon-action" onClick={() => handleEdit(court.id)} title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button className="btn-icon-action btn-delete" onClick={() => handleDelete(court.id)} title="Hapus">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

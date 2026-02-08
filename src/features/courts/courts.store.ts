@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Court, CourtPayload } from './courts.types';
 import { fetchCourts, fetchCourtDetail, saveCourt, removeCourt } from './courts.api';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
+import type { ErrorResponse } from '../../services/api.types';
 
 interface CourtsState {
     courts: Court[];
@@ -10,7 +12,11 @@ interface CourtsState {
     error: string | null;
     getCourts: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getCourt: (id: number | string) => Promise<Court | null>;
-    submitCourt: (data: CourtPayload, id?: number | string) => Promise<{ success: boolean; message: string }>;
+    submitCourt: (data: CourtPayload, id?: number | string) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteCourt: (id: number | string) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -68,11 +74,22 @@ export const useCourtsStore = create<CourtsState>((set) => ({
                 message: response.message
             };
         } catch (err: any) {
-            const errorMessage = err.response?.data?.message || 'Failed to save court';
+            const errorData = err.response?.data as ErrorResponse;
+            const errorMessage = errorData?.message || 'Failed to save court';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: errorMessage, isLoading: false });
             return {
                 success: false,
-                message: errorMessage
+                message: errorMessage,
+                errors: validationErrors
             };
         }
     },

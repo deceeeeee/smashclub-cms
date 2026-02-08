@@ -10,8 +10,10 @@ import {
 } from 'lucide-react';
 import { useUsersStore } from '../../features/users/users.store';
 import { useRolesStore } from '../../features/roles/roles.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useAlertStore } from '../../app/alert.store';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import AccessDenied from '../../components/common/AccessDenied';
 import './UserForm.css';
 
 const UserForm = () => {
@@ -22,6 +24,9 @@ const UserForm = () => {
     const { getUser, submitUser, isLoading } = useUsersStore();
     const { getRoles, roles } = useRolesStore();
     const { showSuccess, showError } = useAlertStore();
+    const { hasPermission } = useAuthStore();
+
+    const canAccess = isEdit ? hasPermission('USERS_EDIT') : hasPermission('USERS_CREATE');
 
     const [fullName, setFullName] = useState('');
     const [username, setUsername] = useState('');
@@ -30,6 +35,7 @@ const UserForm = () => {
     const [roleId, setRoleId] = useState<string | number>('');
 
     const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         getRoles('', 0, 100);
@@ -64,9 +70,16 @@ const UserForm = () => {
             showSuccess('Berhasil', isEdit ? 'Data pengguna diperbarui.' : 'Pengguna baru didaftarkan.');
             navigate('/users');
         } else {
+            if (result.errors) {
+                setErrors(result.errors);
+            }
             showError('Gagal', result.message);
         }
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     return (
         <div className="user-form-page">
@@ -103,8 +116,13 @@ const UserForm = () => {
                             type="text"
                             placeholder="Masukkan nama lengkap"
                             value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
+                            onChange={(e) => {
+                                setFullName(e.target.value);
+                                if (errors.fullName) setErrors(prev => ({ ...prev, fullName: '' }));
+                            }}
+                            className={errors.fullName ? 'error-input' : ''}
                         />
+                        {errors.fullName && <span className="error-text">{errors.fullName}</span>}
                     </div>
 
                     {/* Username / Email */}
@@ -114,8 +132,13 @@ const UserForm = () => {
                             type="text"
                             placeholder="contoh@email.com"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => {
+                                setUsername(e.target.value);
+                                if (errors.username) setErrors(prev => ({ ...prev, username: '' }));
+                            }}
+                            className={errors.username ? 'error-input' : ''}
                         />
+                        {errors.username && <span className="error-text">{errors.username}</span>}
                     </div>
 
                     {/* Peran */}
@@ -124,7 +147,11 @@ const UserForm = () => {
                         <div className="select-wrapper">
                             <select
                                 value={roleId}
-                                onChange={(e) => setRoleId(e.target.value)}
+                                onChange={(e) => {
+                                    setRoleId(e.target.value);
+                                    if (errors.adminRole) setErrors(prev => ({ ...prev, adminRole: '' }));
+                                }}
+                                className={errors.adminRole ? 'error-input' : ''}
                             >
                                 <option value="" disabled>Pilih Peran</option>
                                 {roles.map(role => (
@@ -135,6 +162,7 @@ const UserForm = () => {
                             </select>
                             <ChevronDown className="select-icon" size={18} />
                         </div>
+                        {errors.adminRole && <span className="error-text">{errors.adminRole}</span>}
                     </div>
 
                     {/* Kata Sandi */}
@@ -145,7 +173,11 @@ const UserForm = () => {
                                 type={showPassword ? "text" : "password"}
                                 placeholder={isEdit ? "********" : "Minimum 8 karakter"}
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errors.password) setErrors(prev => ({ ...prev, password: '' }));
+                                }}
+                                className={errors.password ? 'error-input' : ''}
                             />
                             <button
                                 type="button"
@@ -155,6 +187,7 @@ const UserForm = () => {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
+                        {errors.password && <span className="error-text">{errors.password}</span>}
                         <p className="input-hint">Gunakan kombinasi huruf, angka, dan simbol.</p>
                         <p className="input-hint">{isEdit && 'Kosongkan jika tidak ingin mengubah'}</p>
                     </div>

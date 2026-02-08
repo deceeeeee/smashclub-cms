@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import type { EquipmentCategory, EquipmentCategoryPayload } from './equipment-category.types';
 import { fetchEquipmentCategories, fetchEquipmentCategoryDetail, saveEquipmentCategory, removeEquipmentCategory } from './equipment-category.api';
-import type { BaseResponse } from '../../services/api.types';
+import type { BaseResponse, ErrorResponse } from '../../services/api.types';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
 
 interface EquipmentCategoryState {
     categories: EquipmentCategory[];
@@ -11,7 +12,11 @@ interface EquipmentCategoryState {
     error: string | null;
     getCategories: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getCategoryDetail: (id: number) => Promise<BaseResponse<EquipmentCategory> | null>;
-    submitCategory: (payload: EquipmentCategoryPayload, id?: number) => Promise<{ success: boolean; message: string }>;
+    submitCategory: (payload: EquipmentCategoryPayload, id?: number) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteCategory: (id: number) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -60,9 +65,23 @@ export const useEquipmentCategoryStore = create<EquipmentCategoryState>((set) =>
             set({ isLoading: false });
             return { success: response.success, message: response.message };
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Gagal menyimpan data kategori';
+            const errorData = err.response?.data as ErrorResponse;
+            const message = errorData?.message || 'Gagal menyimpan data kategori';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: message, isLoading: false });
-            return { success: false, message };
+            return {
+                success: false,
+                message,
+                errors: validationErrors
+            };
         }
     },
 

@@ -1,19 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     User,
-    ShieldCheck,
-    ChevronDown,
-    Camera,
-    Eye,
-    EyeOff,
     Save,
     ChevronLeft,
-    Loader2
+    Loader2,
+    Upload,
+    X
 } from 'lucide-react';
 import { useTrainersStore } from '../../features/trainers/trainers.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useAlertStore } from '../../app/alert.store';
 import { STATUS_FLAGS } from '../../constant/flags';
+import AccessDenied from '../../components/common/AccessDenied';
 import { formatNumber, parseFormattedNumber } from '../../utils/format';
 import './TrainerForm.css';
 
@@ -24,8 +23,10 @@ const TrainerForm = () => {
 
     const { getTrainer, submitTrainer, isLoading } = useTrainersStore();
     const { showAlert } = useAlertStore();
+    const { hasPermission } = useAuthStore();
 
-    const [showPassword, setShowPassword] = useState(false);
+    const canAccess = isEdit ? hasPermission('COACH_EDIT') : hasPermission('COACH_CREATE');
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Form state
@@ -33,8 +34,12 @@ const TrainerForm = () => {
         coachCode: '',
         coachName: '',
         pricePerHour: 0,
-        status: STATUS_FLAGS.ACTIVE
+        status: STATUS_FLAGS.ACTIVE,
+        coachImgLink: null as File | string | null
     });
+
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,8 +60,12 @@ const TrainerForm = () => {
                 coachCode: trainer.coachCode,
                 coachName: trainer.coachName,
                 pricePerHour: trainer.pricePerHour,
-                status: trainer.status
+                status: trainer.status,
+                coachImgLink: trainer.coachImgLink
             });
+            if (trainer.coachImgLink) {
+                setPreviewUrl(trainer.coachImgLink);
+            }
         } else {
             showAlert('error', 'Error', 'Gagal memuat data pelatih');
             navigate('/trainers');
@@ -68,6 +77,26 @@ const TrainerForm = () => {
         // Clear error when user starts typing
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('error', 'Format Salah', 'Hanya diperbolehkan mengupload file gambar');
+                return;
+            }
+            setFormData(prev => ({ ...prev, coachImgLink: file }));
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const clearImage = () => {
+        setFormData(prev => ({ ...prev, coachImgLink: null }));
+        setPreviewUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -101,12 +130,19 @@ const TrainerForm = () => {
         setIsSubmitting(true);
 
         try {
-            const result = await submitTrainer(formData, id ? Number(id) : undefined);
+            const payload = {
+                ...formData,
+                coachImgLink: formData.coachImgLink instanceof File ? formData.coachImgLink : null
+            };
+            const result = await submitTrainer(payload, id ? Number(id) : undefined);
 
             if (result.success) {
                 showAlert('success', 'Berhasil', isEdit ? 'Data pelatih berhasil diperbarui' : 'Pelatih baru berhasil ditambahkan');
                 navigate('/trainers');
             } else {
+                if (result.errors) {
+                    setErrors(result.errors);
+                }
                 showAlert('error', 'Gagal', result.message || 'Terjadi kesalahan saat menyimpan data');
             }
         } catch (error: any) {
@@ -115,6 +151,10 @@ const TrainerForm = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     return (
         <div className="trainer-form-page">
@@ -161,6 +201,7 @@ const TrainerForm = () => {
                                     value={formData.coachCode}
                                     onChange={(e) => handleInputChange('coachCode', e.target.value)}
                                     disabled={isLoading || isSubmitting}
+                                    className={errors.coachCode ? 'error-input' : ''}
                                 />
                                 {errors.coachCode && <span className="error-text">{errors.coachCode}</span>}
                             </div>
@@ -174,6 +215,7 @@ const TrainerForm = () => {
                                     value={formData.coachName}
                                     onChange={(e) => handleInputChange('coachName', e.target.value)}
                                     disabled={isLoading || isSubmitting}
+                                    className={errors.coachName ? 'error-input' : ''}
                                 />
                                 {errors.coachName && <span className="error-text">{errors.coachName}</span>}
                             </div>
@@ -181,7 +223,7 @@ const TrainerForm = () => {
                             {/* Harga per Jam */}
                             <div className="form-group">
                                 <label>Harga per Jam (Rp) <span style={{ color: '#ef4444' }}>*</span></label>
-                                <div className="price-input-group">
+                                <div className={`price-input-group ${errors.pricePerHour ? 'error-input' : ''}`}>
                                     <span className="price-prefix">Rp</span>
                                     <input
                                         type="text"
@@ -197,7 +239,7 @@ const TrainerForm = () => {
                             {/* Status */}
                             <div className="form-group">
                                 <label>Status</label>
-                                <div className="toggle-container">
+                                <div className={`toggle-container ${errors.status ? 'error-input' : ''}`}>
                                     <label className="switch">
                                         <input
                                             type="checkbox"
@@ -212,6 +254,43 @@ const TrainerForm = () => {
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="form-group full-width" style={{ marginTop: '1.5rem' }}>
+                        <label>Foto Pelatih</label>
+                        <div className="photo-upload-container">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                accept="image/*"
+                                onChange={handleFileChange}
+                            />
+
+                            {!previewUrl ? (
+                                <div
+                                    className="upload-box-main"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <Upload size={32} className="upload-icon-form" />
+                                    <span className="upload-title">Unggah Foto Pelatih</span>
+                                    <span className="upload-label">Klik untuk memilih gambar</span>
+                                </div>
+                            ) : (
+                                <div className="photo-previews-grid">
+                                    <div className="image-preview-box">
+                                        <img src={previewUrl} alt="Coach Preview" />
+                                        <button
+                                            type="button"
+                                            className="delete-photo-btn"
+                                            onClick={clearImage}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

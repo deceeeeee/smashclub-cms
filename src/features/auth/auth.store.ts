@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-interface User {
-    fullname: string;
-    username: string;
-}
+import type { User } from './auth.types';
 
 interface AuthState {
     user: User | null;
@@ -12,11 +8,12 @@ interface AuthState {
     isAuthenticated: boolean;
     login: (user: User, token: string) => void;
     logout: () => void;
+    hasPermission: (permissionCode: string) => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             token: null,
             isAuthenticated: false,
@@ -34,6 +31,18 @@ export const useAuthStore = create<AuthState>()(
                     token: null,
                     isAuthenticated: false,
                 }),
+
+            hasPermission: (permissionCode: string) => {
+                const state = get();
+                if (!state.user || !state.user.adminRole) return false;
+
+                // Developer has all permissions
+                if (state.user.adminRole.roleCode === 'DEV') return true;
+
+                return state.user.adminRole.permissionSet?.some(
+                    p => p.permissionCode === permissionCode
+                ) || false;
+            }
         }),
         {
             name: 'auth-storage',

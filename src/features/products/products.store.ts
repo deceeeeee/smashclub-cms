@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Product, ProductPayload } from './products.types';
 import { fetchProducts, fetchProductDetail, saveProduct, removeProduct } from './products.api';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
+import type { ErrorResponse } from '../../services/api.types';
 
 interface ProductsState {
     products: Product[];
@@ -10,7 +12,11 @@ interface ProductsState {
     error: string | null;
     getProducts: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getProductDetail: (id: number) => Promise<any>;
-    submitProduct: (payload: ProductPayload, id?: number) => Promise<{ success: boolean; message: string }>;
+    submitProduct: (payload: ProductPayload, id?: number) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteProduct: (id: number) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -59,9 +65,23 @@ export const useProductsStore = create<ProductsState>((set) => ({
             set({ isLoading: false });
             return { success: response.success, message: response.message };
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Gagal menyimpan data produk';
+            const errorData = err.response?.data as ErrorResponse;
+            const message = errorData?.message || 'Gagal menyimpan data produk';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: message, isLoading: false });
-            return { success: false, message };
+            return {
+                success: false,
+                message,
+                errors: validationErrors
+            };
         }
     },
 

@@ -11,19 +11,26 @@ import {
     Loader2,
     AlertCircle
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useEquipmentStore } from '../../features/equipment/equipment.store';
 import { useDebounce } from '../../hooks/useDebounce';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Equipment.css';
 
 const Equipment = () => {
     const navigate = useNavigate();
     const { equipment, isLoading, getEquipment, deleteEquipment, totalElements, totalPages } = useEquipmentStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(10);
+
+    const canCreate = hasPermission('EQUIPMENT_CREATE');
+    const canEdit = hasPermission('EQUIPMENT_EDIT');
+    const canDelete = hasPermission('EQUIPMENT_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -77,10 +84,12 @@ const Equipment = () => {
                     <h1>Manajemen Peralatan</h1>
                     <p>Kelola dan pantau inventaris peralatan olahraga Anda.</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/equipment/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Peralatan</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/equipment/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Peralatan</span>
+                    </button>
+                )}
             </div>
             {/* Main Content Card */}
             <div className="content-card">
@@ -105,9 +114,9 @@ const Equipment = () => {
                             }}
                             className="page-size-select"
                         >
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
+                            {PAGE_SIZE_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
                         </select>
                         <span>per halaman</span>
                     </div>
@@ -178,8 +187,16 @@ const Equipment = () => {
                                         </td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(item.id)}><Edit2 size={16} /></button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
+                                                {canEdit && (
+                                                    <button className="btn-icon-action" onClick={() => handleEdit(item.id)} title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button className="btn-icon-action btn-delete" onClick={() => handleDelete(item.id)} title="Hapus">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { AdminUser, UserPayload } from './users.types';
 import { fetchUsers, fetchUserDetail, saveUser, removeUser } from './users.api';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
+import type { ErrorResponse } from '../../services/api.types';
 
 interface UsersState {
     users: AdminUser[];
@@ -10,7 +12,11 @@ interface UsersState {
     error: string | null;
     getUsers: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getUser: (id: number | string) => Promise<AdminUser | null>;
-    submitUser: (data: UserPayload, id?: number | string) => Promise<{ success: boolean; message: string }>;
+    submitUser: (data: UserPayload, id?: number | string) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteUser: (id: number | string) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -69,11 +75,22 @@ export const useUsersStore = create<UsersState>((set) => ({
                 message: response.message
             };
         } catch (err: any) {
-            const errorMessage = err.response?.data?.message || 'Failed to save user';
+            const errorData = err.response?.data as ErrorResponse;
+            const errorMessage = errorData?.message || 'Failed to save user';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: errorMessage, isLoading: false });
             return {
                 success: false,
-                message: errorMessage
+                message: errorMessage,
+                errors: validationErrors
             };
         }
     },

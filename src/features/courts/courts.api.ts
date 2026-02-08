@@ -19,11 +19,26 @@ export const fetchCourtDetail = async (id: number | string): Promise<BaseRespons
 };
 
 export const saveCourt = async (data: CourtPayload, id?: number | string): Promise<BaseResponse<Court>> => {
+    const formData = new FormData();
+    formData.append('courtCode', data.courtCode);
+    formData.append('courtName', data.courtName);
+    formData.append('openTime', data.openTime);
+    formData.append('closeTime', data.closeTime);
+    formData.append('status', data.status.toString());
+
+    if (data.courtImgLink instanceof File) {
+        formData.append('courtImgLink', data.courtImgLink);
+    }
+
     if (id) {
-        const response = await axiosInstance.put(`/admin/court/update/${id}`, data);
+        const response = await axiosInstance.put(`/admin/court/update/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     } else {
-        const response = await axiosInstance.post('/admin/court/save', data);
+        const response = await axiosInstance.post('/admin/court/save', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     }
 };

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import type { Trainer, TrainerPayload } from './trainers.types';
 import { fetchTrainers, fetchTrainerDetail, saveTrainer, removeTrainer } from './trainers.api';
-import type { BaseResponse } from '../../services/api.types';
+import type { BaseResponse, ErrorResponse } from '../../services/api.types';
+import { API_ERROR_CODES } from '../../constant/apiErrorCode';
 
 interface TrainersState {
     trainers: Trainer[];
@@ -11,7 +12,11 @@ interface TrainersState {
     error: string | null;
     getTrainers: (keyword?: string, page?: number, size?: number) => Promise<void>;
     getTrainer: (id: number) => Promise<BaseResponse<Trainer> | null>;
-    submitTrainer: (payload: TrainerPayload, id?: number) => Promise<{ success: boolean; message: string }>;
+    submitTrainer: (payload: TrainerPayload, id?: number) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Record<string, string>
+    }>;
     deleteTrainer: (id: number) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -60,9 +65,23 @@ export const useTrainersStore = create<TrainersState>((set) => ({
             set({ isLoading: false });
             return { success: response.success, message: response.message };
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Gagal menyimpan data pelatih';
+            const errorData = err.response?.data as ErrorResponse;
+            const message = errorData?.message || 'Gagal menyimpan data pelatih';
+
+            let validationErrors: Record<string, string> | undefined;
+            if (errorData?.errorCode === API_ERROR_CODES.INVALID_FORMAT && Array.isArray(errorData.data)) {
+                validationErrors = {};
+                errorData.data.forEach(item => {
+                    validationErrors![item.field] = item.message;
+                });
+            }
+
             set({ error: message, isLoading: false });
-            return { success: false, message };
+            return {
+                success: false,
+                message,
+                errors: validationErrors
+            };
         }
     },
 

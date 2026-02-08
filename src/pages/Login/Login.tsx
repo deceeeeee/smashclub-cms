@@ -2,20 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../features/auth/auth.store';
-import { useAlertStore } from '../../app/alert.store';
 import { loginAdmin } from '../../features/auth/auth.api';
 import './Login.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuthStore();
-  const { showAlert } = useAlertStore();
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,16 +31,18 @@ const LoginPage = () => {
         login(
           {
             fullname: result.data.fullname,
-            username: result.data.username
+            username: result.data.username,
+            adminRole: result.data.adminRole
           },
           result.data.accessToken
         );
         navigate('/dashboard');
       } else {
-        showAlert('error', 'Login Gagal', result.message || 'Username atau password salah');
+        // Redundant with axios interceptor if whitelisted
+        // showAlert('error', 'Login Gagal', result.message || 'Username atau password salah');
       }
     } catch (error) {
-      showAlert('error', 'Error', 'Terjadi kesalahan sistem');
+      // showAlert('error', 'Error', 'Terjadi kesalahan sistem');
     } finally {
       setIsLoading(false);
     }

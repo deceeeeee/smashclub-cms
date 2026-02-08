@@ -12,20 +12,27 @@ import {
     ChevronRight,
     ChevronLeft
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useRolesStore } from '../../features/roles/roles.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { roleStyleMap } from '../../components/icons/RoleStyles';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Roles.css';
 
 const Roles = () => {
     const navigate = useNavigate();
     const { roles, isLoading, error, getRoles, deleteRole, totalElements, totalPages } = useRolesStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
     const [debouncedSearch, setDebouncedSearch] = useState('');
+
+    const canCreate = hasPermission('ROLES_CREATE');
+    const canEdit = hasPermission('ROLES_EDIT');
+    const canDelete = hasPermission('ROLES_DELETE');
 
     // Debounce search input
     useEffect(() => {
@@ -75,10 +82,12 @@ const Roles = () => {
                         <h1>Manajemen Peran</h1>
                         <p>Kelola hak akses dan tanggung jawab pengguna dalam sistem SmashClub untuk menjaga keamanan data operasional.</p>
                     </div>
-                    <button className="btn-primary" onClick={() => navigate('/roles/add')}>
-                        <Plus size={18} />
-                        <span>Tambah Peran Baru</span>
-                    </button>
+                    {canCreate && (
+                        <button className="btn-primary" onClick={() => navigate('/roles/add')}>
+                            <Plus size={18} />
+                            <span>Tambah Peran Baru</span>
+                        </button>
+                    )}
                 </div>
 
                 <div className="content-card">
@@ -103,11 +112,9 @@ const Roles = () => {
                                 }}
                                 className="page-size-select"
                             >
-                                <option value={1}>1</option>
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
+                                {PAGE_SIZE_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
                             </select>
                             <span>per halaman</span>
                         </div>
@@ -158,14 +165,22 @@ const Roles = () => {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div className="action-buttons">
-                                                        <button className="btn-icon" onClick={() => handleEdit(role.id)}>
-                                                            <Edit2 size={16} />
-                                                        </button>
-                                                        <button className="btn-icon" onClick={() => handleDelete(role.id)}>
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
+                                                    {
+                                                        role.roleCode === 'DEV' ? "" : (
+                                                            <div className="action-buttons">
+                                                                {canEdit && (
+                                                                    <button className="btn-icon" onClick={() => handleEdit(role.id)} title="Edit">
+                                                                        <Edit2 size={16} />
+                                                                    </button>
+                                                                )}
+                                                                {canDelete && (
+                                                                    <button className="btn-icon" onClick={() => handleDelete(role.id)} title="Hapus">
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    }
                                                 </td>
                                             </tr>
                                         );

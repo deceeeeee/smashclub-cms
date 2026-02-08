@@ -10,6 +10,7 @@ export interface Court {
     statusDesc: string | null;
     createdAt: string;
     updatedAt: string | null;
+    courtImgLink?: string;
 }
 
 export type CourtPageResponse = PaginatedData<Court>;
@@ -20,4 +21,5 @@ export interface CourtPayload {
     openTime: string;
     closeTime: string;
     status: number;
+    courtImgLink?: File | null;
 }

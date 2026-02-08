@@ -10,6 +10,7 @@ export interface Equipment {
     price: number;
     status: number;
     createdAt: string;
+    equipmentImgLink: string | null;
     equipmentCategory: EquipmentCategory;
 }
 
@@ -25,4 +26,5 @@ export interface EquipmentPayload {
     equipmentCategory: {
         id: number;
     };
+    equipmentImgLink?: File | string | null;
 }

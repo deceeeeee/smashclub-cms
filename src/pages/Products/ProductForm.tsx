@@ -13,9 +13,11 @@ import {
     Trash2
 } from 'lucide-react';
 import { useProductsStore } from '../../features/products/products.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useAlertStore } from '../../app/alert.store';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import { formatNumber, parseFormattedNumber } from '../../utils/format';
+import AccessDenied from '../../components/common/AccessDenied';
 import './ProductForm.css';
 
 const ProductForm = () => {
@@ -25,6 +27,9 @@ const ProductForm = () => {
 
     const { getProductDetail, submitProduct } = useProductsStore();
     const { showAlert } = useAlertStore();
+    const { hasPermission } = useAuthStore();
+
+    const canAccess = isEdit ? hasPermission('PRODUCT_EDIT') : hasPermission('PRODUCT_CREATE');
 
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,10 +38,11 @@ const ProductForm = () => {
         category: '',
         status: STATUS_FLAGS.ACTIVE,
         productDesc: '',
-        defaultImgLink: '',
+        defaultImgLink: null as File | string | null,
         productVariants: [] as any[]
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [images, setImages] = useState<{ id: number; url: string; isMain: boolean }[]>([]);
 
     const mainFilePickerRef = useRef<HTMLInputElement>(null);
@@ -59,7 +65,7 @@ const ProductForm = () => {
                     category: data.category,
                     status: data.status,
                     productDesc: data.productDesc || '',
-                    defaultImgLink: data.defaultImgLink || '',
+                    defaultImgLink: data.defaultImgLink || null,
                     productVariants: data.productVariants || []
                 });
 
@@ -83,6 +89,10 @@ const ProductForm = () => {
             ...prev,
             [name]: value
         }));
+        // Clear error when user changes input
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
     };
 
     const handleAddVariant = () => {
@@ -90,7 +100,7 @@ const ProductForm = () => {
             ...prev,
             productVariants: [
                 ...prev.productVariants,
-                { name: '', sku: '', price: 0, stock: 0, variantImgLink: '' }
+                { id: 0, name: '', sku: '', price: 0, stock: 0, variantImgLink: '' }
             ]
         }));
     };
@@ -116,13 +126,14 @@ const ProductForm = () => {
             return;
         }
 
-        const imageUrl = URL.createObjectURL(file);
+
 
         if (type === 'main') {
+            const imageUrl = URL.createObjectURL(file);
             setImages([{ id: Date.now(), url: imageUrl, isMain: true }]);
-            setFormData(prev => ({ ...prev, defaultImgLink: imageUrl }));
+            setFormData(prev => ({ ...prev, defaultImgLink: file }));
         } else if (type === 'variant' && index !== undefined) {
-            handleVariantChange(index, 'variantImgLink', imageUrl);
+            handleVariantChange(index, 'variantImgLink', file);
         }
     };
 
@@ -156,12 +167,15 @@ const ProductForm = () => {
         try {
             const payload = {
                 ...formData,
-                defaultImgLink: images.find(img => img.isMain)?.url || formData.defaultImgLink
+                defaultImgLink: formData.defaultImgLink instanceof File ? formData.defaultImgLink : null
             };
             const result = await submitProduct(payload, id ? Number(id) : undefined);
             if (result.success) {
                 navigate('/products');
             } else {
+                if (result.errors) {
+                    setErrors(result.errors);
+                }
                 showAlert('error', 'Gagal', result.message || 'Gagal menyimpan produk');
             }
         } catch (error: any) {
@@ -170,6 +184,10 @@ const ProductForm = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     if (isLoading) {
         return (
@@ -223,7 +241,9 @@ const ProductForm = () => {
                                 value={formData.productName}
                                 onChange={handleInputChange}
                                 required
+                                className={errors.productName ? 'error-input' : ''}
                             />
+                            {errors.productName && <span className="error-text">{errors.productName}</span>}
                         </div>
 
                         {/* Kategori Produk */}
@@ -235,6 +255,7 @@ const ProductForm = () => {
                                     value={formData.category}
                                     onChange={handleInputChange}
                                     required
+                                    className={errors.category ? 'error-input' : ''}
                                 >
                                     <option value="" disabled>Pilih Kategori</option>
                                     <option value="Makanan">Makanan</option>
@@ -246,12 +267,13 @@ const ProductForm = () => {
                                 </select>
                                 <ChevronDown className="select-icon" size={18} />
                             </div>
+                            {errors.category && <span className="error-text">{errors.category}</span>}
                         </div>
 
                         {/* Status */}
                         <div className="form-group">
                             <label>STATUS PRODUK</label>
-                            <div className="toggle-container">
+                            <div className={`toggle-container ${errors.status ? 'error-input' : ''}`}>
                                 <label className="switch">
                                     <input
                                         type="checkbox"
@@ -278,8 +300,9 @@ const ProductForm = () => {
                                 value={formData.productDesc}
                                 onChange={handleInputChange}
                                 rows={3}
-                                className="form-textarea"
+                                className={`form-textarea ${errors.productDesc ? 'error-input' : ''}`}
                             />
+                            {errors.productDesc && <span className="error-text">{errors.productDesc}</span>}
                         </div>
 
                         {/* Foto Utama */}
@@ -306,11 +329,11 @@ const ProductForm = () => {
 
                                 <div className="photo-previews-grid">
                                     {images.map(img => (
-                                        <div key={img.id} className="image-preview-box">
+                                        <div key={img.id} className="image-preview-box product-preview-box">
                                             <img src={img.url} alt="Product" />
                                             <button type="button" className="delete-photo-btn" onClick={() => {
                                                 setImages([]);
-                                                setFormData(prev => ({ ...prev, defaultImgLink: '' }));
+                                                setFormData(prev => ({ ...prev, defaultImgLink: null }));
                                             }}>
                                                 <X size={14} />
                                             </button>
@@ -362,6 +385,7 @@ const ProductForm = () => {
                                                 style={{ display: 'none' }}
                                                 accept="image/*"
                                                 onChange={(e) => handleFileUpload(e, 'variant', index)}
+                                                name={`productVariants[${index}].variantImgLink`}
                                             />
                                             <div
                                                 className="variant-upload-box"
@@ -371,7 +395,14 @@ const ProductForm = () => {
                                             >
                                                 {variant.variantImgLink ? (
                                                     <div className="variant-image-preview">
-                                                        <img src={variant.variantImgLink} alt="Variant" />
+                                                        <img
+                                                            src={
+                                                                variant.variantImgLink instanceof File
+                                                                    ? URL.createObjectURL(variant.variantImgLink)
+                                                                    : variant.variantImgLink
+                                                            }
+                                                            alt="Variant"
+                                                        />
                                                         <button type="button" className="btn-remove-photo" onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleVariantChange(index, 'variantImgLink', '');
@@ -396,7 +427,10 @@ const ProductForm = () => {
                                                     value={variant.name}
                                                     onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
                                                     required
+                                                    className={errors[`productVariants[${index}].name`] ? 'error-input' : ''}
+                                                    name={`productVariants[${index}].name`}
                                                 />
+                                                {errors[`productVariants[${index}].name`] && <span className="error-text">{errors[`productVariants[${index}].name`]}</span>}
                                             </div>
                                             <div className="form-group">
                                                 <label>SKU</label>
@@ -405,7 +439,10 @@ const ProductForm = () => {
                                                     placeholder="INDM-001"
                                                     value={variant.sku}
                                                     onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
+                                                    className={errors[`productVariants[${index}].sku`] ? 'error-input' : ''}
+                                                    name={`productVariants[${index}].sku`}
                                                 />
+                                                {errors[`productVariants[${index}].sku`] && <span className="error-text">{errors[`productVariants[${index}].sku`]}</span>}
                                             </div>
                                             <div className="form-group">
                                                 <label>Harga (Rp)</label>
@@ -416,8 +453,11 @@ const ProductForm = () => {
                                                         placeholder="0"
                                                         value={formatNumber(variant.price)}
                                                         onChange={(e) => handleVariantChange(index, 'price', parseFormattedNumber(e.target.value))}
+                                                        className={errors[`productVariants[${index}].price`] ? 'error-input' : ''}
+                                                        name={`productVariants[${index}].price`}
                                                     />
                                                 </div>
+                                                {errors[`productVariants[${index}].price`] && <span className="error-text">{errors[`productVariants[${index}].price`]}</span>}
                                             </div>
                                             <div className="form-group">
                                                 <label>Stok</label>
@@ -426,7 +466,10 @@ const ProductForm = () => {
                                                     placeholder="0"
                                                     value={variant.stock}
                                                     onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))}
+                                                    className={errors[`productVariants[${index}].stock`] ? 'error-input' : ''}
+                                                    name={`productVariants[${index}].stock`}
                                                 />
+                                                {errors[`productVariants[${index}].stock`] && <span className="error-text">{errors[`productVariants[${index}].stock`]}</span>}
                                             </div>
                                         </div>
                                     </div>

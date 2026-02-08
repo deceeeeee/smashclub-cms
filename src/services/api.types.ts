@@ -32,5 +32,21 @@ export interface BaseResponse<T> {
     message: string;
     status: number;
     timestamp: string;
+    errorCode?: string;
     data: T;
+}
+
+export interface ValidationError {
+    message: string;
+    field: string;
+    rejected_value: any;
+}
+
+export interface ErrorResponse {
+    success: boolean;
+    message: string;
+    status: number;
+    timestamp: string;
+    errorCode: string;
+    data: ValidationError[];
 }

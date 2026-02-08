@@ -58,6 +58,10 @@ input {
   outline: none;
 }
 
+.error-input {
+  border-color: var(--color-error) !important;
+}
+
 #root {
   width: 100%;
   padding: 0;

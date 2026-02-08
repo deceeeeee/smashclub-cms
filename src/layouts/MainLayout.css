@@ -739,6 +739,13 @@
     background-color: #f59e0b;
 }
 
+.image-preview-box {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN (Media Queries)
    ========================================================================== */

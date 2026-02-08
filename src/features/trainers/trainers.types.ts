@@ -6,6 +6,7 @@ export interface Trainer {
     coachName: string;
     pricePerHour: number;
     status: number;
+    coachImgLink: string | null;
     createdAt: string;
     updatedAt: string | null;
 }
@@ -17,4 +18,5 @@ export interface TrainerPayload {
     coachName: string;
     pricePerHour: number;
     status: number;
+    coachImgLink?: File | string | null;
 }

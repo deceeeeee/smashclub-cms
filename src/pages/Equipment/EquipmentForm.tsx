@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
     ChevronDown,
     Info,
     Save,
     ChevronLeft,
-    Loader2
+    Loader2,
+    Upload,
+    X
 } from 'lucide-react';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
 import { useEquipmentStore } from '../../features/equipment/equipment.store';
 import { useEquipmentCategoryStore } from '../../features/equipment-category/equipment-category.store';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useAlertStore } from '../../app/alert.store';
 import { formatNumber, parseFormattedNumber } from '../../utils/format';
+import AccessDenied from '../../components/common/AccessDenied';
 import './EquipmentForm.css';
 
 const EquipmentForm = () => {
@@ -22,6 +26,9 @@ const EquipmentForm = () => {
     const { getEquipmentDetail, submitEquipment } = useEquipmentStore();
     const { categories, getCategories } = useEquipmentCategoryStore();
     const { showAlert } = useAlertStore();
+    const { hasPermission } = useAuthStore();
+
+    const canAccess = isEdit ? hasPermission('EQUIPMENT_EDIT') : hasPermission('EQUIPMENT_CREATE');
 
     const [formData, setFormData] = useState({
         equipmentName: '',
@@ -30,9 +37,14 @@ const EquipmentForm = () => {
         stock: 0,
         price: 0,
         status: STATUS_FLAGS.ACTIVE,
-        categoryId: 0
+        categoryId: 0,
+        equipmentImgLink: null as File | string | null
     });
 
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,8 +68,12 @@ const EquipmentForm = () => {
                     stock: data.stock,
                     price: data.price,
                     status: data.status,
-                    categoryId: data.equipmentCategory?.id || 0
+                    categoryId: data.equipmentCategory?.id || 0,
+                    equipmentImgLink: data.equipmentImgLink
                 });
+                if (data.equipmentImgLink) {
+                    setPreviewUrl(data.equipmentImgLink);
+                }
             } else {
                 showAlert('error', 'Gagal', 'Gagal memuat data peralatan');
                 navigate('/equipment');
@@ -72,6 +88,30 @@ const EquipmentForm = () => {
             ...prev,
             [name]: name === 'stock' || name === 'price' || name === 'categoryId' ? Number(value) : value
         }));
+        // Clear error when user changes input
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('error', 'Format Salah', 'Hanya diperbolehkan mengupload file gambar');
+                return;
+            }
+            setFormData(prev => ({ ...prev, equipmentImgLink: file }));
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const clearImage = () => {
+        setFormData(prev => ({ ...prev, equipmentImgLink: null }));
+        setPreviewUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -93,12 +133,18 @@ const EquipmentForm = () => {
                 status: formData.status,
                 equipmentCategory: {
                     id: formData.categoryId
-                }
+                },
+                equipmentImgLink: formData.equipmentImgLink instanceof File ? formData.equipmentImgLink : null
             };
             const result = await submitEquipment(payload, id ? Number(id) : undefined);
             if (result.success) {
                 // Success alert is handled by axios interceptor whitelisted paths
                 navigate('/equipment');
+            } else {
+                if (result.errors) {
+                    setErrors(result.errors);
+                }
+                showAlert('error', 'Gagal', result.message || 'Gagal menyimpan peralatan');
             }
         } catch (error: any) {
             showAlert('error', 'Error', error.message || 'Terjadi kesalahan sistem');
@@ -106,6 +152,10 @@ const EquipmentForm = () => {
             setIsSubmitting(false);
         }
     };
+
+    if (!canAccess) {
+        return <AccessDenied />;
+    }
 
     if (isLoading) {
         return (
@@ -154,7 +204,9 @@ const EquipmentForm = () => {
                                 value={formData.equipmentName}
                                 onChange={handleInputChange}
                                 required
+                                className={errors.equipmentName ? 'error-input' : ''}
                             />
+                            {errors.equipmentName && <span className="error-text">{errors.equipmentName}</span>}
                         </div>
 
                         {/* Brand */}
@@ -166,7 +218,9 @@ const EquipmentForm = () => {
                                 placeholder="Yonex"
                                 value={formData.brand}
                                 onChange={handleInputChange}
+                                className={errors.brand ? 'error-input' : ''}
                             />
+                            {errors.brand && <span className="error-text">{errors.brand}</span>}
                         </div>
 
                         {/* Type */}
@@ -178,7 +232,9 @@ const EquipmentForm = () => {
                                 placeholder="Astrox 88D Pro"
                                 value={formData.type}
                                 onChange={handleInputChange}
+                                className={errors.type ? 'error-input' : ''}
                             />
+                            {errors.type && <span className="error-text">{errors.type}</span>}
                         </div>
 
                         {/* Kategori */}
@@ -190,6 +246,7 @@ const EquipmentForm = () => {
                                     value={formData.categoryId}
                                     onChange={handleInputChange}
                                     required
+                                    className={errors.categoryId ? 'error-input' : ''}
                                 >
                                     <option value={0} disabled>Pilih Kategori</option>
                                     {categories.map(cat => (
@@ -198,6 +255,7 @@ const EquipmentForm = () => {
                                 </select>
                                 <ChevronDown className="select-icon" size={18} />
                             </div>
+                            {errors.categoryId && <span className="error-text">{errors.categoryId}</span>}
                         </div>
 
                         {/* Jumlah Stok */}
@@ -210,9 +268,11 @@ const EquipmentForm = () => {
                                     placeholder="12"
                                     value={formData.stock}
                                     onChange={handleInputChange}
+                                    className={errors.stock ? 'error-input' : ''}
                                 />
                                 <span className="input-suffix">Unit</span>
                             </div>
+                            {errors.stock && <span className="error-text">{errors.stock}</span>}
                         </div>
 
                         {/* Biaya Sewa */}
@@ -228,10 +288,13 @@ const EquipmentForm = () => {
                                     onChange={(e) => {
                                         const parsed = parseFormattedNumber(e.target.value);
                                         setFormData(prev => ({ ...prev, price: parsed }));
+                                        if (errors.price) setErrors(prev => ({ ...prev, price: '' }));
                                     }}
                                     required
+                                    className={errors.price ? 'error-input' : ''}
                                 />
                             </div>
+                            {errors.price && <span className="error-text">{errors.price}</span>}
                         </div>
 
                         {/* Status */}
@@ -252,6 +315,44 @@ const EquipmentForm = () => {
                                 <span className={`status-text ${formData.status === STATUS_FLAGS.ACTIVE ? 'active' : 'inactive'}`}>
                                     {getStatusLabel(formData.status)}
                                 </span>
+                            </div>
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="form-group full-width" style={{ marginTop: '1.5rem', gridColumn: 'span 2' }}>
+                            <label>Foto Peralatan</label>
+                            <div className="photo-upload-container">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    style={{ display: 'none' }}
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
+
+                                {!previewUrl ? (
+                                    <div
+                                        className="upload-box-main"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <Upload size={32} className="upload-icon-form" />
+                                        <span className="upload-title">Unggah Foto Peralatan</span>
+                                        <span className="upload-label">Klik untuk memilih gambar</span>
+                                    </div>
+                                ) : (
+                                    <div className="photo-previews-grid">
+                                        <div className="image-preview-box">
+                                            <img src={previewUrl} alt="Equipment Preview" />
+                                            <button
+                                                type="button"
+                                                className="delete-photo-btn"
+                                                onClick={clearImage}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -10,20 +10,27 @@ import {
     Loader2,
     AlertCircle
 } from 'lucide-react';
+import { useAuthStore } from '../../features/auth/auth.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useProductsStore } from '../../features/products/products.store';
 import { useDebounce } from '../../hooks/useDebounce';
+import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Products.css';
 
 const Products = () => {
     const navigate = useNavigate();
     const { products, isLoading, getProducts, deleteProduct, totalElements, totalPages } = useProductsStore();
     const { showConfirm } = useConfirmStore();
+    const { hasPermission } = useAuthStore();
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(10);
     const [activeFilter, setActiveFilter] = useState('Semua');
+
+    const canCreate = hasPermission('PRODUCT_CREATE');
+    const canEdit = hasPermission('PRODUCT_EDIT');
+    const canDelete = hasPermission('PRODUCT_DELETE');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -75,10 +82,12 @@ const Products = () => {
                     <h1>Manajemen Produk</h1>
                     <p>Kelola inventaris pro-shop dan kantin fasilitas olahraga Anda</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/products/add')}>
-                    <Plus size={18} />
-                    <span>Tambah Produk Baru</span>
-                </button>
+                {canCreate && (
+                    <button className="btn-primary" onClick={() => navigate('/products/add')}>
+                        <Plus size={18} />
+                        <span>Tambah Produk Baru</span>
+                    </button>
+                )}
             </div>
             {/* Main Content Card */}
             <div className="content-card">
@@ -123,9 +132,9 @@ const Products = () => {
                             }}
                             className="page-size-select"
                         >
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
+                            {PAGE_SIZE_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
                         </select>
                         <span>per halaman</span>
                     </div>
@@ -181,8 +190,16 @@ const Products = () => {
                                         </td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon-action" onClick={() => handleEdit(product.id)}><Edit2 size={16} /></button>
-                                                <button className="btn-icon-action btn-delete" onClick={() => handleDelete(product.id)}><Trash2 size={16} /></button>
+                                                {canEdit && (
+                                                    <button className="btn-icon-action" onClick={() => handleEdit(product.id)} title="Edit">
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button className="btn-icon-action btn-delete" onClick={() => handleDelete(product.id)} title="Hapus">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -19,11 +19,41 @@ export const fetchProductDetail = async (id: number): Promise<BaseResponse<Produ
 };
 
 export const saveProduct = async (payload: ProductPayload, id?: number): Promise<BaseResponse<Product>> => {
+    const formData = new FormData();
+    formData.append('productName', payload.productName);
+    formData.append('category', payload.category);
+    formData.append('status', payload.status.toString());
+    formData.append('productDesc', payload.productDesc!);
+
+    if (payload.defaultImgLink instanceof File) {
+        formData.append('defaultImgLink', payload.defaultImgLink);
+    }
+
+    // Create form data field for each variant
+    for (let index in payload.productVariants) {
+        const variantItem = {
+            id: payload.productVariants[index].id,
+            sku: payload.productVariants[index].sku,
+            name: payload.productVariants[index].name,
+            price: payload.productVariants[index].price,
+            stock: payload.productVariants[index].stock
+        };
+        formData.append(`productVariants`, JSON.stringify(variantItem));
+
+        if (payload.productVariants[index].variantImgLink instanceof File) {
+            formData.append(`variantImages[${index}]`, payload.productVariants[index].variantImgLink);
+        }
+    }
+
     if (id) {
-        const response = await axiosInstance.post(`/admin/product/${id}`, payload);
+        const response = await axiosInstance.put(`/admin/product/update/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     } else {
-        const response = await axiosInstance.post('/admin/product', payload);
+        const response = await axiosInstance.post('/admin/product/save', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     }
 };
