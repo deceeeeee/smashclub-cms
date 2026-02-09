@@ -28,6 +28,7 @@ const getPathByMenuCode = (menuCode: string): string => {
         case 'product-sales': return '/reports/products';
         case 'role': return '/roles';
         case 'user': return '/users';
+        case 'refund-request': return '/refund-request';
         default: return '/dashboard';
     }
 };

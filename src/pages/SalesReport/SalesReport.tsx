@@ -158,7 +158,11 @@ const SalesReport = () => {
                         <tbody>
                             {detailData.map((row, index) => (
                                 <tr key={index}>
-                                    <td>{row.month}</td>
+                                    <td>
+                                        <Link to={`/reports/sales/${encodeURIComponent(row.month)}`} className="text-teal hover:underline cursor-pointer">
+                                            {row.month}
+                                        </Link>
+                                    </td>
                                     <td className="text-teal">{row.orders}</td>
                                     <td className="text-teal">Rp {row.courtRevenue.toLocaleString('id-ID')}</td>
                                     <td className="text-teal">Rp {row.otherRevenue.toLocaleString('id-ID')}</td>

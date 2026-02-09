@@ -1,0 +1,175 @@
+.input-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.input-modal-container {
+    background-color: #031214;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    width: 450px;
+    max-width: 90%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.input-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.input-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--color-text-mutex);
+    cursor: pointer;
+    transition: color 0.2s;
+    font-size: 1.25rem;
+}
+
+.btn-close-modal:hover {
+    color: white;
+}
+
+.input-modal-body {
+    padding: 1.5rem;
+}
+
+.input-modal-description {
+    font-size: 0.9rem;
+    color: var(--color-text-mutex);
+    margin-bottom: 1rem;
+}
+
+.input-modal-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input-modal-label {
+    font-size: 0.9rem;
+    color: white;
+    font-weight: 500;
+}
+
+.text-danger {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.input-modal-textarea {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+    color: white;
+    font-size: 0.9rem;
+    width: 100%;
+    resize: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.input-modal-textarea:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+.input-modal-textarea.input-error {
+    border-color: #ef4444;
+}
+
+.input-modal-helper {
+    font-size: 0.75rem;
+    color: var(--color-text-mutex);
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+.input-modal-error {
+    font-size: 0.8rem;
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.input-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.btn-modal-cancel {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background-color: transparent;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-modal-cancel:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-modal-confirm {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary);
+    color: #000;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-modal-confirm:hover {
+    transform: translateY(-1px);
+    background-color: var(--color-primary-hover);
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #059669;
+}

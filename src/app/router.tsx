@@ -14,13 +14,17 @@ import UserForm from "../pages/Users/UserForm";
 import Players from "../pages/Players/Players";
 import PlayerForm from "../pages/Players/PlayerForm";
 import SalesReport from "../pages/SalesReport/SalesReport";
+import SalesDailyReport from "../pages/SalesReport/SalesDailyReport";
 import CourtBookingReport from "../pages/CourtBookingReport/CourtBookingReport";
+import CourtBookingDailyReport from "../pages/CourtBookingReport/CourtBookingDailyReport";
 import ProductBookingReport from "../pages/ProductSalesReport/ProductSalesReport";
+import ProductSalesDailyReport from "../pages/ProductSalesReport/ProductSalesDailyReport";
 import Roles from "../pages/Roles/Roles";
 import RoleForm from "../pages/Roles/RoleForm";
 import EquipmentCategory from "../pages/EquipmentCategory/EquipmentCategory";
 import EquipmentCategoryForm from "../pages/EquipmentCategory/EquipmentCategoryForm";
 import ProfileForm from "../pages/Profile/ProfileForm";
+import Refunds from "../pages/Refunds/Refunds";
 import MainLayout from "../layouts/MainLayout";
 import ErrorPage from "../pages/Error/ErrorPage";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -136,6 +140,10 @@ export const router = createBrowserRouter([
                         element: <SalesReport />,
                     },
                     {
+                        path: "reports/sales/:month",
+                        element: <SalesDailyReport />,
+                    },
+                    {
                         path: "roles",
                         element: <Roles />,
                     },
@@ -157,8 +165,20 @@ export const router = createBrowserRouter([
                         element: <CourtBookingReport />,
                     },
                     {
+                        path: "reports/bookings/:month",
+                        element: <CourtBookingDailyReport />,
+                    },
+                    {
                         path: "reports/products",
                         element: <ProductBookingReport />,
+                    },
+                    {
+                        path: "reports/products/:month",
+                        element: <ProductSalesDailyReport />,
+                    },
+                    {
+                        path: "refund-request",
+                        element: <Refunds />,
                     },
                 ],
             },

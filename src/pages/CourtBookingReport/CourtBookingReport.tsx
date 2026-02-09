@@ -185,7 +185,11 @@ const CourtBookingReport = () => {
                         <tbody>
                             {detailData.map((row, index) => (
                                 <tr key={index}>
-                                    <td>{row.month}</td>
+                                    <td>
+                                        <Link to={`/reports/bookings/${encodeURIComponent(row.month)}`} className="text-teal hover:underline cursor-pointer">
+                                            {row.month}
+                                        </Link>
+                                    </td>
                                     <td className="text-teal font-bold">{row.totalBookings}</td>
                                     <td>{row.avgHours} Jam</td>
                                     <td className="text-teal">{row.utilization}</td>
