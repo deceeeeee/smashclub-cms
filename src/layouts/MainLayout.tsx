@@ -174,7 +174,8 @@ const MainLayout = () => {
                                     key={item.to}
                                     to={item.to}
                                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                                    title={item.name}
+                                    title={isMinimized && !isMobileMenuOpen ? '' : item.name} // Disable default tooltip in minimized mode
+                                    data-tooltip={isMinimized && !isMobileMenuOpen ? item.name : undefined}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {(() => {

@@ -19,7 +19,8 @@ const AppBootstrap = () => {
           login({
             fullname: response.data.fullname,
             username: response.data.username,
-            adminRole: response.data.adminRole
+            adminRole: response.data.adminRole,
+            profilePicture: response.data.profilePicture,
           }, response.data.accessToken);
         } else {
           logout();
