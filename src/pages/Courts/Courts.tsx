@@ -103,12 +103,12 @@ const Courts = () => {
                     </div>
 
                     <div className="toolbar-actions">
-                        <div className="size-selector">
+                        <div className="custom-selector">
                             <span>Tampilkan:</span>
                             <select
                                 value={size}
                                 onChange={(e) => { setSize(Number(e.target.value)); setPage(0); }}
-                                className="page-size-select"
+                                className="custom-select"
                             >
                                 <option value={10}>10</option>
                                 <option value={25}>25</option>

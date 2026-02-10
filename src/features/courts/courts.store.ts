@@ -39,10 +39,19 @@ export const useCourtsStore = create<CourtsState>((set) => ({
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    courts: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                courts: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch courts',
                 isLoading: false,
             });

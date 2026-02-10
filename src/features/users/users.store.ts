@@ -10,7 +10,7 @@ interface UsersState {
     totalPages: number;
     isLoading: boolean;
     error: string | null;
-    getUsers: (keyword?: string, page?: number, size?: number) => Promise<void>;
+    getUsers: (keyword?: string, status?: number | null, page?: number, size?: number) => Promise<void>;
     getUser: (id: number | string) => Promise<AdminUser | null>;
     submitUser: (data: UserPayload, id?: number | string) => Promise<{
         success: boolean;
@@ -27,10 +27,10 @@ export const useUsersStore = create<UsersState>((set) => ({
     isLoading: false,
     error: null,
 
-    getUsers: async (keyword: string = '', page = 0, size = 25) => {
+    getUsers: async (keyword: string = '', status: number | null = null, page = 0, size = 25) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await fetchUsers(keyword, page, size);
+            const response = await fetchUsers(keyword, status, page, size);
             if (response.success) {
                 set({
                     users: response.data.content,
@@ -39,10 +39,18 @@ export const useUsersStore = create<UsersState>((set) => ({
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    users: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message, isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                users: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch users',
                 isLoading: false,
             });

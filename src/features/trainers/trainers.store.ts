@@ -39,11 +39,20 @@ export const useTrainersStore = create<TrainersState>((set) => ({
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    trainers: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
-                error: err.response?.data?.message || 'Failed to fetch trainers',
+                trainers: [],
+                totalElements: 0,
+                totalPages: 0,
+                error: err.response?.data?.message || 'Failed to fetch coaches',
                 isLoading: false,
             });
         }

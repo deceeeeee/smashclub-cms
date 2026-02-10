@@ -8,12 +8,13 @@ import {
     ChevronLeft,
     ChevronRight,
     ShieldCheck,
-    Loader2
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import { useAuthStore } from '../../features/auth/auth.store';
 import { useUsersStore } from '../../features/users/users.store';
 import { useConfirmStore } from '../../app/confirm.store';
-import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
+import { STATUS_FLAGS, STATUS_OPTIONS, getStatusLabel } from '../../constant/flags';
 import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Users.css';
 
@@ -27,6 +28,7 @@ const Users = () => {
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(25);
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [status, setStatus] = useState<number | null>(null);
 
     const canCreate = hasPermission('USERS_CREATE');
     const canEdit = hasPermission('USERS_EDIT');
@@ -42,8 +44,8 @@ const Users = () => {
     }, [search]);
 
     useEffect(() => {
-        getUsers(debouncedSearch, page, size);
-    }, [getUsers, debouncedSearch, page, size]);
+        getUsers(debouncedSearch, status, page, size);
+    }, [getUsers, debouncedSearch, status, page, size]);
 
     const handleEdit = (id: number) => {
         navigate(`/users/edit/${id}`);
@@ -102,16 +104,38 @@ const Users = () => {
             <div className="content-card">
                 {/* Filter & Search Bar */}
                 <div className="filter-bar">
-                    <div className="search-bar">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Cari user..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
+                    <div className="toolbar-actions">
+                        <div className="search-bar">
+                            <Search size={18} className="search-icon" />
+                            <input
+                                type="text"
+                                placeholder="Cari user..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <div className="custom-selector">
+                            <span>Status:</span>
+                            <select
+                                value={status != null ? status : ""}
+                                onChange={(e) => {
+                                    setStatus(Number(e.target.value));
+                                    setPage(0);
+                                }}
+                                className="custom-select"
+                            >
+                                <option value="">Semua</option>
+                                {
+                                    STATUS_OPTIONS.map((item, index) => {
+                                        return (
+                                            <option key={index} value={item.value}>{item.label}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                        </div>
                     </div>
-                    <div className="size-selector">
+                    <div className="custom-selector">
                         <span>Tampilkan:</span>
                         <select
                             value={size}
@@ -119,7 +143,7 @@ const Users = () => {
                                 setSize(Number(e.target.value));
                                 setPage(0);
                             }}
-                            className="page-size-select"
+                            className="custom-select"
                         >
                             {PAGE_SIZE_OPTIONS.map((option) => (
                                 <option key={option} value={option}>{option}</option>
@@ -152,8 +176,11 @@ const Users = () => {
                                 </tr>
                             ) : users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="empty-cell-container">
-                                        Belum ada data pengguna.
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
+                                            <AlertCircle size={40} />
+                                            <span>Tidak ada data pengguna ditemukan.</span>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (
@@ -188,8 +215,8 @@ const Users = () => {
                                             </span>
                                         </td>
                                         <td>
-                                            <div className="status-cell">
-                                                <span className={`status-dot ${user.status === STATUS_FLAGS.ACTIVE ? 'dot-active' : 'dot-inactive'}`}></span>
+                                            <div className={`status-badge ${user.status === 1 ? 'status-active' : 'status-inactive'}`}>
+                                                <span className="status-dot"></span>
                                                 <span className="status-text">{getStatusLabel(user.status)}</span>
                                             </div>
                                         </td>

@@ -1,10 +1,11 @@
 import api from '../../services/axios';
 import type { RolesResponse, RoleDetailResponse, ActionResponse, RolePayload } from './roles.types';
 
-export const fetchRoles = async (keyword: string = '', page = 0, size = 25): Promise<RolesResponse> => {
+export const fetchRoles = async (keyword: string = '', status: number | null = null, page = 0, size = 25): Promise<RolesResponse> => {
     const response = await api.get<RolesResponse>('/admin/roles', {
         params: {
             keyword,
+            status,
             page,
             size,
         },

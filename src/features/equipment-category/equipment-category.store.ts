@@ -39,10 +39,19 @@ export const useEquipmentCategoryStore = create<EquipmentCategoryState>((set) =>
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    categories: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                categories: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch equipment categories',
                 isLoading: false,
             });

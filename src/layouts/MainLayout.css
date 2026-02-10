@@ -453,7 +453,13 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding: 1.5rem;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 0.75rem;
 }
 
 /* Standardized Search Bar */
@@ -596,7 +602,7 @@
 }
 
 /* Global Size Selector (Shared across management pages) */
-.size-selector {
+.custom-selector {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -604,7 +610,7 @@
     font-size: 0.85rem;
 }
 
-.page-size-select {
+.custom-select {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--color-border);
     border-radius: 6px;
@@ -616,12 +622,12 @@
     transition: all 0.2s;
 }
 
-.page-size-select:focus {
+.custom-select:focus {
     border-color: var(--color-primary);
     background: var(--color-input-bg);
 }
 
-.page-size-select option {
+.custom-select option {
     background: #031214;
     /* Match dark theme */
     color: white;

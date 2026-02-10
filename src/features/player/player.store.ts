@@ -29,10 +29,19 @@ export const usePlayerStore = create<PlayerState>((set) => ({
                     totalPages: response.data.totalPages, isLoading: false
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    players: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                players: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch players',
                 isLoading: false,
             });

@@ -42,7 +42,7 @@ const UserForm = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        getRoles('', 0, 100);
+        getRoles('', null, 0, 100);
         if (isEdit && id) {
             getUser(id).then(data => {
                 if (data) {

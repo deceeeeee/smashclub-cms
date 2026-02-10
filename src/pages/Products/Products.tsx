@@ -122,7 +122,7 @@ const Products = () => {
                             Makanan
                         </button>
                     </div>
-                    <div className="size-selector">
+                    <div className="custom-selector">
                         <span>Tampilkan:</span>
                         <select
                             value={size}
@@ -130,7 +130,7 @@ const Products = () => {
                                 setSize(Number(e.target.value));
                                 setPage(0);
                             }}
-                            className="page-size-select"
+                            className="custom-select"
                         >
                             {PAGE_SIZE_OPTIONS.map((option) => (
                                 <option key={option} value={option}>{option}</option>
@@ -185,6 +185,7 @@ const Products = () => {
                                         </td>
                                         <td>
                                             <div className={`status-badge ${product.status === 1 ? 'status-active' : 'status-inactive'}`}>
+                                                <span className="status-dot"></span>
                                                 {product.status === 1 ? 'Aktif' : 'Tidak Aktif'}
                                             </div>
                                         </td>

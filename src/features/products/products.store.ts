@@ -39,10 +39,19 @@ export const useProductsStore = create<ProductsState>((set) => ({
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    products: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                products: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch products',
                 isLoading: false,
             });

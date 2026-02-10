@@ -107,6 +107,21 @@ const Players = () => {
                         />
                     </div>
                     <div className="toolbar-actions">
+                        <div className="custom-selector">
+                            <span>Tampilkan:</span>
+                            <select
+                                value={size}
+                                onChange={(e) => {
+                                    setSize(Number(e.target.value));
+                                    setPage(0);
+                                }}
+                                className="custom-select"
+                            >
+                                {PAGE_SIZE_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
+                        </div>
                         <button className="btn-secondary">
                             <Filter size={18} />
                             <span>Filter</span>
@@ -194,21 +209,6 @@ const Players = () => {
                         <div className="pagination-bar">
                             <div className="pagination-info">
                                 Menampilkan <strong>{(page * size) + 1}</strong> - <strong>{Math.min((page + 1) * size, totalElements)}</strong> dari <strong>{totalElements}</strong> pemain
-                            </div>
-                            <div className="size-selector">
-                                <span>Tampilkan:</span>
-                                <select
-                                    value={size}
-                                    onChange={(e) => {
-                                        setSize(Number(e.target.value));
-                                        setPage(0);
-                                    }}
-                                    className="page-size-select"
-                                >
-                                    {PAGE_SIZE_OPTIONS.map((option) => (
-                                        <option key={option} value={option}>{option} Data</option>
-                                    ))}
-                                </select>
                             </div>
                             <div className="pagination-controls">
                                 <button

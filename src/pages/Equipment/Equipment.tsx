@@ -104,7 +104,7 @@ const Equipment = () => {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="size-selector">
+                    <div className="custom-selector">
                         <span>Tampilkan:</span>
                         <select
                             value={size}
@@ -112,7 +112,7 @@ const Equipment = () => {
                                 setSize(Number(e.target.value));
                                 setPage(0);
                             }}
-                            className="page-size-select"
+                            className="custom-select"
                         >
                             {PAGE_SIZE_OPTIONS.map((option) => (
                                 <option key={option} value={option}>{option}</option>

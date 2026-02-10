@@ -11,7 +11,7 @@ interface RolesState {
     totalPages: number;
     isLoading: boolean;
     error: string | null;
-    getRoles: (keyword?: string, page?: number, size?: number) => Promise<void>;
+    getRoles: (keyword?: string, status?: number | null, page?: number, size?: number) => Promise<void>;
     getRole: (id: string | number) => Promise<Role | null>;
     submitRole: (data: RolePayload, id?: string | number) => Promise<{
         success: boolean;
@@ -29,10 +29,10 @@ export const useRolesStore = create<RolesState>((set) => ({
     isLoading: false,
     error: null,
 
-    getRoles: async (keyword: string = '', page = 0, size = 25) => {
+    getRoles: async (keyword: string = '', status: number | null = null, page = 0, size = 25) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await fetchRoles(keyword, page, size);
+            const response = await fetchRoles(keyword, status, page, size);
             if (response.success) {
                 set({
                     roles: response.data.content,
@@ -41,10 +41,19 @@ export const useRolesStore = create<RolesState>((set) => ({
                     isLoading: false,
                 });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({
+                    roles: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    error: response.message,
+                    isLoading: false
+                });
             }
         } catch (err: any) {
             set({
+                roles: [],
+                totalElements: 0,
+                totalPages: 0,
                 error: err.response?.data?.message || 'Failed to fetch roles',
                 isLoading: false,
             });

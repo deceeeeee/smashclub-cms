@@ -2,9 +2,9 @@ import axiosInstance from '../../services/axios';
 import type { UserPageResponse, AdminUser, UserPayload } from './users.types';
 import type { BaseResponse } from '../../services/api.types';
 
-export const fetchUsers = async (keyword: string = '', page: number = 0, size: number = 25): Promise<BaseResponse<UserPageResponse>> => {
+export const fetchUsers = async (keyword: string = '', status: number | null = null, page: number = 0, size: number = 25): Promise<BaseResponse<UserPageResponse>> => {
     const response = await axiosInstance.get(`/admin/users`, {
-        params: { keyword, page, size }
+        params: { keyword, status, page, size }
     });
     return response.data;
 };
@@ -19,7 +19,7 @@ export const saveUser = async (data: UserPayload, id?: number | string): Promise
     formData.append('fullName', data.fullName);
     formData.append('username', data.username);
     formData.append('status', data.status.toString());
-    formData.append('adminRole.id', data.adminRole.id.toString());
+    formData.append('adminRole', JSON.stringify(data.adminRole));
 
     if (data.password) {
         formData.append('password', data.password);
