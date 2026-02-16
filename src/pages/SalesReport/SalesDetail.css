@@ -1,0 +1,326 @@
+.sales-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.detail-top-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+.status-badge-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+.status-badge-detail.success {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge-detail.pending {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-badge-detail.failed {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-dot-large {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.success .status-dot-large {
+    background-color: #10b981;
+}
+
+.pending .status-dot-large {
+    background-color: #f59e0b;
+}
+
+.failed .status-dot-large {
+    background-color: #ef4444;
+}
+
+.detail-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.detail-section-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.section-card {
+    background-color: rgba(13, 37, 40, 0.3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.items-table th {
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.items-table td {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+    color: white;
+}
+
+.item-main-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.item-sub {
+    font-size: 0.8rem;
+    color: var(--color-text-mutex);
+}
+
+.customer-info-box {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.customer-avatar-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(0, 210, 190, 0.1);
+    color: var(--color-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.customer-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-name-large {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.customer-sub-info {
+    font-size: 0.85rem;
+    color: var(--color-text-mutex);
+}
+
+.summary-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.summary-label {
+    color: var(--color-text-mutex);
+    font-size: 0.95rem;
+}
+
+.summary-value {
+    color: white;
+    font-weight: 500;
+}
+
+.summary-total {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.total-label {
+    color: var(--color-text-mutex);
+}
+
+.total-value-large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.payment-method-section {
+    width: 100%;
+}
+
+.payment-method-box {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.payment-link-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.payment-link-section h4 {
+    font-size: 0.75rem;
+    color: var(--color-text-mutex);
+    text-transform: uppercase;
+}
+
+.btn-payment-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background-color: var(--color-primary);
+    color: #000;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-payment-link:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 210, 190, 0.3);
+}
+
+.payment-link-url {
+    font-size: 0.7rem;
+    color: var(--color-text-mutex);
+    word-break: break-all;
+    opacity: 0.6;
+}
+
+.payment-footer-note {
+    margin-top: 2rem;
+    padding: 1rem;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--color-text-mutex);
+    text-align: center;
+}
+
+@media (max-width: 1024px) {
+    .detail-top-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detail-main-grid {
+        grid-template-columns: 1fr;
+    }
+}

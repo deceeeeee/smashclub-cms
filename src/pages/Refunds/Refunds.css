@@ -214,8 +214,8 @@
 
 .action-dropdown-menu {
     position: absolute;
-    top: 100%;
-    right: 0;
+    bottom: -50%;
+    right: 100%;
     margin-top: 0.25rem;
     background-color: #031214;
     /* Match sidebar/dark bg */

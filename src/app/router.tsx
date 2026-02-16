@@ -15,6 +15,7 @@ import Players from "../pages/Players/Players";
 import PlayerForm from "../pages/Players/PlayerForm";
 import SalesReport from "../pages/SalesReport/SalesReport";
 import SalesDailyReport from "../pages/SalesReport/SalesDailyReport";
+import SalesDetail from "../pages/SalesReport/SalesDetail";
 import CourtBookingReport from "../pages/CourtBookingReport/CourtBookingReport";
 import CourtBookingDailyReport from "../pages/CourtBookingReport/CourtBookingDailyReport";
 import ProductBookingReport from "../pages/ProductSalesReport/ProductSalesReport";
@@ -142,6 +143,10 @@ export const router = createBrowserRouter([
                     {
                         path: "reports/sales/:month",
                         element: <SalesDailyReport />,
+                    },
+                    {
+                        path: "reports/sales/detail/:id",
+                        element: <SalesDetail />,
                     },
                     {
                         path: "roles",

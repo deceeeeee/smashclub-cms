@@ -165,7 +165,14 @@ const ProductSalesReport = () => {
                         <tbody>
                             {detailData.map((row, index) => (
                                 <tr key={index}>
-                                    <td className="font-bold">{row.category}</td>
+                                    <td>
+                                        <Link
+                                            to={`/reports/products/${encodeURIComponent(row.category)}`}
+                                            className="text-teal hover:underline cursor-pointer font-bold"
+                                        >
+                                            {row.category}
+                                        </Link>
+                                    </td>
                                     <td>{row.sold.toLocaleString('id-ID')} unit</td>
                                     <td className="text-teal font-bold">Rp {row.revenue.toLocaleString('id-ID')}</td>
                                     <td className={`text-right ${row.trend.startsWith('+') ? 'text-teal' : 'text-error'}`}>

@@ -64,60 +64,6 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* KPI Cards */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
-
-.kpi-card {
-    background-color: rgba(13, 37, 40, 0.4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-}
-
-.kpi-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.kpi-label {
-    font-size: 0.85rem;
-    color: var(--color-primary);
-    opacity: 0.8;
-    margin-bottom: 0.75rem;
-}
-
-.kpi-main {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.kpi-icon {
-    color: var(--color-primary);
-    opacity: 0.6;
-}
-
-.kpi-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: white;
-}
-
-.kpi-trend {
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-}
-
-.kpi-trend.positive {
-    color: #10b981;
-}
-
 .badge-teal {
     background-color: rgba(0, 210, 190, 0.1);
     padding: 0.2rem 0.6rem;
