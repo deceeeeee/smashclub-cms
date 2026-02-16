@@ -4,9 +4,6 @@ import {
     Plus,
     Edit2,
     Trash2,
-    Users,
-    Key,
-    Clock,
     Search,
     Loader2,
     ChevronRight,
@@ -23,7 +20,7 @@ import { STATUS_OPTIONS } from '../../constant/flags';
 
 const Roles = () => {
     const navigate = useNavigate();
-    const { roles, isLoading, error, getRoles, deleteRole, totalElements, totalPages } = useRolesStore();
+    const { roles, isLoading, getRoles, deleteRole, totalElements, totalPages } = useRolesStore();
     const { showConfirm } = useConfirmStore();
     const { hasPermission } = useAuthStore();
 

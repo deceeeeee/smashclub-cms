@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Download,
-    ChevronDown,
-    TrendingUp,
     Loader2,
     AlertCircle
 } from 'lucide-react';
@@ -20,7 +18,7 @@ import './SalesReport.css';
 
 const SalesReport = () => {
     const [year, setYear] = useState(new Date().getFullYear());
-    const { statistics, isLoading, error, getStatistics } = useSalesStore();
+    const { statistics, isLoading, getStatistics } = useSalesStore();
 
     useEffect(() => {
         getStatistics(year);

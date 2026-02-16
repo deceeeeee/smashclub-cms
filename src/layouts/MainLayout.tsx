@@ -3,9 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     LogOut,
     HelpCircle,
-    Settings,
-    Menu,
-    Bell
+    Menu
 } from 'lucide-react';
 import { getMenuIcon } from '../components/icons/MenuIcons';
 import { useAuthStore } from '../features/auth/auth.store';

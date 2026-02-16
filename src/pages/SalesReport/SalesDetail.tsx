@@ -17,7 +17,7 @@ import './SalesDetail.css';
 const SalesDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { currentTransaction, isLoading, error, getTransactionDetail } = useSalesStore();
+    const { currentTransaction, isLoading, getTransactionDetail } = useSalesStore();
 
     useEffect(() => {
         if (id) {

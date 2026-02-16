@@ -14,7 +14,7 @@ import {
 import { useAuthStore } from '../../features/auth/auth.store';
 import { useUsersStore } from '../../features/users/users.store';
 import { useConfirmStore } from '../../app/confirm.store';
-import { STATUS_FLAGS, STATUS_OPTIONS, getStatusLabel } from '../../constant/flags';
+import { STATUS_OPTIONS, getStatusLabel } from '../../constant/flags';
 import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Users.css';
 

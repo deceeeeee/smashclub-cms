@@ -16,7 +16,6 @@ import { useCourtsStore } from '../../features/courts/courts.store';
 import { useConfirmStore } from '../../app/confirm.store';
 import { useDebounce } from '../../hooks/useDebounce';
 import { STATUS_FLAGS, getStatusLabel } from '../../constant/flags';
-import { PAGE_SIZE_OPTIONS } from '../../constant/pagination';
 import './Courts.css';
 
 const Courts = () => {

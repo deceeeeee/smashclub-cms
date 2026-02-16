@@ -45,7 +45,7 @@ const Refunds = () => {
     const [showFilterModal, setShowFilterModal] = useState(false);
 
     const { showSuccess } = useAlertStore();
-    const { refunds, isLoading, error, getRefunds, totalElements, processRefund } = useRefundsStore();
+    const { refunds, isLoading, getRefunds, totalElements, processRefund } = useRefundsStore();
 
     // Pagination state
     const [page, setPage] = useState(0);

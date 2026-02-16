@@ -1,5 +1,3 @@
-import type { BaseResponse } from '../../services/api.types';
-
 export interface Menu {
     id: number;
     menuCode: string;
@@ -12,5 +10,3 @@ export interface Permission {
     permissionName: string;
     menu: Menu;
 }
-
-export type PermissionsResponse = BaseResponse<Permission[]>;

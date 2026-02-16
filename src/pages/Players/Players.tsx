@@ -49,12 +49,15 @@ const Players = () => {
         navigate(`/players/edit/${id}`);
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = (
+        id: string
+    ) => {
         showConfirm({
             title: 'Hapus Data?',
             message: 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen dari sistem SmashClub.',
             onConfirm: () => {
                 // deletePlayer(id);
+                console.log(id);
             }
         });
     };
