@@ -161,6 +161,13 @@ const Courts = () => {
                                         </td>
                                         <td>
                                             <div className="court-name-cell">
+                                                {court.courtImgLink ? (
+                                                    <img src={court.courtImgLink} alt={court.courtName} className="court-thumbnail" />
+                                                ) : (
+                                                    <div className="no-image-placeholder">
+                                                        <span>🏟️</span>
+                                                    </div>
+                                                )}
                                                 <span className="court-name">{court.courtName}</span>
                                             </div>
                                         </td>

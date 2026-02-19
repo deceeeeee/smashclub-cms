@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import {
     AreaChart,
     Area,
@@ -8,30 +9,49 @@ import {
 import {
     Lightbulb,
     // CalendarDays,
-    TrendingUp,
+    // TrendingUp,
     // User,
     Zap,
-    CalendarCheck
+    CalendarCheck,
+    Loader2
 } from 'lucide-react';
 import './Dashboard.css';
 import { Link } from 'react-router-dom';
-// Mock Data for Chart
-const data = [
-    { name: 'Sen', value: 40 },
-    { name: 'Sel', value: 85 }, // Peak 1
-    { name: 'Rab', value: 45 }, // Dip
-    { name: 'Kam', value: 60 },
-    { name: 'Jum', value: 95 }, // Peak 2
-    { name: 'Sab', value: 30 }, // Low
-    { name: 'Min', value: 100 }, // Peak 3 (End)
-];
-const RecentOrders = [
-    { id: 1, name: 'Budi Santoso', type: 'Lapangan Basket A', time: '18:00', status: 'Sudah Bayar', iconBg: '#1e3a8a', iconColor: '#60a5fa', icon: '🏀' },
-    { id: 2, name: 'Siti Aminah', type: 'Lapangan Futsal 2', time: '19:30', status: 'Pending', iconBg: '#172554', iconColor: '#3b82f6', icon: '⚽' },
-    { id: 3, name: 'Kevin Sanjaya', type: 'Lapangan Badminton 1', time: '20:00', status: 'Sudah Bayar', iconBg: '#064e3b', iconColor: '#34d399', icon: '🏸' },
-    { id: 4, name: 'Coach Jajang', type: 'Sesi Latihan Baru', time: '09:00', status: 'Selesai', iconBg: '#0f172a', iconColor: '#00d2be', icon: '👤' },
-];
+import { useDashboardStore } from '../../features/dashboard/dashboard.store';
+
 const Dashboard = () => {
+    const { stats, isLoading, getDashboardStats } = useDashboardStore();
+
+    useEffect(() => {
+        getDashboardStats();
+    }, [getDashboardStats]);
+
+    const chartData = useMemo(() => {
+        if (!stats?.dailyTransactionCount) return [];
+
+        const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+        return stats.dailyTransactionCount.map(item => {
+            const date = new Date(item.createdAt);
+            return {
+                name: dayNames[date.getDay()],
+                value: item.transactionCount,
+                originalDate: item.createdAt
+            };
+        });
+    }, [stats]);
+
+    if (isLoading && !stats) {
+        return (
+            <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <Loader2 className="animate-spin" size={40} />
+                    <span>Memuat dashboard...</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="dashboard-container">
             {/* Top Stats Cards */}
@@ -46,8 +66,8 @@ const Dashboard = () => {
                     <div className="stat-content">
                         <span className="stat-sublabel">Total Lapangan</span>
                         <div className="stat-value-row">
-                            <span className="stat-value">12 Unit</span>
-                            <span className="stat-trend neutral">0% —</span>
+                            <span className="stat-value">{stats?.courtCount || 0} Unit</span>
+                            {/* <span className="stat-trend neutral">0% —</span> */}
                         </div>
                     </div>
                 </div>
@@ -61,8 +81,8 @@ const Dashboard = () => {
                     <div className="stat-content">
                         <span className="stat-sublabel">Total Pelatih</span>
                         <div className="stat-value-row">
-                            <span className="stat-value">8 Personel</span>
-                            <span className="stat-trend neutral">0% —</span>
+                            <span className="stat-value">{stats?.coachCount || 0} Personel</span>
+                            {/* <span className="stat-trend neutral">0% —</span> */}
                         </div>
                     </div>
                 </div>
@@ -74,10 +94,10 @@ const Dashboard = () => {
                         <span className="stat-label">AKTIFITAS</span>
                     </div>
                     <div className="stat-content">
-                        <span className="stat-sublabel">Pemesanan Hari Ini</span>
+                        <span className="stat-sublabel">Total Transaksi</span>
                         <div className="stat-value-row">
-                            <span className="stat-value">24 Pesanan</span>
-                            <span className="stat-trend positive">+15% <TrendingUp size={14} /></span>
+                            <span className="stat-value">{stats?.transactionCount || 0} Pesanan</span>
+                            {/* <span className="stat-trend positive">+15% <TrendingUp size={14} /></span> */}
                         </div>
                     </div>
                 </div>
@@ -88,17 +108,17 @@ const Dashboard = () => {
                 <div className="chart-card">
                     <div className="chart-header-row">
                         <div>
-                            <h2 className="section-title">Tren Pemesanan Tujuh Hari Terakhir</h2>
-                            <p className="section-subtitle">Jan 15 - Jan 21, 2024</p>
+                            <h2 className="section-title">Tren Pemesanan Terakhir</h2>
+                            <p className="section-subtitle">Aktivitas transaksi harian</p>
                         </div>
                         <div className="chart-stat-right">
-                            <span className="chart-total">168 Total</span>
-                            <span className="chart-trend">+12% vs minggu lalu</span>
+                            <span className="chart-total">{stats?.transactionCount || 0} Total</span>
+                            {/* <span className="chart-trend">+12% vs minggu lalu</span> */}
                         </div>
                     </div>
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={data}>
+                            <AreaChart data={chartData}>
                                 <defs>
                                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#00d2be" stopOpacity={0.3} />
@@ -131,25 +151,26 @@ const Dashboard = () => {
                 <div className="recent-orders-card">
                     <h2 className="section-title">Pemesanan Terbaru</h2>
                     <div className="orders-list">
-                        {RecentOrders.map((order) => (
-                            <div key={order.id} className="order-item">
-                                <div className="order-icon" style={{ backgroundColor: order.iconBg }}>
-                                    <span style={{ fontSize: '1.2rem' }}>{order.icon}</span>
-                                </div>
+                        {(!stats?.dailyTransaction || stats.dailyTransaction.length === 0) ? (
+                            <div className="empty-state" style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
+                                Belum ada pemesanan terbaru.
+                            </div>
+                        ) : stats?.dailyTransaction.map((order, index) => (
+                            <div key={index} className="order-item">
                                 <div className="order-details">
-                                    <div className="order-name">{order.name}</div>
+                                    <div className="order-name">{order.fullName}</div>
                                     <div className="order-meta">
-                                        {order.type} • {order.time}
+                                        {order.transactionLabel} • {order.startTime}
                                     </div>
                                 </div>
-                                <div className={`order-status ${order.status === 'Pending' ? 'status-pending' : order.status === 'Selesai' ? 'status-finished' : 'status-paid'}`}>
-                                    {order.status === 'Sudah Bayar' ? 'SUDAH BAYAR' : order.status === 'Selesai' ? 'SELESAI' : 'PENDING'}
+                                <div className={`order-status ${order.status === 0 ? 'status-pending' : order.status === 1 ? 'status-paid' : 'status-finished'}`}>
+                                    {order.statusDesc.toUpperCase()}
                                 </div>
                             </div>
                         ))}
                     </div>
                     <div className="card-footer-link">
-                        <Link to="/reports/bookings">Lihat Semua Pemesanan</Link>
+                        <Link to="/reports/sales">Lihat Semua Pemesanan</Link>
                     </div>
                 </div>
             </div>

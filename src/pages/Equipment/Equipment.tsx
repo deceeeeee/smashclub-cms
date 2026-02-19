@@ -159,9 +159,13 @@ const Equipment = () => {
                                     <tr key={item.id}>
                                         <td>
                                             <div className="img-cell">
-                                                <div className="equipment-img-placeholder" style={{ backgroundColor: getPlaceholderColor(item.id) }}>
-                                                    <Package size={20} color="#cbd5e1" />
-                                                </div>
+                                                {item.equipmentImgLink ? (
+                                                    <img src={item.equipmentImgLink} alt={item.equipmentName} className="equipment-thumbnail" />
+                                                ) : (
+                                                    <div className="equipment-img-placeholder" style={{ backgroundColor: getPlaceholderColor(item.id) }}>
+                                                        <Package size={20} color="#cbd5e1" />
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                         <td>

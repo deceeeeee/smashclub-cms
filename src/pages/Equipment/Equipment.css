@@ -58,6 +58,14 @@
     justify-content: center;
 }
 
+.equipment-thumbnail {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .equipment-info {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User } from './auth.types';
+import { encrypt, decrypt } from '../../utils/crypto';
 
 interface AuthState {
     user: User | null;
@@ -45,7 +46,18 @@ export const useAuthStore = create<AuthState>()(
             }
         }),
         {
-            name: 'auth-storage',
+            name: 'admin-auth-storage',
+            storage: createJSONStorage(() => ({
+                getItem: (name) => {
+                    const value = localStorage.getItem(name);
+                    if (!value) return null;
+                    return decrypt(value);
+                },
+                setItem: (name, value) => {
+                    localStorage.setItem(name, encrypt(value));
+                },
+                removeItem: (name) => localStorage.removeItem(name),
+            })),
         }
     )
 );

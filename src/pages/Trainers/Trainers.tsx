@@ -172,7 +172,11 @@ const Trainers = () => {
                                     <span>{4.5 + (trainer.id % 5) / 10}</span>
                                 </div>
                                 <div className="trainer-img-wrapper">
-                                    <img src={getAvatarUrl(trainer.id)} alt={trainer.coachName} className="trainer-avatar-img" />
+                                    <img
+                                        src={trainer.coachImgLink || getAvatarUrl(trainer.id)}
+                                        alt={trainer.coachName}
+                                        className="trainer-avatar-img"
+                                    />
                                 </div>
                             </div>
 
@@ -228,7 +232,10 @@ const Trainers = () => {
                                     <td>
                                         <div className="trainer-info-cell">
                                             <div className="trainer-avatar-mini">
-                                                <img src={getAvatarUrl(trainer.id)} alt={trainer.coachName} />
+                                                <img
+                                                    src={trainer.coachImgLink || getAvatarUrl(trainer.id)}
+                                                    alt={trainer.coachName}
+                                                />
                                             </div>
                                             <span className="trainer-name-row">{trainer.coachName}</span>
                                         </div>
