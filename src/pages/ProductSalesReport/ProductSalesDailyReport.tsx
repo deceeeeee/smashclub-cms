@@ -8,7 +8,6 @@ import {
     ChevronLeft,
     ChevronRight,
     CheckCircle2,
-    Clock,
     Play
 } from 'lucide-react';
 import { useAlertStore } from '../../app/alert.store';
