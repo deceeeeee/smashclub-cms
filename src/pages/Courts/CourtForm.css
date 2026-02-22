@@ -321,3 +321,26 @@ input:checked+.slider:before {
 .animate-spin {
     animation: spin 1s linear infinite;
 }
+
+/* Price Input Wrapper */
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.currency-prefix {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-mutex);
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.price-input-wrapper input {
+    width: 100%;
+    padding-left: 4.5rem !important;
+}

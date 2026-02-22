@@ -12,9 +12,9 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { useSalesStore } from '../../features/sales/sales.store';
-import './SalesDetail.css';
+import './CourtBookingDetail.css';
 
-const SalesDetail = () => {
+const CourtBookingDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { currentTransaction, isLoading, getTransactionDetail } = useSalesStore();
@@ -38,7 +38,6 @@ const SalesDetail = () => {
     const getStatusInfo = (status: number) => {
         switch (status) {
             case 1:
-                return 'success';
             case 2:
                 return 'success';
             case 3:
@@ -62,7 +61,7 @@ const SalesDetail = () => {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', height: '60vh' }}>
                 <Loader2 className="animate-spin mb-4 mx-auto text-primary" size={48} />
-                <p className="text-mutex">Memuat data penjualan...</p>
+                <p className="text-mutex">Memuat data pemesanan...</p>
             </div>
         );
     }
@@ -70,25 +69,25 @@ const SalesDetail = () => {
     const txStatus = currentTransaction ? getStatusInfo(currentTransaction.status) : "";
 
     return (
-        <div className="sales-detail-page">
+        <div className="booking-detail-page">
             {/* Breadcrumbs */}
             <nav className="breadcrumbs">
-                <Link to="/reports/sales">Dashboard</Link>
+                <Link to="/reports/bookings">Laporan</Link>
                 <span className="separator">›</span>
-                <Link to="/reports/sales">Penjualan</Link>
+                <Link to="/reports/bookings">Pemesanan</Link>
                 <span className="separator">›</span>
-                <span className="current">Detil Transaksi</span>
+                <span className="current">Detil Pemesanan</span>
             </nav>
 
             {/* Title & Actions */}
             <div className="page-header" style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '2rem' }}>Detil Penjualan</h1>
+                <h1 style={{ fontSize: '2rem' }}>Detil Pemesanan Lapangan</h1>
                 <div className="detail-actions">
                     {
                         currentTransaction ? (
                             <button className="btn-secondary">
                                 <Printer size={18} />
-                                <span>Cetak Struk</span>
+                                <span>Cetak Bukti</span>
                             </button>
                         ) : ""
                     }
@@ -105,7 +104,7 @@ const SalesDetail = () => {
                         <div className="section-card" style={{ padding: '1.5rem' }}>
                             <div className="detail-top-grid">
                                 <div className="info-group">
-                                    <span className="info-label">Kode Transaksi</span>
+                                    <span className="info-label">Kode Booking</span>
                                     <span className="info-value">{currentTransaction.transactionCode}</span>
                                 </div>
                                 <div className="info-group">
@@ -139,14 +138,14 @@ const SalesDetail = () => {
                                 {/* Items Table */}
                                 <div className="section-card">
                                     <div className="section-header">
-                                        <h3 className="section-title">Item Transaksi</h3>
+                                        <h3 className="section-title">Item Pemesanan</h3>
                                     </div>
                                     <table className="items-table">
                                         <thead>
                                             <tr>
-                                                <th>NAMA ITEM</th>
-                                                <th>HARGA SATUAN</th>
-                                                <th>QTY</th>
+                                                <th>NAMA LAPANGAN / ITEM</th>
+                                                <th>HARGA</th>
+                                                <th>QTY / DURASI</th>
                                                 <th style={{ textAlign: 'right' }}>TOTAL</th>
                                             </tr>
                                         </thead>
@@ -184,6 +183,14 @@ const SalesDetail = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Notes */}
+                                {currentTransaction.notes && (
+                                    <div className="section-card" style={{ padding: '1.5rem' }}>
+                                        <h3 className="section-title" style={{ marginBottom: '1rem' }}>Catatan</h3>
+                                        <p style={{ color: 'var(--color-text-mutex)', fontSize: '0.95rem' }}>{currentTransaction.notes}</p>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="detail-section-right">
@@ -226,7 +233,7 @@ const SalesDetail = () => {
                                         )}
 
                                         <div className="payment-footer-note">
-                                            Transaksi diproses otomatis melalui payment gateway Xendit.
+                                            Booking diproses otomatis melalui payment gateway Xendit.
                                         </div>
                                     </div>
                                 </div>
@@ -236,7 +243,7 @@ const SalesDetail = () => {
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', height: '60vh' }}>
                         <AlertCircle className="mb-4 mx-auto text-mutex" size={48} />
-                        <p className="text-mutex">Transaksi tidak ditemukan.</p>
+                        <p className="text-mutex">Data pemesanan tidak ditemukan.</p>
                     </div>
                 )
             }
@@ -244,4 +251,4 @@ const SalesDetail = () => {
     );
 };
 
-export default SalesDetail;
+export default CourtBookingDetail;

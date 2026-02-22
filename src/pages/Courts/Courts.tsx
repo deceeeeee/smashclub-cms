@@ -128,16 +128,17 @@ const Courts = () => {
                         <thead>
                             <tr>
                                 <th style={{ width: '15%' }}>KODE</th>
-                                <th style={{ width: '30%' }}>NAMA LAPANGAN</th>
-                                <th style={{ width: '25%' }}>JAM OPERASIONAL</th>
-                                <th style={{ width: '20%' }}>STATUS</th>
+                                <th style={{ width: '25%' }}>NAMA LAPANGAN</th>
+                                <th style={{ width: '20%' }}>JAM OPERASIONAL</th>
+                                <th style={{ width: '15%' }}>HARGA / JAM</th>
+                                <th style={{ width: '15%' }}>STATUS</th>
                                 <th style={{ width: '10%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                             <Loader2 className="animate-spin" size={32} />
                                             <span>Memuat data lapangan...</span>
@@ -146,7 +147,7 @@ const Courts = () => {
                                 </tr>
                             ) : courts.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem' }}>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem' }}>
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
                                             <AlertCircle size={40} />
                                             <span>Tidak ada data lapangan ditemukan.</span>
@@ -173,6 +174,9 @@ const Courts = () => {
                                         </td>
                                         <td>
                                             <span className="time-text">{court.openTime} - {court.closeTime}</span>
+                                        </td>
+                                        <td>
+                                            <span className="price-text">Rp {court.pricePerHour.toLocaleString('id-ID')}</span>
                                         </td>
                                         <td>
                                             <div className={`status-badge ${court.status === STATUS_FLAGS.ACTIVE ? 'status-active' : 'status-maintenance'}`}>

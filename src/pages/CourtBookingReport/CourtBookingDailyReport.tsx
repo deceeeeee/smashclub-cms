@@ -7,11 +7,14 @@ import {
     Download,
     ChevronLeft,
     ChevronRight,
+    UserCheck,
+    CheckCircle2
 } from 'lucide-react';
+import { useAlertStore } from '../../app/alert.store';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 
-// Mock Data
-const MOCK_BOOKINGS = [
+// Initial Mock Data
+const INITIAL_MOCK_BOOKINGS = [
     {
         id: 'BKG-2024',
         customer: {
@@ -23,7 +26,7 @@ const MOCK_BOOKINGS = [
         court: 'Lapangan A (Vinyl)',
         duration: '2 Jam',
         amount: 'Rp 150.000',
-        status: 'Completed'
+        status: 'Selesai'
     },
     {
         id: 'BKG-2025',
@@ -36,7 +39,7 @@ const MOCK_BOOKINGS = [
         court: 'Lapangan B (Karpet)',
         duration: '1 Jam',
         amount: 'Rp 80.000',
-        status: 'Completed'
+        status: 'Selesai'
     },
     {
         id: 'BKG-2026',
@@ -69,8 +72,17 @@ const MOCK_BOOKINGS = [
 const CourtBookingDailyReport = () => {
     const { month } = useParams<{ month: string }>();
     const [search, setSearch] = useState('');
+    const [bookings, setBookings] = useState(INITIAL_MOCK_BOOKINGS);
+    const { showAlert } = useAlertStore();
 
     const decodedMonth = month ? decodeURIComponent(month) : '';
+
+    const handleCheckIn = (id: string) => {
+        setBookings(prev => prev.map(item =>
+            item.id === id ? { ...item, status: 'Completed' } : item
+        ));
+        showAlert('success', 'Check-in Berhasil', `Booking #${id} telah dikonfirmasi kehadirannya.`);
+    };
 
     return (
         <div className="refunds-page">
@@ -112,36 +124,64 @@ const CourtBookingDailyReport = () => {
                     <table className="user-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '15%' }}>ID BOOKING</th>
-                                <th style={{ width: '20%' }}>PELANGGAN</th>
-                                <th style={{ width: '15%' }}>TANGGAL</th>
-                                <th style={{ width: '15%' }}>JAM</th>
-                                <th style={{ width: '15%' }}>LAPANGAN</th>
-                                <th style={{ width: '10%' }}>DURASI</th>
+                                <th style={{ width: '12%' }}>ID</th>
+                                <th style={{ width: '18%' }}>PELANGGAN</th>
+                                <th style={{ width: '15%' }}>JAM & TANGGAL</th>
+                                <th style={{ width: '18%' }}>LAPANGAN</th>
                                 <th style={{ width: '10%' }}>TOTAL</th>
+                                <th style={{ width: '12%' }}>STATUS</th>
+                                <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {MOCK_BOOKINGS.map((trx) => (
+                            {bookings.map((trx) => (
                                 <tr key={trx.id}>
                                     <td>
-                                        <span className="refund-id">#{trx.id}</span>
+                                        <Link to={`/reports/bookings/detail/${trx.id}`} className="refund-id" style={{ cursor: 'pointer', color: 'var(--color-primary)' }}>
+                                            #{trx.id}
+                                        </Link>
                                     </td>
                                     <td>
                                         <div className="refunds-table-customer">
-                                            <div className="customer-avatar-circle">
+                                            <div className="customer-avatar-circle" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
                                                 {trx.customer.avatar}
                                             </div>
                                             <div className="customer-info">
-                                                <span className="customer-name">{trx.customer.name}</span>
+                                                <span className="customer-name" style={{ fontSize: '0.85rem' }}>{trx.customer.name}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{trx.date}</td>
-                                    <td>{trx.time}</td>
-                                    <td>{trx.court}</td>
-                                    <td>{trx.duration}</td>
+                                    <td style={{ fontSize: '0.85rem' }}>
+                                        <div>{trx.date}</div>
+                                        <div style={{ opacity: 0.6 }}>{trx.time}</div>
+                                    </td>
+                                    <td style={{ fontSize: '0.85rem' }}>{trx.court}</td>
                                     <td style={{ fontWeight: 600 }}>{trx.amount}</td>
+                                    <td>
+                                        <div className={`status-badge-detail ${trx.status === 'Selesai' || trx.status === 'Completed' ? 'success' : 'pending'}`} style={{ padding: '0.2rem 0.5rem' }}>
+                                            <span className="status-dot-large" style={{ width: '6px', height: '6px' }}></span>
+                                            <span style={{ fontSize: '0.75rem' }}>{trx.status.toUpperCase()}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            {trx.status === 'Booked' ? (
+                                                <button
+                                                    className="btn-primary"
+                                                    style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', gap: '0.3rem', backgroundColor: '#3b82f6' }}
+                                                    onClick={() => handleCheckIn(trx.id)}
+                                                >
+                                                    <UserCheck size={12} />
+                                                    Check-in
+                                                </button>
+                                            ) : (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>
+                                                    <CheckCircle2 size={14} />
+                                                    Selesai
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

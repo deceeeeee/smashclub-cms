@@ -7,11 +7,15 @@ import {
     Download,
     ChevronLeft,
     ChevronRight,
+    CheckCircle2,
+    Clock,
+    Play
 } from 'lucide-react';
+import { useAlertStore } from '../../app/alert.store';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 
-// Mock Data
-const MOCK_SALES = [
+// Initial Mock Data
+const INITIAL_MOCK_SALES = [
     {
         id: 'PRD-1023',
         customer: {
@@ -22,7 +26,8 @@ const MOCK_SALES = [
         items: '1x Shuttlecock (Slop), 2x Pocari Sweat',
         category: 'Perlengkapan',
         amount: 'Rp 145.000',
-        payment: 'QRIS'
+        payment: 'QRIS',
+        status: 'Selesai'
     },
     {
         id: 'PRD-1024',
@@ -34,7 +39,8 @@ const MOCK_SALES = [
         items: '2x Sewa Raket',
         category: 'Sewa',
         amount: 'Rp 50.000',
-        payment: 'Tunai'
+        payment: 'Tunai',
+        status: 'Selesai'
     },
     {
         id: 'PRD-1025',
@@ -46,7 +52,8 @@ const MOCK_SALES = [
         items: '1x Jersey SmashClub (L)',
         category: 'Merchandise',
         amount: 'Rp 120.000',
-        payment: 'Transfer'
+        payment: 'Transfer',
+        status: 'Menunggu'
     },
     {
         id: 'PRD-1026',
@@ -58,15 +65,25 @@ const MOCK_SALES = [
         items: '3x Air Mineral 600ml',
         category: 'Minuman',
         amount: 'Rp 15.000',
-        payment: 'Tunai'
+        payment: 'Tunai',
+        status: 'Menunggu'
     }
 ];
 
 const ProductSalesDailyReport = () => {
     const { month } = useParams<{ month: string }>();
     const [search, setSearch] = useState('');
+    const [sales, setSales] = useState(INITIAL_MOCK_SALES);
+    const { showAlert } = useAlertStore();
 
     const decodedMonth = month ? decodeURIComponent(month) : '';
+
+    const handleProcess = (id: string) => {
+        setSales(prev => prev.map(item =>
+            item.id === id ? { ...item, status: 'Selesai' } : item
+        ));
+        showAlert('success', 'Berhasil', `Pesanan #${id} telah diproses dan selesai.`);
+    };
 
     return (
         <div className="refunds-page">
@@ -108,34 +125,59 @@ const ProductSalesDailyReport = () => {
                     <table className="user-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '15%' }}>ID TRANSAKSI</th>
-                                <th style={{ width: '20%' }}>PELANGGAN</th>
-                                <th style={{ width: '15%' }}>TANGGAL</th>
-                                <th style={{ width: '25%' }}>ITEM</th>
-                                <th style={{ width: '15%' }}>KATEGORI</th>
-                                <th style={{ width: '10%' }}>TOTAL</th>
+                                <th style={{ width: '12%' }}>ID</th>
+                                <th style={{ width: '15%' }}>PELANGGAN</th>
+                                <th style={{ width: '12%' }}>TANGGAL</th>
+                                <th style={{ width: '22%' }}>ITEM</th>
+                                <th style={{ width: '12%' }}>TOTAL</th>
+                                <th style={{ width: '12%' }}>STATUS</th>
+                                <th style={{ width: '13%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {MOCK_SALES.map((trx) => (
+                            {sales.map((trx) => (
                                 <tr key={trx.id}>
                                     <td>
                                         <span className="refund-id">#{trx.id}</span>
                                     </td>
                                     <td>
                                         <div className="refunds-table-customer">
-                                            <div className="customer-avatar-circle">
+                                            <div className="customer-avatar-circle" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
                                                 {trx.customer.avatar}
                                             </div>
                                             <div className="customer-info">
-                                                <span className="customer-name">{trx.customer.name}</span>
+                                                <span className="customer-name" style={{ fontSize: '0.85rem' }}>{trx.customer.name}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>{trx.date}</td>
-                                    <td>{trx.items}</td>
-                                    <td>{trx.category}</td>
+                                    <td style={{ fontSize: '0.85rem' }}>{trx.items}</td>
                                     <td style={{ fontWeight: 600 }}>{trx.amount}</td>
+                                    <td>
+                                        <div className={`status-badge-detail ${trx.status === 'Selesai' ? 'success' : 'pending'}`} style={{ padding: '0.2rem 0.5rem' }}>
+                                            <span className="status-dot-large" style={{ width: '6px', height: '6px' }}></span>
+                                            <span style={{ fontSize: '0.75rem' }}>{trx.status.toUpperCase()}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            {trx.status === 'Menunggu' ? (
+                                                <button
+                                                    className="btn-primary"
+                                                    style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', gap: '0.3rem' }}
+                                                    onClick={() => handleProcess(trx.id)}
+                                                >
+                                                    <Play size={12} fill="currentColor" />
+                                                    Proses
+                                                </button>
+                                            ) : (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>
+                                                    <CheckCircle2 size={14} />
+                                                    Selesai
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

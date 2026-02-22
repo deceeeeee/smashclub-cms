@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Download,
@@ -6,7 +6,8 @@ import {
     Calendar,
     Users,
     Clock,
-    TrendingUp
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import {
     XAxis,
@@ -16,33 +17,46 @@ import {
     AreaChart,
     Area
 } from 'recharts';
+import { useBookingsStore } from '../../features/bookings/bookings.store';
 import './CourtBookingReport.css';
 
-// Mock Data for Chart
-const bookingData = [
-    { month: 'Jan', value: 450 },
-    { month: 'Feb', value: 380 },
-    { month: 'Mar', value: 520 },
-    { month: 'Apr', value: 610 },
-    { month: 'Mei', value: 590 },
-    { month: 'Jun', value: 720 },
-    { month: 'Jul', value: 810 },
-    { month: 'Agu', value: 750 },
-    { month: 'Sep', value: 680 },
-    { month: 'Okt', value: 790 },
-    { month: 'Nov', value: 840 },
-    { month: 'Des', value: 950 },
-];
-
-const detailData = [
-    { month: 'Desember 2023', totalBookings: 950, avgHours: 2.5, utilization: '88%', revenue: 152450000 },
-    { month: 'November 2023', totalBookings: 840, avgHours: 2.2, utilization: '82%', revenue: 118400000 },
-    { month: 'Oktober 2023', totalBookings: 790, avgHours: 2.1, utilization: '78%', revenue: 135000000 },
-    { month: 'September 2023', totalBookings: 680, avgHours: 1.8, utilization: '72%', revenue: 112000000 },
-];
-
 const CourtBookingReport = () => {
-    const [year] = useState('2023');
+    const [year, setYear] = useState(new Date().getFullYear());
+    const { statistics, isLoading, getStatistics } = useBookingsStore();
+
+    useEffect(() => {
+        getStatistics(year);
+    }, [getStatistics, year]);
+
+    // Format month for chart
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+    // Map statistics to chart data
+    // If API doesn't provide month labels, we assume they are sequential indices if length is 12, 
+    // or we just show what we have. Based on doc, we might need to handle it carefully.
+    const chartData = statistics?.monthlyBookingStatistic.map((item, index) => ({
+        month: monthNames[index] || `M${index + 1}`,
+        value: item.totalCount
+    })) || [];
+
+    // Format IDR helper
+    const formatIDR = (val: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(val).replace('IDR', 'Rp');
+    };
+
+    if (isLoading && !statistics) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', height: '60vh' }}>
+                <Loader2 className="animate-spin mb-4 mx-auto text-primary" size={48} />
+                <p className="text-mutex">Memuat data laporan pemesanan...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="report-page court-booking-report">
@@ -69,9 +83,16 @@ const CourtBookingReport = () => {
 
             {/* Controls */}
             <div className="report-controls">
-                <button className="control-dropdown">
-                    Tahun {year} <ChevronDown size={16} />
-                </button>
+                <select
+                    className="control-dropdown"
+                    value={year}
+                    onChange={(e) => setYear(parseInt(e.target.value))}
+                    style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'white', padding: '0.4rem 0.8rem', borderRadius: '6px' }}
+                >
+                    <option value={2026}>Tahun 2026</option>
+                    <option value={2025}>Tahun 2025</option>
+                    <option value={2024}>Tahun 2024</option>
+                </select>
                 <button className="control-dropdown">
                     Semua Jenis Lapangan <ChevronDown size={16} />
                 </button>
@@ -84,11 +105,11 @@ const CourtBookingReport = () => {
                         <span className="kpi-label">Total Pemesanan (YTD)</span>
                         <div className="kpi-main">
                             <Calendar className="kpi-icon" size={24} />
-                            <h2 className="kpi-value">8.140</h2>
+                            <h2 className="kpi-value">{statistics?.totalBookingCount.toLocaleString('id-ID') || 0}</h2>
                         </div>
-                        <span className="kpi-trend positive">
+                        {/* <span className="kpi-trend positive">
                             <TrendingUp size={14} style={{ marginRight: 4 }} /> +15.2% vs thn lalu
-                        </span>
+                        </span> */}
                     </div>
                 </div>
                 <div className="kpi-card">
@@ -96,11 +117,11 @@ const CourtBookingReport = () => {
                         <span className="kpi-label">Rata-rata Durasi (Jam)</span>
                         <div className="kpi-main">
                             <Clock className="kpi-icon" size={24} />
-                            <h2 className="kpi-value">2.1 Jam</h2>
+                            <h2 className="kpi-value">{(statistics?.averageBookingHours || 0).toFixed(1)} Jam</h2>
                         </div>
-                        <span className="kpi-trend positive">
+                        {/* <span className="kpi-trend positive">
                             <TrendingUp size={14} style={{ marginRight: 4 }} /> +0.4 jam bln ini
-                        </span>
+                        </span> */}
                     </div>
                 </div>
                 <div className="kpi-card">
@@ -110,10 +131,10 @@ const CourtBookingReport = () => {
                         </div>
                         <div className="kpi-main">
                             <Users className="kpi-icon" size={24} />
-                            <h2 className="kpi-value">82.4%</h2>
+                            <h2 className="kpi-value">{(statistics?.occupancyRate || 0).toFixed(1)}%</h2>
                         </div>
                         <div className="progress-bar-container">
-                            <div className="progress-bar" style={{ width: '82.4%' }}></div>
+                            <div className="progress-bar" style={{ width: `${statistics?.occupancyRate || 0}%` }}></div>
                         </div>
                     </div>
                 </div>
@@ -132,37 +153,45 @@ const CourtBookingReport = () => {
                     </div>
                 </div>
                 <div className="chart-wrapper">
-                    <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={bookingData}>
-                            <defs>
-                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#00d2be" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#00d2be" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1f2937" />
-                            <XAxis
-                                dataKey="month"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: '#94a3b8', fontSize: 12 }}
-                                dy={10}
-                            />
-                            <Tooltip
-                                cursor={{ stroke: '#00d2be', strokeWidth: 2 }}
-                                contentStyle={{ backgroundColor: '#0d2528', borderColor: '#1e3a3d', color: '#fff' }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="value"
-                                stroke="#00d2be"
-                                fillOpacity={1}
-                                fill="url(#colorValue)"
-                                strokeWidth={3}
-                                activeDot={{ r: 6, fill: '#00d2be', stroke: '#fff', strokeWidth: 2 }}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    {chartData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={chartData}>
+                                <defs>
+                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#00d2be" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#00d2be" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1f2937" />
+                                <XAxis
+                                    dataKey="month"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                    dy={10}
+                                />
+                                <Tooltip
+                                    cursor={{ stroke: '#00d2be', strokeWidth: 2 }}
+                                    contentStyle={{ backgroundColor: '#0d2528', borderColor: '#1e3a3d', color: '#fff' }}
+                                    formatter={(value: any) => [`${value} Booking`, 'Jumlah']}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#00d2be"
+                                    fillOpacity={1}
+                                    fill="url(#colorValue)"
+                                    strokeWidth={3}
+                                    activeDot={{ r: 6, fill: '#00d2be', stroke: '#fff', strokeWidth: 2 }}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5, padding: '2rem' }}>
+                            <AlertCircle size={40} />
+                            <span>Tidak ada data tersedia untuk tahun {year}</span>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -183,26 +212,43 @@ const CourtBookingReport = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {detailData.map((row, index) => (
+                            {statistics?.monthlyBookingStatistic.map((row, index) => (
                                 <tr key={index}>
                                     <td>
-                                        <Link to={`/reports/bookings/${encodeURIComponent(row.month)}`} className="text-teal hover:underline cursor-pointer">
-                                            {row.month}
+                                        <Link
+                                            to={`/reports/bookings/${encodeURIComponent(monthNames[index] || 'Month')}`}
+                                            className="text-teal hover:underline cursor-pointer font-medium"
+                                        >
+                                            {monthNames[index]} {year}
                                         </Link>
                                     </td>
-                                    <td className="text-teal font-bold">{row.totalBookings}</td>
-                                    <td>{row.avgHours} Jam</td>
-                                    <td className="text-teal">{row.utilization}</td>
-                                    <td className="text-teal text-right font-bold">Rp {row.revenue.toLocaleString('id-ID')}</td>
+                                    <td className="text-teal font-bold">{row.totalCount}</td>
+                                    <td>{row.averageHour.toFixed(1)} Jam</td>
+                                    <td className="text-teal">{row.occupancyRate.toFixed(1)}%</td>
+                                    <td className="text-teal text-right font-bold">{formatIDR(row.totalPrice)}</td>
                                 </tr>
                             ))}
-                            <tr className="total-row">
-                                <td className="font-bold">TOTAL AVERAGE</td>
-                                <td className="font-bold">3.260</td>
-                                <td className="font-bold">2.15 Jam</td>
-                                <td className="font-bold">80%</td>
-                                <td className="text-right text-large-total">Rp 517.850.000</td>
-                            </tr>
+                            {(!statistics || statistics.monthlyBookingStatistic.length === 0) && (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-8 text-mutex">
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.5 }}>
+                                            <AlertCircle size={40} />
+                                            <span>Tidak ada data tersedia untuk tahun {year}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                            {statistics && statistics.monthlyBookingStatistic.length > 0 && (
+                                <tr className="total-row">
+                                    <td className="font-bold">TOTAL AVERAGE (YTD)</td>
+                                    <td className="font-bold">{statistics.totalBookingCount.toLocaleString('id-ID')}</td>
+                                    <td className="font-bold">{statistics.averageBookingHours.toFixed(1)} Jam</td>
+                                    <td className="font-bold">{statistics.occupancyRate.toFixed(1)}%</td>
+                                    <td className="text-right text-large-total">
+                                        {formatIDR(statistics.monthlyBookingStatistic.reduce((acc, curr) => acc + curr.totalPrice, 0))}
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

@@ -25,6 +25,7 @@ export const saveCourt = async (data: CourtPayload, id?: number | string): Promi
     formData.append('openTime', data.openTime);
     formData.append('closeTime', data.closeTime);
     formData.append('status', data.status.toString());
+    formData.append('pricePerHour', data.pricePerHour.toString());
 
     if (data.courtImgLink instanceof File) {
         formData.append('courtImgLink', data.courtImgLink);

@@ -29,6 +29,7 @@ import Refunds from "../pages/Refunds/Refunds";
 import MainLayout from "../layouts/MainLayout";
 import ErrorPage from "../pages/Error/ErrorPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import CourtBookingDetail from "../pages/CourtBookingReport/CourtBookingDetail";
 
 export const router = createBrowserRouter([
     {
@@ -172,6 +173,10 @@ export const router = createBrowserRouter([
                     {
                         path: "reports/bookings/:month",
                         element: <CourtBookingDailyReport />,
+                    },
+                    {
+                        path: "reports/bookings/detail/:id",
+                        element: <CourtBookingDetail />,
                     },
                     {
                         path: "reports/products",

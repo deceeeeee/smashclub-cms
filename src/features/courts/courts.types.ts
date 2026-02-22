@@ -11,6 +11,7 @@ export interface Court {
     createdAt: string;
     updatedAt: string | null;
     courtImgLink?: string;
+    pricePerHour: number;
 }
 
 export type CourtPageResponse = PaginatedData<Court>;
@@ -22,4 +23,5 @@ export interface CourtPayload {
     closeTime: string;
     status: number;
     courtImgLink?: File | null;
+    pricePerHour: number;
 }

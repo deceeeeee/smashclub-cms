@@ -32,7 +32,8 @@ const CourtForm = () => {
         openTime: '08:00',
         closeTime: '17:00',
         status: STATUS_FLAGS.ACTIVE,
-        courtImgLink: null as File | string | null
+        courtImgLink: null as File | string | null,
+        pricePerHour: 0
     });
 
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -58,7 +59,8 @@ const CourtForm = () => {
                 openTime: court.openTime,
                 closeTime: court.closeTime,
                 status: court.status,
-                courtImgLink: court.courtImgLink || null
+                courtImgLink: court.courtImgLink || null,
+                pricePerHour: court.pricePerHour
             });
             if (court.courtImgLink) {
                 setPreviewUrl(court.courtImgLink);
@@ -117,6 +119,10 @@ const CourtForm = () => {
 
         if (formData.openTime && formData.closeTime && formData.openTime >= formData.closeTime) {
             newErrors.closeTime = 'Jam tutup harus lebih besar dari jam buka';
+        }
+
+        if (formData.pricePerHour < 0) {
+            newErrors.pricePerHour = 'Harga per jam tidak boleh negatif';
         }
 
         setErrors(newErrors);
@@ -241,6 +247,23 @@ const CourtForm = () => {
                                 className={errors.closeTime ? 'error-input' : ''}
                             />
                             {errors.closeTime && <span className="error-text">{errors.closeTime}</span>}
+                        </div>
+
+                        {/* Harga Per Jam */}
+                        <div className="form-group">
+                            <label>Harga Per Jam <span style={{ color: '#ef4444' }}>*</span></label>
+                            <div className="price-input-wrapper">
+                                <span className="currency-prefix">Rp</span>
+                                <input
+                                    type="number"
+                                    placeholder="Contoh: 50000"
+                                    value={formData.pricePerHour || ''}
+                                    onChange={(e) => handleInputChange('pricePerHour', Number(e.target.value))}
+                                    disabled={isLoading || isSubmitting}
+                                    className={errors.pricePerHour ? 'error-input' : ''}
+                                />
+                            </div>
+                            {errors.pricePerHour && <span className="error-text">{errors.pricePerHour}</span>}
                         </div>
                     </div>
 
