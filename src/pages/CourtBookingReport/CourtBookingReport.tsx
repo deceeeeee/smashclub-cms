@@ -28,14 +28,16 @@ const CourtBookingReport = () => {
         getStatistics(year);
     }, [getStatistics, year]);
 
-    // Format month for chart
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    // Format month for chart (e.g., "February 2026" -> "Feb")
+    const formatMonthShort = (monthStr: string) => {
+        if (!monthStr) return '';
+        const [month] = monthStr.split(' ');
+        return month.substring(0, 3);
+    };
 
     // Map statistics to chart data
-    // If API doesn't provide month labels, we assume they are sequential indices if length is 12, 
-    // or we just show what we have. Based on doc, we might need to handle it carefully.
-    const chartData = statistics?.monthlyBookingStatistic.map((item, index) => ({
-        month: monthNames[index] || `M${index + 1}`,
+    const chartData = statistics?.monthlyBookingStatistic.map((item) => ({
+        month: formatMonthShort(item.month),
         value: item.totalCount
     })) || [];
 
@@ -216,10 +218,10 @@ const CourtBookingReport = () => {
                                 <tr key={index}>
                                     <td>
                                         <Link
-                                            to={`/reports/bookings/${encodeURIComponent(monthNames[index] || 'Month')}`}
+                                            to={`/reports/bookings/${encodeURIComponent(row.month)}`}
                                             className="text-teal hover:underline cursor-pointer font-medium"
                                         >
-                                            {monthNames[index]} {year}
+                                            {row.month}
                                         </Link>
                                     </td>
                                     <td className="text-teal font-bold">{row.totalCount}</td>

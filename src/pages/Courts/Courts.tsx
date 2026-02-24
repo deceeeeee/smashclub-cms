@@ -86,6 +86,43 @@ const Courts = () => {
                 )}
             </div>
 
+
+
+            {/* Summary Grid at Bottom */}
+            <div className="summary-grid">
+                <div className="summary-card">
+                    <div className="summary-icon icon-blue">
+                        <span style={{ fontSize: 24 }}>🏟️</span>
+                    </div>
+                    <div className="summary-text">
+                        <span className="summary-label">TOTAL LAPANGAN</span>
+                        <span className="summary-value">{totalElements}</span>
+                    </div>
+                </div>
+                <div className="summary-card">
+                    <div className="summary-icon icon-green">
+                        <CheckCircle2 size={24} />
+                    </div>
+                    <div className="summary-text">
+                        <span className="summary-label">AKTIF</span>
+                        <span className="summary-value">
+                            {courts.filter(c => c.status === STATUS_FLAGS.ACTIVE).length}
+                        </span>
+                    </div>
+                </div>
+                <div className="summary-card">
+                    <div className="summary-icon icon-orange">
+                        <AlertCircle size={24} />
+                    </div>
+                    <div className="summary-text">
+                        <span className="summary-label">NON-AKTIF</span>
+                        <span className="summary-value">
+                            {courts.filter(c => c.status === STATUS_FLAGS.INACTIVE).length}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             {/* Content Card with Filters and Table */}
             <div className="content-card">
                 {/* Filter Bar */}
@@ -239,41 +276,6 @@ const Courts = () => {
                     )}
                 </div>
 
-            </div>
-
-            {/* Summary Grid at Bottom */}
-            <div className="summary-grid">
-                <div className="summary-card">
-                    <div className="summary-icon icon-blue">
-                        <span style={{ fontSize: 24 }}>🏟️</span>
-                    </div>
-                    <div className="summary-text">
-                        <span className="summary-label">TOTAL LAPANGAN</span>
-                        <span className="summary-value">{totalElements}</span>
-                    </div>
-                </div>
-                <div className="summary-card">
-                    <div className="summary-icon icon-green">
-                        <CheckCircle2 size={24} />
-                    </div>
-                    <div className="summary-text">
-                        <span className="summary-label">AKTIF</span>
-                        <span className="summary-value">
-                            {courts.filter(c => c.status === STATUS_FLAGS.ACTIVE).length}
-                        </span>
-                    </div>
-                </div>
-                <div className="summary-card">
-                    <div className="summary-icon icon-orange">
-                        <AlertCircle size={24} />
-                    </div>
-                    <div className="summary-text">
-                        <span className="summary-label">NON-AKTIF</span>
-                        <span className="summary-value">
-                            {courts.filter(c => c.status === STATUS_FLAGS.INACTIVE).length}
-                        </span>
-                    </div>
-                </div>
             </div>
         </div>
     );
