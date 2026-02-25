@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
     Search,
@@ -10,9 +10,12 @@ import {
     Loader2,
     AlertCircle,
     Clock,
-    Calendar
+    Calendar,
+    ChevronDown
 } from 'lucide-react';
 import { useBookingsStore } from '../../features/bookings/bookings.store';
+import { useAlertStore } from '../../app/alert.store';
+import { BOOKING_STATUS_OPTIONS } from '../../constant/bookingStatus';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 
 const CourtBookingDailyReport = () => {
@@ -20,21 +23,27 @@ const CourtBookingDailyReport = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(0);
-    const { bookingListData, isLoadingList, getBookingList } = useBookingsStore();
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const { bookingListData, isLoadingList, getBookingList, updateBookingStatus } = useBookingsStore();
+    const { showError } = useAlertStore();
 
     const decodedMonthStr = monthStr ? decodeURIComponent(monthStr) : '';
 
-    // Debounce search
+    // Close dropdown on outside click
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(search);
-            setPage(0); // Reset to first page on search
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search]);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenDropdownId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-    // Parse "Month Year" to month (1-12) and year
-    useEffect(() => {
+    const fetchList = () => {
         if (decodedMonthStr) {
             const parts = decodedMonthStr.split(' ');
             if (parts.length === 2) {
@@ -44,7 +53,6 @@ const CourtBookingDailyReport = () => {
                     'January', 'February', 'March', 'April', 'May', 'June',
                     'July', 'August', 'September', 'October', 'November', 'December'
                 ];
-                // Handle Indonesian names if they might be used
                 const idMonthNames = [
                     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -60,7 +68,33 @@ const CourtBookingDailyReport = () => {
                 }
             }
         }
+    };
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(0); // Reset to first page on search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    // Parse "Month Year" to month (1-12) and year
+    useEffect(() => {
+        fetchList();
     }, [decodedMonthStr, page, debouncedSearch, getBookingList]);
+
+    const handleProcess = async (bookingCode: string, status: number) => {
+        setIsRefreshing(true);
+        const result = await updateBookingStatus(bookingCode, status);
+        if (result.success) {
+            fetchList();
+        } else {
+            showError('Gagal Memproses', result.message || 'Terjadi kesalahan saat memproses booking.');
+        }
+        setOpenDropdownId(null);
+        setIsRefreshing(false);
+    };
 
     const formatIDR = (val: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -73,8 +107,8 @@ const CourtBookingDailyReport = () => {
 
     const getStatusClass = (statusDesc: string) => {
         const desc = statusDesc.toUpperCase();
-        if (desc === 'CONFIRMED' || desc === 'COMPLETED') return 'success';
-        if (desc === 'CANCELLED' || desc === 'FAILED') return 'failed';
+        if (desc === 'CONFIRMED' || desc === 'COMPLETED' || desc === 'DIKONFIRMASI' || desc === 'SELESAI') return 'success';
+        if (desc === 'CANCELLED' || desc === 'FAILED' || desc === 'DIBATALKAN' || desc === 'GAGAL') return 'failed';
         return 'pending';
     };
 
@@ -138,11 +172,11 @@ const CourtBookingDailyReport = () => {
                             <tr>
                                 <th style={{ width: '15%' }}>KODE BOOKING</th>
                                 <th style={{ width: '12%' }}>TANGGAL</th>
-                                <th style={{ width: '18%' }}>WAKTU & DURASI</th>
-                                <th style={{ width: '15%', textAlign: 'right' }}>TOTAL HARGA</th>
+                                <th style={{ width: '17%' }}>WAKTU & DURASI</th>
+                                <th style={{ width: '14%', textAlign: 'right' }}>TOTAL HARGA</th>
                                 <th style={{ width: '12%' }}>STATUS</th>
                                 <th style={{ width: '15%' }}>DIBUAT PADA</th>
-                                <th style={{ width: '13%', textAlign: 'center' }}>AKSI</th>
+                                <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -177,13 +211,81 @@ const CourtBookingDailyReport = () => {
                                             {trx.createdAt}
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <Link
-                                                to={`/reports/bookings/detail/${trx.bookingCode}`}
-                                                className="btn-action-outline"
-                                                style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', textDecoration: 'none', display: 'inline-block' }}
-                                            >
-                                                Lihat Detil
-                                            </Link>
+                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Link
+                                                    to={`/reports/bookings/detail/${trx.bookingCode}`}
+                                                    className="btn-action-outline"
+                                                    style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', textDecoration: 'none' }}
+                                                    title="Lihat Detil"
+                                                >
+                                                    Detail
+                                                </Link>
+
+                                                <div className="process-dropdown-wrapper" style={{ position: 'relative' }}>
+                                                    <button
+                                                        className="btn-primary"
+                                                        style={{
+                                                            padding: '0.3rem 0.6rem',
+                                                            fontSize: '0.75rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.3rem',
+                                                            minWidth: '85px',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        onClick={() => setOpenDropdownId(openDropdownId === trx.bookingCode ? null : trx.bookingCode)}
+                                                    >
+                                                        {isRefreshing && openDropdownId === trx.bookingCode ? <Loader2 size={12} className="animate-spin" /> : <span>Proses</span>}
+                                                        <ChevronDown size={12} />
+                                                    </button>
+
+                                                    {openDropdownId === trx.bookingCode && (
+                                                        <div
+                                                            ref={dropdownRef}
+                                                            className="process-dropdown-menu"
+                                                            style={{
+                                                                position: 'absolute',
+                                                                top: '100%',
+                                                                right: 0,
+                                                                zIndex: 100,
+                                                                backgroundColor: '#1E1E1E',
+                                                                border: '1px solid var(--color-border)',
+                                                                borderRadius: '4px',
+                                                                marginTop: '4px',
+                                                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                                                                minWidth: '150px',
+                                                                overflow: 'hidden'
+                                                            }}
+                                                        >
+                                                            {BOOKING_STATUS_OPTIONS.map((opt) => (
+                                                                <button
+                                                                    key={opt.value}
+                                                                    className="dropdown-item"
+                                                                    style={{
+                                                                        width: '100%',
+                                                                        padding: '0.6rem 1rem',
+                                                                        textAlign: 'left',
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        color: 'white',
+                                                                        fontSize: '0.8rem',
+                                                                        cursor: 'pointer',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '0.5rem'
+                                                                    }}
+                                                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
+                                                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                                                    onClick={() => handleProcess(trx.bookingCode, opt.value)}
+                                                                >
+                                                                    <div className={`status-dot-small ${getStatusClass(opt.label)}`} style={{ width: '8px', height: '8px', borderRadius: '50%' }}></div>
+                                                                    {opt.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

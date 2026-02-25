@@ -1,4 +1,5 @@
 import axiosInstance from '../../services/axios';
+import type { BaseResponse } from '../../services/api.types';
 import type { BookingStatisticsResponse, BookingListResponse, BookingDetailResponse } from './bookings.types';
 
 export const fetchBookingStatistics = async (year: number): Promise<BookingStatisticsResponse> => {
@@ -23,5 +24,10 @@ export const fetchBookingList = async (
 
 export const fetchBookingDetail = async (bookingCode: string): Promise<BookingDetailResponse> => {
     const response = await axiosInstance.get<BookingDetailResponse>(`/admin/booking/detail/${bookingCode}`);
+    return response.data;
+};
+
+export const processBooking = async (bookingCode: string, status: number): Promise<BaseResponse<any>> => {
+    const response = await axiosInstance.post<BaseResponse<any>>(`/admin/booking/process/${bookingCode}`, { status });
     return response.data;
 };

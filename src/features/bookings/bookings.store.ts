@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { BookingStatistics, BookingList, BookingDetail } from './bookings.types';
-import { fetchBookingStatistics, fetchBookingList, fetchBookingDetail } from './bookings.api';
+import { fetchBookingStatistics, fetchBookingList, fetchBookingDetail, processBooking } from './bookings.api';
 
 interface BookingsState {
     statistics: BookingStatistics | null;
@@ -14,6 +14,7 @@ interface BookingsState {
     getStatistics: (year: number) => Promise<void>;
     getBookingList: (year: number, month: number, keyword?: string, page?: number, size?: number) => Promise<void>;
     getBookingDetail: (bookingCode: string) => Promise<void>;
+    updateBookingStatus: (bookingCode: string, status: number) => Promise<{ success: boolean; message: string }>;
 }
 
 export const useBookingsStore = create<BookingsState>((set) => ({
@@ -73,6 +74,17 @@ export const useBookingsStore = create<BookingsState>((set) => ({
                 error: err.response?.data?.message || 'Failed to fetch booking detail',
                 isLoadingDetail: false,
             });
+        }
+    },
+
+    updateBookingStatus: async (bookingCode: string, status: number) => {
+        try {
+            const response = await processBooking(bookingCode, status);
+            return { success: response.success, message: response.message };
+        } catch (err: any) {
+            console.error('Failed to update booking status:', err);
+            const message = err.response?.data?.message || 'Gagal memproses booking';
+            return { success: false, message };
         }
     }
 }));
