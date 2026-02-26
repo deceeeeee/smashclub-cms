@@ -20,6 +20,7 @@ import CourtBookingReport from "../pages/CourtBookingReport/CourtBookingReport";
 import CourtBookingDailyReport from "../pages/CourtBookingReport/CourtBookingDailyReport";
 import ProductBookingReport from "../pages/ProductSalesReport/ProductSalesReport";
 import ProductSalesDailyReport from "../pages/ProductSalesReport/ProductSalesDailyReport";
+import ProductSalesDetail from "../pages/ProductSalesReport/ProductSalesDetail";
 import Roles from "../pages/Roles/Roles";
 import RoleForm from "../pages/Roles/RoleForm";
 import EquipmentCategory from "../pages/EquipmentCategory/EquipmentCategory";
@@ -185,6 +186,10 @@ export const router = createBrowserRouter([
                     {
                         path: "reports/products/:month",
                         element: <ProductSalesDailyReport />,
+                    },
+                    {
+                        path: "reports/products/detail/:orderCode",
+                        element: <ProductSalesDetail />,
                     },
                     {
                         path: "refund-request",

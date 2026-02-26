@@ -36,4 +36,31 @@ export interface OrderSummary {
     user: UserSummary;
 }
 
+export interface OrderVariant {
+    name: string;
+    sku: string;
+    variantImgLink: string;
+}
+
+export interface OrderItem {
+    priceAtPurchase: number;
+    productName: string;
+    quantity: number;
+    totalPrice: number;
+    variant: OrderVariant;
+}
+
+export interface OrderDetail {
+    orderCode: string;
+    orderDate: string;
+    orderItem: OrderItem[];
+    status: number;
+    statusDesc: string;
+    subTotal: number;
+    totalPrice: number;
+    updatedAt: string;
+    user: UserSummary;
+}
+
 export type OrderListResponse = BaseResponse<PaginatedData<OrderSummary>>;
+export type OrderDetailResponse = BaseResponse<OrderDetail>;

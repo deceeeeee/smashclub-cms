@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
     Search,
@@ -9,9 +9,12 @@ import {
     ChevronRight,
     Loader2,
     Calendar,
-    ShoppingBag
+    ShoppingBag,
+    ChevronDown
 } from 'lucide-react';
 import { useOrdersStore } from '../../features/orders/orders.store';
+import { useAlertStore } from '../../app/alert.store';
+import { ORDER_STATUS_OPTIONS } from '../../constant/orderStatus';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 
 const ProductSalesDailyReport = () => {
@@ -19,22 +22,27 @@ const ProductSalesDailyReport = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(0);
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const { orderListData, isLoadingList, getOrderList } = useOrdersStore();
+    const { orderListData, isLoadingList, getOrderList, updateOrderStatus } = useOrdersStore();
+    const { showAlert, showError } = useAlertStore();
 
     const decodedMonthStr = monthStr ? decodeURIComponent(monthStr) : '';
 
-    // Debounce search
+    // Close dropdown on outside click
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(search);
-            setPage(0); // Reset to first page on search
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [search]);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setOpenDropdownId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-    // Parse "Month Year" to month (1-12) and year
-    useEffect(() => {
+    const fetchList = () => {
         if (decodedMonthStr) {
             const parts = decodedMonthStr.split(' ');
             if (parts.length === 2) {
@@ -59,7 +67,34 @@ const ProductSalesDailyReport = () => {
                 }
             }
         }
+    };
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(0); // Reset to first page on search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    // Parse "Month Year" to month (1-12) and year
+    useEffect(() => {
+        fetchList();
     }, [decodedMonthStr, page, debouncedSearch, getOrderList]);
+
+    const handleStatusUpdate = async (orderCode: string, status: number) => {
+        setIsProcessing(true);
+        const result = await updateOrderStatus(orderCode, status);
+        if (result.success) {
+            showAlert('success', 'Berhasil', result.message);
+            fetchList();
+        } else {
+            showError('Gagal Memproses', result.message);
+        }
+        setOpenDropdownId(null);
+        setIsProcessing(false);
+    };
 
     const formatIDR = (val: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -172,7 +207,7 @@ const ProductSalesDailyReport = () => {
                                             </div>
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
                                                 <Link
                                                     to={`/reports/products/detail/${trx.orderCode}`}
                                                     className="btn-action-outline"
@@ -180,6 +215,71 @@ const ProductSalesDailyReport = () => {
                                                 >
                                                     Detail
                                                 </Link>
+
+                                                <div className="process-dropdown-wrapper" style={{ position: 'relative' }}>
+                                                    <button
+                                                        className="btn-primary"
+                                                        style={{
+                                                            padding: '0.3rem 0.6rem',
+                                                            fontSize: '0.75rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.3rem',
+                                                            minWidth: '85px',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        onClick={() => setOpenDropdownId(openDropdownId === trx.orderCode ? null : trx.orderCode)}
+                                                    >
+                                                        {isProcessing && openDropdownId === trx.orderCode ? <Loader2 size={12} className="animate-spin" /> : <span>Proses</span>}
+                                                        <ChevronDown size={12} />
+                                                    </button>
+
+                                                    {openDropdownId === trx.orderCode && (
+                                                        <div
+                                                            ref={dropdownRef}
+                                                            className="process-dropdown-menu"
+                                                            style={{
+                                                                position: 'absolute',
+                                                                bottom: '-50%',
+                                                                right: '100%',
+                                                                zIndex: 100,
+                                                                backgroundColor: '#1E1E1E',
+                                                                border: '1px solid var(--color-border)',
+                                                                borderRadius: '4px',
+                                                                marginTop: '4px',
+                                                                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                                                                minWidth: '150px',
+                                                                overflow: 'hidden'
+                                                            }}
+                                                        >
+                                                            {ORDER_STATUS_OPTIONS.map((opt) => (
+                                                                <button
+                                                                    key={opt.value}
+                                                                    className="dropdown-item"
+                                                                    style={{
+                                                                        width: '100%',
+                                                                        padding: '0.6rem 1rem',
+                                                                        textAlign: 'left',
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        color: 'white',
+                                                                        fontSize: '0.8rem',
+                                                                        cursor: 'pointer',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '0.5rem'
+                                                                    }}
+                                                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
+                                                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                                                    onClick={() => handleStatusUpdate(trx.orderCode, opt.value)}
+                                                                >
+                                                                    <div className={`status-dot-small ${getStatusClass(opt.label)}`} style={{ width: '8px', height: '8px', borderRadius: '50%' }}></div>
+                                                                    {opt.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
