@@ -6,8 +6,7 @@ import {
     Download,
     ChevronLeft,
     ChevronRight,
-    Loader2,
-    AlertCircle
+    Loader2
 } from 'lucide-react';
 import { useSalesStore } from '../../features/sales/sales.store';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
@@ -15,7 +14,7 @@ import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 const SalesDailyReport = () => {
     const { month: monthParam } = useParams<{ month: string }>();
     const [search, setSearch] = useState('');
-    const { monthlyList, isLoading, error, getMonthlyList } = useSalesStore();
+    const { monthlyList, isLoading, getMonthlyList } = useSalesStore();
 
     // Pagination state
     const [page, setPage] = useState(0);
