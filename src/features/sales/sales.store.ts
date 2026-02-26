@@ -54,10 +54,11 @@ export const useSalesStore = create<SalesState>((set) => ({
             if (response.success) {
                 set({ monthlyList: response.data, isLoading: false });
             } else {
-                set({ error: response.message, isLoading: false });
+                set({ monthlyList: null, error: response.message, isLoading: false });
             }
         } catch (err: any) {
             set({
+                monthlyList: null,
                 error: err.response?.data?.message || 'Failed to fetch monthly sales list',
                 isLoading: false,
             });

@@ -50,10 +50,11 @@ export const useBookingsStore = create<BookingsState>((set) => ({
             if (response.success) {
                 set({ bookingListData: response.data, isLoadingList: false });
             } else {
-                set({ error: response.message, isLoadingList: false });
+                set({ bookingListData: null, error: response.message, isLoadingList: false });
             }
         } catch (err: any) {
             set({
+                bookingListData: null,
                 error: err.response?.data?.message || 'Failed to fetch booking list',
                 isLoadingList: false,
             });

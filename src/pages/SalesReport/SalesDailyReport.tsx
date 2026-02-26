@@ -110,12 +110,6 @@ const SalesDailyReport = () => {
                 <div className="page-header" style={{ padding: '1.5rem', marginBottom: 0, borderBottom: '1px solid var(--color-border)' }}>
                     <div className="header-text">
                         <h1 style={{ fontSize: '1.1rem' }}>Data Transaksi - {decodedMonth}</h1>
-                        {error && (
-                            <div className="flex items-center gap-2 mt-1 text-error">
-                                <AlertCircle size={14} />
-                                <span style={{ fontSize: '0.85rem' }}>{error}</span>
-                            </div>
-                        )}
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         <div className="search-bar" style={{ width: '250px' }}>
@@ -191,8 +185,8 @@ const SalesDailyReport = () => {
                             ))}
                             {transactions.length === 0 && !isLoading && (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-10 text-mutex">
-                                        Tidak ada transaksi ditemukan.
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-mutex)' }}>
+                                        <p>Tidak ada data transaksi ditemukan.</p>
                                     </td>
                                 </tr>
                             )}

@@ -133,7 +133,7 @@ const CourtBookingReport = () => {
                         </div>
                         <div className="kpi-main">
                             <Users className="kpi-icon" size={24} />
-                            <h2 className="kpi-value">{(statistics?.occupancyRate || 0).toFixed(1)}%</h2>
+                            <h2 className="kpi-value">{(statistics?.occupancyRate || 0).toFixed(2)}%</h2>
                         </div>
                         <div className="progress-bar-container">
                             <div className="progress-bar" style={{ width: `${statistics?.occupancyRate || 0}%` }}></div>
@@ -226,7 +226,7 @@ const CourtBookingReport = () => {
                                     </td>
                                     <td className="text-teal font-bold">{row.totalCount}</td>
                                     <td>{row.averageHour.toFixed(1)} Jam</td>
-                                    <td className="text-teal">{row.occupancyRate.toFixed(1)}%</td>
+                                    <td className="text-teal">{row.occupancyRate.toFixed(2)}%</td>
                                     <td className="text-teal text-right font-bold">{formatIDR(row.totalPrice)}</td>
                                 </tr>
                             ))}
@@ -245,7 +245,7 @@ const CourtBookingReport = () => {
                                     <td className="font-bold">TOTAL AVERAGE (YTD)</td>
                                     <td className="font-bold">{statistics.totalBookingCount.toLocaleString('id-ID')}</td>
                                     <td className="font-bold">{statistics.averageBookingHours.toFixed(1)} Jam</td>
-                                    <td className="font-bold">{statistics.occupancyRate.toFixed(1)}%</td>
+                                    <td className="font-bold">{statistics.occupancyRate.toFixed(2)}%</td>
                                     <td className="text-right text-large-total">
                                         {formatIDR(statistics.monthlyBookingStatistic.reduce((acc, curr) => acc + curr.totalPrice, 0))}
                                     </td>

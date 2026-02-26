@@ -171,12 +171,11 @@ const CourtBookingDailyReport = () => {
                         <thead>
                             <tr>
                                 <th style={{ width: '15%' }}>KODE BOOKING</th>
-                                <th style={{ width: '12%' }}>TANGGAL</th>
-                                <th style={{ width: '17%' }}>WAKTU & DURASI</th>
-                                <th style={{ width: '14%', textAlign: 'right' }}>TOTAL HARGA</th>
+                                <th style={{ width: '17%' }}>TANGGAL MAIN</th>
+                                <th style={{ width: '17%', textAlign: 'right' }}>TOTAL HARGA</th>
                                 <th style={{ width: '12%' }}>STATUS</th>
-                                <th style={{ width: '15%' }}>DIBUAT PADA</th>
-                                <th style={{ width: '15%', textAlign: 'center' }}>AKSI</th>
+                                <th style={{ width: '17%' }}>DIBUAT PADA</th>
+                                <th style={{ width: '17%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -189,15 +188,15 @@ const CourtBookingDailyReport = () => {
                                             </Link>
                                         </td>
                                         <td style={{ fontSize: '0.85rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                <Calendar size={14} className="text-mutex" />
-                                                <span>{trx.bookingDate}</span>
-                                            </div>
-                                        </td>
-                                        <td style={{ fontSize: '0.85rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                <Clock size={14} className="text-mutex" />
-                                                <span>{trx.startTime} - {trx.endTime} ({trx.durationHour} Jam)</span>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Calendar size={14} className="text-mutex" />
+                                                    <span>{trx.bookingDate}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Clock size={14} className="text-mutex" />
+                                                    <span>{trx.startTime} - {trx.endTime} ({trx.durationHour} Jam)</span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td style={{ fontWeight: 600, textAlign: 'right', color: 'var(--color-primary)' }}>{formatIDR(trx.totalPrice)}</td>
@@ -245,8 +244,8 @@ const CourtBookingDailyReport = () => {
                                                             className="process-dropdown-menu"
                                                             style={{
                                                                 position: 'absolute',
-                                                                top: '100%',
-                                                                right: 0,
+                                                                bottom: '-50%',
+                                                                right: '100%',
                                                                 zIndex: 100,
                                                                 backgroundColor: '#1E1E1E',
                                                                 border: '1px solid var(--color-border)',

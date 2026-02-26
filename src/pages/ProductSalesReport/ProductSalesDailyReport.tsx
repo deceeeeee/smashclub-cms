@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
     Search,
@@ -7,82 +7,88 @@ import {
     Download,
     ChevronLeft,
     ChevronRight,
-    CheckCircle2,
-    Play
+    Loader2,
+    Calendar,
+    ShoppingBag
 } from 'lucide-react';
-import { useAlertStore } from '../../app/alert.store';
+import { useOrdersStore } from '../../features/orders/orders.store';
 import '../Refunds/Refunds.css'; // Reuse CSS from Refunds page
 
-// Initial Mock Data
-const INITIAL_MOCK_SALES = [
-    {
-        id: 'PRD-1023',
-        customer: {
-            name: 'Budi Santoso',
-            avatar: 'BS',
-        },
-        date: '02 Des 2023',
-        items: '1x Shuttlecock (Slop), 2x Pocari Sweat',
-        category: 'Perlengkapan',
-        amount: 'Rp 145.000',
-        payment: 'QRIS',
-        status: 'Selesai'
-    },
-    {
-        id: 'PRD-1024',
-        customer: {
-            name: 'Ani Lestari',
-            avatar: 'AL',
-        },
-        date: '02 Des 2023',
-        items: '2x Sewa Raket',
-        category: 'Sewa',
-        amount: 'Rp 50.000',
-        payment: 'Tunai',
-        status: 'Selesai'
-    },
-    {
-        id: 'PRD-1025',
-        customer: {
-            name: 'Denny Sumargo',
-            avatar: 'DS',
-        },
-        date: '03 Des 2023',
-        items: '1x Jersey SmashClub (L)',
-        category: 'Merchandise',
-        amount: 'Rp 120.000',
-        payment: 'Transfer',
-        status: 'Menunggu'
-    },
-    {
-        id: 'PRD-1026',
-        customer: {
-            name: 'Susi Susanti',
-            avatar: 'SS',
-        },
-        date: '03 Des 2023',
-        items: '3x Air Mineral 600ml',
-        category: 'Minuman',
-        amount: 'Rp 15.000',
-        payment: 'Tunai',
-        status: 'Menunggu'
-    }
-];
-
 const ProductSalesDailyReport = () => {
-    const { month } = useParams<{ month: string }>();
+    const { month: monthStr } = useParams<{ month: string }>();
     const [search, setSearch] = useState('');
-    const [sales, setSales] = useState(INITIAL_MOCK_SALES);
-    const { showAlert } = useAlertStore();
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [page, setPage] = useState(0);
 
-    const decodedMonth = month ? decodeURIComponent(month) : '';
+    const { orderListData, isLoadingList, getOrderList } = useOrdersStore();
 
-    const handleProcess = (id: string) => {
-        setSales(prev => prev.map(item =>
-            item.id === id ? { ...item, status: 'Selesai' } : item
-        ));
-        showAlert('success', 'Berhasil', `Pesanan #${id} telah diproses dan selesai.`);
+    const decodedMonthStr = monthStr ? decodeURIComponent(monthStr) : '';
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(0); // Reset to first page on search
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    // Parse "Month Year" to month (1-12) and year
+    useEffect(() => {
+        if (decodedMonthStr) {
+            const parts = decodedMonthStr.split(' ');
+            if (parts.length === 2) {
+                const monthName = parts[0];
+                const year = parseInt(parts[1]);
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                const idMonthNames = [
+                    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+
+                let monthIndex = monthNames.findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+                if (monthIndex === -1) {
+                    monthIndex = idMonthNames.findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+                }
+
+                if (monthIndex !== -1 && !isNaN(year)) {
+                    getOrderList(year, monthIndex + 1, debouncedSearch, page);
+                }
+            }
+        }
+    }, [decodedMonthStr, page, debouncedSearch, getOrderList]);
+
+    const formatIDR = (val: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(val).replace('IDR', 'Rp');
     };
+
+    const getStatusClass = (statusDesc: string) => {
+        const desc = statusDesc.toUpperCase();
+        if (desc === 'COMPLETED' || desc === 'SELESAI' || desc === 'SUCCESS') return 'success';
+        if (desc === 'CANCELLED' || desc === 'FAILED' || desc === 'DIBATALKAN') return 'failed';
+        return 'pending';
+    };
+
+    const orders = orderListData?.content || [];
+    const totalElements = orderListData?.totalElements || 0;
+    const totalPages = orderListData?.totalPages || 0;
+
+    if (isLoadingList && !orderListData) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', height: '60vh', justifyContent: 'center' }}>
+                <Loader2 className="animate-spin text-primary" size={48} />
+                <p className="text-mutex">Memuat data penjualan...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="refunds-page">
@@ -90,13 +96,13 @@ const ProductSalesDailyReport = () => {
             <nav className="breadcrumbs">
                 <Link to="/reports/products">Laporan Produk</Link>
                 <span className="separator">/</span>
-                <span className="current">{decodedMonth}</span>
+                <span className="current">{decodedMonthStr}</span>
             </nav>
 
             <div className="table-card" style={{ marginTop: 0 }}>
                 <div className="page-header" style={{ padding: '1.5rem', marginBottom: 0, borderBottom: '1px solid var(--color-border)' }}>
                     <div className="header-text">
-                        <h1 style={{ fontSize: '1.1rem' }}>Penjualan Produk - {decodedMonth}</h1>
+                        <h1 style={{ fontSize: '1.1rem' }}>Penjualan Produk - {decodedMonthStr}</h1>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         <div className="search-bar" style={{ width: '250px' }}>
@@ -124,76 +130,105 @@ const ProductSalesDailyReport = () => {
                     <table className="user-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '12%' }}>ID</th>
-                                <th style={{ width: '15%' }}>PELANGGAN</th>
-                                <th style={{ width: '12%' }}>TANGGAL</th>
-                                <th style={{ width: '22%' }}>ITEM</th>
-                                <th style={{ width: '12%' }}>TOTAL</th>
-                                <th style={{ width: '12%' }}>STATUS</th>
-                                <th style={{ width: '13%', textAlign: 'center' }}>AKSI</th>
+                                <th style={{ width: '15%' }}>KODE ORDER</th>
+                                <th style={{ width: '18%' }}>PELANGGAN</th>
+                                <th style={{ width: '18%' }}>TANGGAL</th>
+                                <th style={{ width: '15%', textAlign: 'right' }}>TOTAL HARGA</th>
+                                <th style={{ width: '15%' }}>STATUS</th>
+                                <th style={{ width: '19%', textAlign: 'center' }}>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {sales.map((trx) => (
-                                <tr key={trx.id}>
-                                    <td>
-                                        <span className="refund-id">#{trx.id}</span>
-                                    </td>
-                                    <td>
-                                        <div className="refunds-table-customer">
-                                            <div className="customer-avatar-circle" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
-                                                {trx.customer.avatar}
-                                            </div>
-                                            <div className="customer-info">
-                                                <span className="customer-name" style={{ fontSize: '0.85rem' }}>{trx.customer.name}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{trx.date}</td>
-                                    <td style={{ fontSize: '0.85rem' }}>{trx.items}</td>
-                                    <td style={{ fontWeight: 600 }}>{trx.amount}</td>
-                                    <td>
-                                        <div className={`status-badge-detail ${trx.status === 'Selesai' ? 'success' : 'pending'}`} style={{ padding: '0.2rem 0.5rem' }}>
-                                            <span className="status-dot-large" style={{ width: '6px', height: '6px' }}></span>
-                                            <span style={{ fontSize: '0.75rem' }}>{trx.status.toUpperCase()}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                            {trx.status === 'Menunggu' ? (
-                                                <button
-                                                    className="btn-primary"
-                                                    style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', gap: '0.3rem' }}
-                                                    onClick={() => handleProcess(trx.id)}
-                                                >
-                                                    <Play size={12} fill="currentColor" />
-                                                    Proses
-                                                </button>
-                                            ) : (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>
-                                                    <CheckCircle2 size={14} />
-                                                    Selesai
+                            {orders.length > 0 ? (
+                                orders.map((trx) => (
+                                    <tr key={trx.id}>
+                                        <td>
+                                            <span className="refund-id">#{trx.orderCode}</span>
+                                        </td>
+                                        <td>
+                                            <div className="refunds-table-customer">
+                                                <div className="customer-avatar-circle" style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>
+                                                    {trx.user.fullName.substring(0, 2).toUpperCase()}
                                                 </div>
-                                            )}
-                                        </div>
+                                                <div className="customer-info">
+                                                    <span className="customer-name" style={{ fontSize: '0.85rem' }}>{trx.user.fullName}</span>
+                                                    <span className="text-mutex" style={{ fontSize: '0.7rem' }}>{trx.user.email}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}>
+                                                <Calendar size={14} className="text-mutex" />
+                                                <span>{trx.createdAt}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ fontWeight: 600, textAlign: 'right', color: 'var(--color-primary)' }}>
+                                            {formatIDR(trx.totalPrice)}
+                                        </td>
+                                        <td>
+                                            <div className={`status-badge-detail ${getStatusClass(trx.statusDesc)}`} style={{ padding: '0.2rem 0.5rem' }}>
+                                                <span className="status-dot-large" style={{ width: '6px', height: '6px' }}></span>
+                                                <span style={{ fontSize: '0.75rem' }}>{trx.statusDesc}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                                <Link
+                                                    to={`/reports/products/detail/${trx.orderCode}`}
+                                                    className="btn-action-outline"
+                                                    style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem', textDecoration: 'none' }}
+                                                >
+                                                    Detail
+                                                </Link>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-mutex)' }}>
+                                        <ShoppingBag size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                                        <p>Tidak ada data penjualan untuk periode ini.</p>
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Pagination */}
-                <div className="pagination-bar" style={{ borderTop: '1px solid var(--color-border)' }}>
-                    <div className="pagination-info">
-                        Menampilkan 1-4 dari 4 transaksi
+                {totalPages > 0 && (
+                    <div className="pagination-bar" style={{ borderTop: '1px solid var(--color-border)' }}>
+                        <div className="pagination-info">
+                            Menampilkan {page * 25 + 1}-{Math.min((page + 1) * 25, totalElements)} dari {totalElements} transaksi
+                        </div>
+                        <div className="pagination-controls">
+                            <button
+                                className="pagination-btn"
+                                onClick={() => setPage(Math.max(0, page - 1))}
+                                disabled={page === 0}
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    className={`pagination-btn ${page === i ? 'active-page' : ''}`}
+                                    onClick={() => setPage(i)}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                className="pagination-btn"
+                                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                                disabled={page === totalPages - 1}
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
-                    <div className="pagination-controls">
-                        <button className="pagination-btn"><ChevronLeft size={16} /></button>
-                        <button className="pagination-btn active-page">1</button>
-                        <button className="pagination-btn"><ChevronRight size={16} /></button>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
